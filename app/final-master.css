@@ -1,0 +1,302 @@
+/* Ambassador Version 8 — reference screenshot restoration, 25.08.2026 */
+
+:root[data-color-theme="petrol"],:root{
+  --c-primary:#7fb9be;
+  --c-primary-pressed:#67a7ad;
+  --c-primary-soft:#eaf5f6;
+  --c-warning:#e8bc2d;
+  --c-warning-soft:#fff3c2;
+  --c-warning-text:#6d5710;
+  --c-text:#202627;
+  --c-text-2:#69716f;
+  --c-line:#d9e0de;
+  --c-surface:#fff;
+  --c-surface-2:#f6f8f7;
+}
+
+/* Header — exact clean reference look, explicitly without separator line. */
+.topbar{
+  border-bottom:0!important;
+  background:#fff!important;
+  box-shadow:none!important;
+}
+.topbar::after,.topbar::before{display:none!important;content:none!important}
+.page-title-line{display:flex;align-items:center;justify-content:center;gap:6px}
+.header-sync-dot{display:none!important}
+.icon-button{
+  background:#fff!important;
+  border:1px solid #d8dfdd!important;
+  color:#1f2423!important;
+  box-shadow:none!important;
+}
+
+/* Summary card. */
+.hero{
+  position:relative;
+  background:#fff!important;
+  border:1px solid #d8dfdd!important;
+  border-radius:20px!important;
+  box-shadow:none!important;
+  margin-left:auto;
+  margin-right:auto;
+}
+.hero-eyebrow{display:none!important}
+.open-guests-headline{font-weight:680!important;color:var(--c-text)!important}
+.progress-track{height:5px!important;background:#edf1f0!important;border-radius:999px!important}
+.hero-facts{border-top:0!important}
+.hero-fact svg{width:20px;height:20px}
+.hero-fact.yellow svg{color:var(--c-warning)!important}
+.hero-fact.green svg{color:var(--c-primary)!important}
+
+/* Search. */
+.search-wrap{background:#fff!important}
+.search-box input{
+  background:#fff!important;
+  border:1px solid #cfd8d5!important;
+  box-shadow:none!important;
+  color:var(--c-text)!important;
+}
+.search-box input::placeholder{color:#8b9391!important;opacity:1}
+.search-box>svg{color:#69716f!important}
+
+/* Room cards — white base, slim yellow/petrol status stripe, no shadows. */
+.room-row{
+  position:relative!important;
+  background:#fff!important;
+  border:1px solid #dbe2e0!important;
+  border-radius:15px!important;
+  box-shadow:none!important;
+  overflow:hidden!important;
+}
+.room-row::before{
+  display:block!important;
+  content:""!important;
+  position:absolute;
+  left:0;
+  top:8px;
+  bottom:8px;
+  width:5px;
+  border-radius:0 5px 5px 0;
+  background:#cbd3d0!important;
+}
+.room-row.included::before{background:var(--c-warning)!important}
+.room-row.present::before{background:var(--c-primary)!important}
+.room-row.included .room-number{color:#a98215!important}
+.room-row.present .room-number{color:#4d858b!important}
+.room-state{
+  border-radius:13px!important;
+  background:#f1f3f2!important;
+  color:#7b817f!important;
+  font-weight:600!important;
+  box-shadow:none!important;
+}
+.room-row.included .room-state{background:var(--c-warning-soft)!important;color:var(--c-warning-text)!important}
+.room-row.present .room-state{background:var(--c-primary-soft)!important;color:#47777c!important}
+.guest-names strong{font-weight:650!important;color:#202526!important}
+.people,.guest-names small{color:#69716f!important}
+.section-dot.yellow{background:var(--c-warning)!important}
+.section-dot.green{background:var(--c-primary)!important}
+.section-count.yellow{border-color:var(--c-warning)!important;color:#9a7713!important;background:#fff!important}
+.section-count.green{border-color:var(--c-primary)!important;color:#47777c!important;background:#fff!important}
+
+/* Menu / popups. */
+.menu-sheet{background:rgba(24,31,29,.22)!important}
+.menu-card,.modal,.group-room-popup,.guest-info-picker-modal,.remark-popup-modal{
+  border:1px solid #dfe5e3!important;
+  border-radius:18px!important;
+  background:#fff!important;
+  box-shadow:0 18px 48px rgba(23,35,34,.14)!important;
+}
+.menu-card{padding:9px!important}
+.menu-label{font-size:10px!important;letter-spacing:.16em!important;color:#7a8280!important;padding-top:11px!important}
+.menu-card>button{border-radius:11px!important;font-weight:560!important}
+.menu-card>button:hover{background:#f5f7f6!important}
+.menu-card hr{border-color:#edf0ef!important}
+.menu-language{display:flex;gap:7px;padding:2px 9px 7px}
+.menu-language button{min-width:42px!important;height:38px!important;border:0!important;border-radius:10px!important;background:#f3f5f4!important;color:#58605e!important}
+.theme-choice{background:#f6f7f7!important}
+.theme-choice.selected{background:#fbfefe!important;border-color:#95c5ca!important}
+.modal-head{border-bottom:1px solid #e6eae9!important}
+.close-button{background:#f5f7f6!important;border-radius:12px!important}
+.modal-action.primary,button.primary,.entry-primary,.room-action.primary{background:var(--c-primary)!important;border-color:var(--c-primary)!important;color:#fff!important}
+.modal-action.danger,.room-action.danger,button.danger{background:#c75750!important;border-color:#c75750!important;color:#fff!important}
+
+/* Bottom action row. */
+.bottom-bar{
+  background:#fff!important;
+  border-top:0!important;
+  box-shadow:none!important;
+}
+.bottom-button{
+  background:#f5f7f6!important;
+  border:1px solid #dbe2e0!important;
+  color:#252a29!important;
+  box-shadow:none!important;
+}
+.bottom-button.finish:not(:disabled){
+  background:var(--c-primary)!important;
+  border-color:var(--c-primary)!important;
+  color:#fff!important;
+}
+.bottom-button.active{background:#f2f5f4!important}
+
+/* Camera/photo path intentionally unavailable in this restored Version 8. */
+.load-choice.photo-choice,.photo-workspace,.photo-review-card,.photo-privacy-note{display:none!important}
+
+/* iPhone — 1:1 proportions from the supplied reference screenshot. */
+@media(max-width:699px){
+  :root{--phone-gutter:13px}
+  .app-shell{padding-bottom:82px;background:#fff!important}
+
+  .topbar{
+    position:sticky!important;
+    top:0;
+    z-index:40;
+    height:112px!important;
+    padding:17px 13px 14px!important;
+    grid-template-columns:112px minmax(0,1fr) 44px!important;
+    align-items:center!important;
+  }
+  .header-logo{width:112px!important;max-height:45px!important}
+  .page-title h1{font-size:21px!important;line-height:1.05!important;font-weight:680!important;white-space:nowrap}
+  .page-title p{font-size:12px!important;line-height:1.1!important;margin-top:5px!important;color:#707876!important}
+  .icon-button{width:44px!important;height:44px!important;border-radius:13px!important}
+
+  .hero{margin:8px 13px 10px!important;padding:15px 16px 13px!important;border-radius:20px!important}
+  .open-guests-headline{font-size:24px!important;line-height:1.08!important;margin-bottom:12px!important}
+  .open-guests-tablet{display:none!important}.open-guests-phone{display:inline!important}
+  .hero-facts{display:grid!important;grid-template-columns:1fr 1.14fr .72fr!important;gap:8px!important;margin-top:12px!important}
+  .hero-fact{gap:6px!important;min-width:0}
+  .hero-fact strong{font-size:17px!important;line-height:1!important;white-space:nowrap}
+  .hero-fact small{font-size:11px!important;line-height:1.15;color:#747c79!important}
+  .hero-fact svg{width:18px!important;height:18px!important}
+
+  .search-wrap{position:sticky;top:112px;z-index:35;padding:0 13px 10px!important;background:#fff!important}
+  .search-box input{height:49px!important;border-radius:15px!important;padding-left:47px!important;font-size:16px!important}
+  .search-box>svg{left:15px!important;width:23px!important;height:23px!important}
+
+  .content.sections-grid{padding:0 13px 16px!important}
+  .ipad-room-overview{display:none!important}
+  .section{margin-top:14px!important}
+  .section-head{margin:0 4px 8px!important;gap:9px!important}
+  .section-head h3{font-size:20px!important;line-height:1!important}
+  .section-dot{width:10px!important;height:10px!important}
+  .section-count{height:34px!important;min-width:38px!important;border-radius:12px!important;font-size:14px!important}
+
+  .room-grid{display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:7px!important}
+  .room-row{
+    min-height:64px!important;
+    padding:8px 13px 8px 18px!important;
+    display:grid!important;
+    grid-template-columns:70px minmax(0,1fr) auto!important;
+    grid-template-areas:"number names state" "people names action"!important;
+    column-gap:9px!important;
+    align-items:center!important;
+  }
+  .room-row::before{top:7px!important;bottom:7px!important;width:5px!important}
+  .room-number{grid-area:number;font-size:27px!important;font-weight:650!important;align-self:end;line-height:1!important}
+  .people{grid-area:people;font-size:12px!important;align-self:start;line-height:1!important}
+  .guest-names{grid-area:names!important;align-self:center!important;min-width:0!important}
+  .guest-names strong{font-size:14.5px!important;line-height:1.14!important;display:block!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .guest-names small{font-size:11.5px!important;line-height:1.15!important;margin-top:3px!important;display:block!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .room-state{grid-area:state!important;font-size:11px!important;padding:7px 9px!important;white-space:nowrap}
+  .room-row .row-edit,.room-row .room-edit,.room-row [aria-label*="bearbeiten"]{grid-area:action!important;justify-self:center!important}
+
+  .bottom-bar{grid-template-columns:1fr 1fr!important;padding:7px 12px max(7px,env(safe-area-inset-bottom))!important;gap:8px!important}
+  .bottom-button{min-height:45px!important;border-radius:14px!important;font-size:14px!important;font-weight:600!important}
+
+  .menu-sheet{padding:74px 14px 14px!important}
+  .menu-card{width:min(94vw,355px)!important;max-height:calc(100dvh - 98px)!important}
+  .modal-layer{padding:10px!important;align-items:center!important}
+  .modal{width:min(100%,520px)!important;max-height:calc(100dvh - 20px)!important;border-radius:18px!important}
+  .modal-head{padding:15px 16px 11px!important}.modal-body{padding:13px 16px 16px!important}
+}
+
+/* iPad keeps the existing five-column room overview. */
+@media(min-width:700px){
+  .topbar{height:82px!important;padding:8px 24px!important}
+  .header-logo{width:148px!important}
+  .page-title h1{font-size:23px!important}.page-title p{font-size:11px!important}
+  .hero{max-width:calc(100% - 48px)!important;margin:13px 24px 12px!important;padding:16px 20px!important}
+  .open-guests-headline{font-size:28px!important}
+  .hero-facts{gap:28px!important;margin-top:12px!important}
+  .search-wrap{padding:0 24px 12px!important}
+  .search-box input{height:48px!important;padding-left:47px!important}
+  .search-box>svg{left:15px!important}
+  .content.sections-grid{padding:0 24px 22px!important}
+  .content.sections-grid>.section{display:none!important}
+  .ipad-room-overview{display:block!important;width:100%!important}
+  .ipad-room-grid{display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:10px!important;width:100%!important}
+  .ipad-room-column{display:grid!important;align-content:start!important;gap:7px!important;min-width:0!important}
+  .ipad-room-column .room-row{min-height:64px!important;padding:8px 9px 8px 14px!important;display:grid!important;grid-template-columns:46px minmax(0,1fr)!important;grid-template-areas:"number names" "people names" "state state"!important;column-gap:8px!important}
+  .ipad-room-column .room-number{grid-area:number;font-size:22px!important;font-weight:650!important}
+  .ipad-room-column .people{grid-area:people;font-size:10.5px!important}
+  .ipad-room-column .guest-names{grid-area:names;min-width:0!important}
+  .ipad-room-column .guest-names strong{font-size:11.5px!important;line-height:1.15!important;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .ipad-room-column .guest-names small{font-size:9.5px!important;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px!important}
+  .ipad-room-column .room-state{grid-area:state;justify-self:end;font-size:9.5px!important;padding:4px 7px!important;margin-top:2px!important}
+  .bottom-bar{padding:8px 24px max(8px,env(safe-area-inset-bottom))!important;gap:10px!important}
+  .bottom-button{min-height:50px!important}
+}
+
+@media(min-width:1100px){
+  .ipad-room-column .room-row{min-height:68px!important;padding-left:15px!important}
+  .ipad-room-column .guest-names strong{font-size:12px!important}
+}
+
+
+/* Unified SILK / Ambassador app identity — 27.08.2026 */
+.app-splash-screen{
+  position:fixed;inset:0;z-index:300;display:grid;place-content:center;justify-items:center;
+  min-height:100dvh;padding:24px;background:#fff;color:#202627;text-align:center;
+}
+.splash-brand-logo{display:block;width:104px;height:auto;margin-bottom:17px;object-fit:contain}
+.app-mark-outline{
+  display:grid;width:72px;height:72px;margin-bottom:15px;place-items:center;
+  border:1.5px solid #1c777b;border-radius:19px;background:#fff;color:#1c777b;
+}
+.app-mark-outline svg{width:43px;height:43px;stroke-width:2.2}
+.app-splash-screen>strong{font-size:23px;font-weight:680;letter-spacing:-.035em}
+.app-splash-screen>span{margin-top:6px;color:#747d7a;font-size:12px;letter-spacing:.02em}
+.splash-meili-logo{
+  position:fixed;right:50%;bottom:max(24px,calc(env(safe-area-inset-bottom) + 16px));
+  width:130px;height:auto;transform:translateX(50%);object-fit:contain;
+}
+
+/* Load page follows the same centered, quiet composition. */
+.entry-screen{background:#fff!important}
+.load-card{width:min(100%,390px)!important;text-align:center!important}
+.load-card .entry-logo{width:104px!important;margin-inline:auto!important}
+.load-card .entry-rule{width:44px!important;margin-inline:auto!important;border-color:#dce3e1!important}
+.load-card .entry-eyebrow{color:#747d7a!important}
+.load-card h1{color:#202627!important;letter-spacing:-.035em!important}
+.load-card .load-copy{color:#747d7a!important}
+.load-actions{gap:10px!important}
+.load-choice,.entry-secondary{
+  border:1px solid #dce3e1!important;border-radius:12px!important;background:#fff!important;
+  box-shadow:none!important;color:#202627!important;
+}
+.load-icon{border:1px solid #1c777b!important;background:#fff!important;color:#1c777b!important}
+.entry-logout{color:#747d7a!important}
+.load-card .meili-logo{width:130px!important}
+
+/* iPhone: scroll the complete dialog surface, avoiding Safari nested-scroll traps. */
+@media(max-width:699px){
+  .modal-layer{
+    display:grid!important;place-items:start center!important;overflow-x:hidden!important;
+    overflow-y:auto!important;-webkit-overflow-scrolling:touch!important;
+    overscroll-behavior-y:contain!important;touch-action:pan-y!important;
+    padding:8px 8px calc(24px + env(safe-area-inset-bottom))!important;
+  }
+  .modal-layer>.modal,.modal-layer>.checkin-choice-modal{
+    display:block!important;width:min(100%,520px)!important;height:auto!important;
+    max-height:none!important;overflow:visible!important;margin:0!important;
+  }
+  .modal-layer .modal-body,.modal-layer .checkin-choice-body{
+    display:block!important;min-height:auto!important;max-height:none!important;
+    overflow:visible!important;padding-bottom:calc(28px + env(safe-area-inset-bottom))!important;
+  }
+  .checkin-choice-body .modal-actions{
+    position:static!important;margin-top:16px!important;padding-bottom:max(16px,env(safe-area-inset-bottom))!important;
+  }
+}
