@@ -1,33 +1,18 @@
 {
-  "name": "ambassador-fruehstueck",
-  "version": "10.0.0",
+  "name": "ambassador-live-preview",
   "private": true,
-  "engines": { "node": "22.x" },
   "scripts": {
-    "prebuild": "node scripts/materialize-app.mjs",
-    "dev": "npm run prebuild && next dev",
-    "typecheck": "tsc --noEmit",
-    "quality": "node scripts/quality-gate.mjs",
-    "verify": "npm run prebuild && npm run quality && npm run typecheck && next build",
-    "build": "next build",
-    "start": "next start"
+    "build": "next build"
   },
   "dependencies": {
-    "ai": "^6.0.0",
-    "lucide-react": "^0.468.0",
     "next": "16.2.6",
     "react": "19.2.6",
-    "react-dom": "19.2.6",
-    "xlsx": "^0.18.5"
+    "react-dom": "19.2.6"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "4.2.1",
     "@types/node": "22.19.19",
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
-    "tailwindcss": "4.2.1",
     "typescript": "5.9.3"
-  },
-  "type": "module",
-  "displayName": "Ambassador Frühstück"
+  }
 }
