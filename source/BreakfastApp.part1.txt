@@ -1,0 +1,338 @@
+"use client";
+
+import { useEffect, useMemo, useRef, useState } from "react";
+import * as XLSX from "xlsx";
+import {
+  BarChart3, BedDouble, Building2, CalendarDays, Check, CheckCircle2, CircleAlert, Clock3, Coffee, Eye, EyeOff, FileUp, History,
+  Camera, LoaderCircle, LogOut, MapPin, Menu, PencilLine, Plus, Search, Trash2, Users, Info, X
+} from "lucide-react";
+
+type Room = {
+  room: number;
+  guests: string[];
+  people: number;
+  included: boolean;
+  present: boolean;
+  departed?: boolean;
+  arrivedCount?: number;
+  departedCount?: number;
+  table?: string;
+  note?: string;
+  guestInfo?: string[];
+  arrival?: string;
+  departure?: string;
+  breakfastDay?: number;
+  previousStays?: string[];
+};
+
+type ArrivalEvent = { room: number; at: number; included: boolean; people: number };
+type DayRecord = { date: string; includedExpected: number; includedArrived: number; additional: number; first: number | null; last: number | null; peak: string; eighty: string };
+type Language = "de" | "en" | "vi";
+type CloudModel = Record<string, unknown> & {
+  date?: string;
+  rooms?: Room[];
+  updated?: number;
+  v8Arrivals?: ArrivalEvent[];
+  v8History?: DayRecord[];
+};
+
+const COPY = {
+  de: { loginTitle:"Frühstücksliste", internal:"Interner Zugang", loginIntro:"Melde dich an, um die heutige Frühstücksliste zu öffnen.", password:"Passwort", enterPassword:"Passwort eingeben", signIn:"Anmelden", showPassword:"Passwort anzeigen", hidePassword:"Passwort verbergen", requiredPassword:"Bitte Passwort eingeben.", internalApp:"Ambassador Hotel Zürich · Interne Anwendung", dailyList:"Tagesliste", goodMorning:"Guten Morgen", loadIntro:"Lade den heutigen „Guests in House Report“ aus Mews.", loadMews:"Mews-Liste laden", excel:"Guests in House Report · Excel-Datei", openSaved:"Gespeicherte Liste öffnen", logout:"Abmelden", breakfastList:"Frühstücksliste", openGuests:"Frühstücksgäste offen", breakfast:"Frühstück", roomsOccupied:"Zimmer belegt", guests:"Gäste", search:"Zimmer, Name oder Tisch suchen", open:"Offen", otherRooms:"Weitere Zimmer", present:"Anwesend", editRooms:"Zimmer bearbeiten", done:"Fertig", endBreakfast:"Frühstück beenden", addRoom:"Zimmer hinzufügen", statistics:"Statistik", deleteList:"Frühstücksliste löschen", notOccupied:"Nicht belegt", included:"Frühstück inklusive", close:"Schließen", checkIn:"Check-in", leave:"Verlassen", guestCount:"Gäste", notIncluded:"Nicht inklusive", table:"Tisch", notSelected:"Nicht gewählt", changesSave:"Änderungen speichern", importComplete:"Import abgeschlossen", loadedSuccess:"Liste erfolgreich geladen", ready:"Die heutige Frühstücksliste ist bereit.", includedGuests:"inklusive Gäste", occupancy:"Hotelauslastung", dayStats:"Tagesstatistik", statsIntro:"Tagesüberblick und zeitlicher Verlauf", dayClose:"Tagesabschluss", includedCame:"inklusive erschienen", includedNoShow:"inklusive nicht erschienen", extraGuests:"zusätzliche Gäste", breakfastsTotal:"Frühstücke gesamt", timeline:"Zeitlicher Verlauf", firstGuest:"Erster Gast", peak:"Stärkstes Zeitfenster", lastGuest:"Letzter Gast", noArrival:"Noch keine Ankunft", reviewMews:"Mews-Liste kontrollieren", recognized:"erkannt", occupied:"belegt", cancel:"Abbrechen", acceptList:"Liste übernehmen", addGuests:"Frühstücksgäste manuell erfassen", chooseRoom:"Zimmer wählen", people:"Personen", guestNames:"Gastname(n)", oneName:"Ein Name pro Zeile", breakfastIncluded:"Frühstück ist inklusive", createRoom:"Zimmer anlegen", deleteSure:"Liste wirklich löschen?", deleteHint:"Der heutige Stand wird auf diesem Gerät entfernt.", delete:"Liste löschen", endTitle:"Frühstück beenden", endHint:"Der Tagesabschluss wird mit den erfassten Ankunftszeiten gespeichert.", came:"inklusive gekommen", didNotCome:"nicht gekommen", additional:"zusätzlich", peakTime:"Peak-Zeit", keepWorking:"Weiterarbeiten", finishStats:"Abschließen & Statistik", guestsHouse:"Gäste im Haus" },
+  en: { loginTitle:"Breakfast list", internal:"Staff access", loginIntro:"Sign in to open today’s breakfast list.", password:"Password", enterPassword:"Enter password", signIn:"Sign in", showPassword:"Show password", hidePassword:"Hide password", requiredPassword:"Please enter a password.", internalApp:"Ambassador Hotel Zurich · Internal application", dailyList:"Daily list", goodMorning:"Good morning", loadIntro:"Upload today’s “Guests in House Report” from Mews.", loadMews:"Load Mews list", excel:"Guests in House Report · Excel file", openSaved:"Open saved list", logout:"Sign out", breakfastList:"Breakfast list", openGuests:"guests remaining", breakfast:"Breakfast", roomsOccupied:"rooms occupied", guests:"Guests", search:"Search room, guest or table", open:"Open", otherRooms:"Other rooms", present:"Present", editRooms:"Edit rooms", done:"Done", endBreakfast:"Finish breakfast", addRoom:"Add room", statistics:"Statistics", deleteList:"Delete breakfast list", notOccupied:"Vacant", included:"Breakfast included", close:"Close", checkIn:"Check in", leave:"Leave", guestCount:"Guests", notIncluded:"Not included", table:"Table", notSelected:"Not selected", changesSave:"Save changes", importComplete:"Import complete", loadedSuccess:"List loaded successfully", ready:"Today’s breakfast list is ready.", includedGuests:"included guests", occupancy:"Hotel occupancy", dayStats:"Daily statistics", statsIntro:"Operational and staffing overview", dayClose:"Daily summary", includedCame:"included guests arrived", includedNoShow:"included no-shows", extraGuests:"additional guests", breakfastsTotal:"breakfasts total", timeline:"Timeline", firstGuest:"First guest", peak:"Busiest 30 minutes", lastGuest:"Last guest", noArrival:"No arrivals yet", reviewMews:"Review Mews list", recognized:"recognized", occupied:"occupied", cancel:"Cancel", acceptList:"Use this list", addGuests:"Add breakfast guests manually", chooseRoom:"Choose room", people:"People", guestNames:"Guest name(s)", oneName:"One name per line", breakfastIncluded:"Breakfast is included", createRoom:"Add room", deleteSure:"Delete this list?", deleteHint:"Today’s list will be removed from this device.", delete:"Delete list", endTitle:"Finish breakfast", endHint:"The daily summary will use all recorded arrival times.", came:"included arrived", didNotCome:"did not arrive", additional:"additional", peakTime:"Peak time", keepWorking:"Keep working", finishStats:"Finish & view statistics", guestsHouse:"Guests in hotel" },
+  vi: { loginTitle:"Danh sách ăn sáng", internal:"Truy cập nội bộ", loginIntro:"Đăng nhập để mở danh sách ăn sáng hôm nay.", password:"Mật khẩu", enterPassword:"Nhập mật khẩu", signIn:"Đăng nhập", showPassword:"Hiện mật khẩu", hidePassword:"Ẩn mật khẩu", requiredPassword:"Vui lòng nhập mật khẩu.", internalApp:"Ambassador Hotel Zürich · Ứng dụng nội bộ", dailyList:"Danh sách hôm nay", goodMorning:"Chào buổi sáng", loadIntro:"Tải báo cáo “Guests in House Report” hôm nay từ Mews.", loadMews:"Tải danh sách Mews", excel:"Guests in House Report · Tệp Excel", openSaved:"Mở danh sách đã lưu", logout:"Đăng xuất", breakfastList:"Danh sách ăn sáng", openGuests:"khách chưa đến", breakfast:"Ăn sáng", roomsOccupied:"phòng có khách", guests:"Khách", search:"Tìm phòng, tên khách hoặc bàn", open:"Chưa đến", otherRooms:"Các phòng khác", present:"Đã đến", editRooms:"Chỉnh sửa phòng", done:"Xong", endBreakfast:"Kết thúc bữa sáng", addRoom:"Thêm phòng", statistics:"Thống kê", deleteList:"Xóa danh sách ăn sáng", notOccupied:"Phòng trống", included:"Bao gồm ăn sáng", close:"Đóng", checkIn:"Check-in", leave:"Rời đi", guestCount:"Khách", notIncluded:"Không bao gồm", table:"Bàn", notSelected:"Chưa chọn", changesSave:"Lưu thay đổi", importComplete:"Đã nhập dữ liệu", loadedSuccess:"Đã tải danh sách thành công", ready:"Danh sách ăn sáng hôm nay đã sẵn sàng.", includedGuests:"khách bao gồm ăn sáng", occupancy:"Công suất khách sạn", dayStats:"Thống kê trong ngày", statsIntro:"Tổng quan vận hành và nhân sự", dayClose:"Tổng kết ngày", includedCame:"khách bao gồm đã đến", includedNoShow:"khách bao gồm không đến", extraGuests:"khách phát sinh", breakfastsTotal:"tổng suất ăn sáng", timeline:"Diễn biến thời gian", firstGuest:"Khách đầu tiên", peak:"30 phút đông nhất", lastGuest:"Khách cuối cùng", noArrival:"Chưa có khách đến", reviewMews:"Kiểm tra danh sách Mews", recognized:"đã nhận diện", occupied:"có khách", cancel:"Hủy", acceptList:"Sử dụng danh sách", addGuests:"Thêm khách ăn sáng thủ công", chooseRoom:"Chọn phòng", people:"Số người", guestNames:"Tên khách", oneName:"Mỗi dòng một tên", breakfastIncluded:"Đã bao gồm ăn sáng", createRoom:"Thêm phòng", deleteSure:"Xóa danh sách này?", deleteHint:"Danh sách hôm nay sẽ bị xóa khỏi thiết bị này.", delete:"Xóa danh sách", endTitle:"Kết thúc bữa sáng", endHint:"Tổng kết ngày sử dụng toàn bộ thời gian khách đã đến.", came:"bao gồm đã đến", didNotCome:"không đến", additional:"phát sinh", peakTime:"Giờ cao điểm", keepWorking:"Tiếp tục làm việc", finishStats:"Kết thúc & xem thống kê", guestsHouse:"Khách trong khách sạn" }
+} as const;
+
+const HOTEL_ROOMS = [20,21,22,23,24,25,26,27,28,30,31,32,33,34,35,36,37,38,40,41,42,43,44,45,46,47,48,50,51,52,53,54,55,56,57,58,60,61,62,63,64,65,66,67,68];
+
+const GUEST_PREF_TABLE = "guest_preferences";
+const normalizeGuestKey = (name: string) => name.normalize("NFKC").trim().replace(/\s+/g, " ").toLocaleLowerCase("de-CH");
+
+const GUEST_INFO_GROUPS = [
+  { label: "Etagère", options: ["Classic", "International", "Healthy", "Vegan"] },
+  { label: "Heissgetränke", options: ["Kaffee", "Cappuccino", "Latte Macchiato", "Espresso", "Doppelter Espresso", "Americano", "Espresso Macchiato", "Milchkaffee", "Flat White", "Matcha Latte", "Chai Latte", "Decaf", "English Breakfast", "Earl Grey", "Grüntee", "Pfefferminze", "Kamille", "Früchtetee", "Kräutertee", "Rooibos"] },
+  { label: "Eierspeisen", options: ["Rührei", "Spiegelei", "Omelett", "Omelett Eiweiß", "gekochtes Ei weich", "gekochtes Ei hart", "pochiertes Ei"] },
+  { label: "Milch & Alternativen", options: ["Milch", "Hafermilch", "Mandelmilch", "laktosefrei", "Soya"] },
+  { label: "Säfte", options: ["Orangensaft", "Grapefruit", "Energy", "Ananas", "Cranberry"] },
+  { label: "Wasser", options: ["Wasser mit", "Wasser ohne"] },
+  { label: "Allergien & Unverträglichkeiten", options: ["Nüsse", "Erdnüsse", "Gluten", "Milch", "Laktose", "Ei", "Soja", "Sesam", "Fisch", "Schalentiere"] },
+] as const;
+
+const initialRooms: Room[] = HOTEL_ROOMS.map(room => ({
+  room,
+  guests: [],
+  people: 0,
+  included: false,
+  present: false,
+}));
+
+const dateKey = () => new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Zurich" }).format(new Date());
+
+const SUPABASE_URL = "https://xgbbwnmqgpwxxftnjrkc.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_lZ7yNj-giHZHpPVqXutdBA_LUFiJzO-";
+const CLOUD_TABLE = "breakfast_lists";
+
+const cloudHeaders = (extra: Record<string, string> = {}) => ({
+  apikey: SUPABASE_PUBLISHABLE_KEY,
+  "content-type": "application/json",
+  ...extra,
+});
+
+const cloudRowUrl = (date: string) => `${SUPABASE_URL}/rest/v1/${CLOUD_TABLE}?list_date=eq.${encodeURIComponent(date)}`;
+
+function normalizeRoom(room: Room): Room {
+  const people = Math.max(0, Number(room.people) || 0);
+  const arrivedCount = Math.max(0, Math.min(people, Number(room.arrivedCount ?? ((room.present || room.departed) ? people : 0)) || 0));
+  const departedCount = Math.max(0, Math.min(arrivedCount, Number(room.departedCount ?? (room.departed ? arrivedCount : 0)) || 0));
+  return {
+    ...room,
+    people,
+    arrivedCount,
+    departedCount,
+    present: arrivedCount > departedCount,
+    departed: people > 0 && arrivedCount >= people && departedCount >= arrivedCount,
+  };
+}
+
+function getArrivedCount(room: Room): number {
+  return normalizeRoom(room).arrivedCount || 0;
+}
+
+function getDepartedCount(room: Room): number {
+  return normalizeRoom(room).departedCount || 0;
+}
+
+function getRemainingCount(room: Room): number {
+  return Math.max(0, (room.people || 0) - getArrivedCount(room));
+}
+
+function roomIsPresent(room: Room): boolean {
+  const normalized = normalizeRoom(room);
+  return normalized.present;
+}
+
+function roomIsDeparted(room: Room): boolean {
+  const normalized = normalizeRoom(room);
+  return Boolean(normalized.departed);
+}
+const completeInventory = (cloudRooms: Room[] = []) => {
+  const byRoom = new Map(cloudRooms.map(room => [Number(room.room), room]));
+  return HOTEL_ROOMS.map(room => normalizeRoom({
+    room,
+    guests: [],
+    people: 0,
+    included: false,
+    present: false,
+    ...(byRoom.get(room) || {}),
+  } satisfies Room));
+};
+
+function RoomRow({ room, onOpen, language, editMode = false }: { room: Room; onOpen: (room: Room) => void; language: Language; editMode?: boolean }) {
+  const occupied = room.guests.length > 0;
+  const c = COPY[language];
+  const arrivedCount = getArrivedCount(room);
+  const remainingCount = getRemainingCount(room);
+  const roomPresent = roomIsPresent(room);
+  const roomDeparted = roomIsDeparted(room);
+  const finishedText = language === "de" ? "Frühstück beendet" : language === "en" ? "Breakfast finished" : "Đã kết thúc bữa sáng";
+  const openText = language === "de" ? "Noch offen" : language === "en" ? "Still open" : "Vẫn còn chờ";
+  const arrivedSummary = room.people > 0
+    ? language === "de"
+      ? `${arrivedCount} von ${room.people} da`
+      : language === "en"
+        ? `${arrivedCount} of ${room.people} here`
+        : `${arrivedCount}/${room.people} đã đến`
+    : c.present;
+  const laterText = remainingCount > 0
+    ? language === "de"
+      ? `${remainingCount} ${remainingCount === 1 ? "Person kommt später" : "Personen kommen später"}`
+      : language === "en"
+        ? `${remainingCount} ${remainingCount === 1 ? "person is coming later" : "people are coming later"}`
+        : `${remainingCount} ${remainingCount === 1 ? "người sẽ đến sau" : "người sẽ đến sau"}`
+    : "";
+
+  return (
+    <button
+      className={`room-row ${room.included ? "included" : ""} ${roomPresent ? "present" : ""} ${roomDeparted ? "departed" : ""} ${arrivedCount > 0 && remainingCount > 0 ? "partial" : ""}`}
+      onClick={() => onOpen(room)}
+      aria-label={`Zimmer ${room.room} öffnen`}
+    >
+      <span className="room-number">{room.room}</span>
+      <span className="people"><Users />{occupied ? room.people : ""}</span>
+      <span className="guest-names">
+        {occupied ? room.guests.map(name => <strong key={name}>{name}</strong>) : <strong className="vacant">{c.notOccupied}</strong>}
+        {room.included && <small className="meta-line"><Coffee /> {c.included}</small>}
+        {room.table && (roomPresent || roomDeparted) && <small className="meta-line table-meta"><MapPin /> {room.table}</small>}
+        {arrivedCount > 0 && remainingCount > 0 && <small className="meta-line status-note"><Users /> {arrivedSummary}</small>}
+      </span>
+      <span className="room-tail">
+        {room.guestInfo?.length ? <span className="guest-info-indicator" title={language === "de" ? "Gastinfo vorhanden" : language === "en" ? "Guest info available" : "Có thông tin khách"} aria-hidden="true"><Info /></span> : null}
+        {roomDeparted
+          ? <span className="room-state departed"><LogOut /> {c.leave}</span>
+          : roomPresent
+            ? <span className={`room-state ${remainingCount > 0 ? "open partial" : "present"}`}>{remainingCount > 0 ? arrivedSummary : <><Check /> {arrivedSummary}</>}</span>
+            : room.included
+              ? <span className="room-state open">{openText}</span>
+              : null}
+        {editMode && <span className="room-edit-icon" aria-hidden="true"><PencilLine /></span>}
+      </span>
+    </button>
+  );
+}
+
+export default function BreakfastApp() {
+  const [language, setLanguage] = useState<Language>("de");
+  const [stage, setStage] = useState<"login" | "load" | "app">("login");
+  const [showSplash, setShowSplash] = useState(true);
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [loginError, setLoginError] = useState("");
+  const [importSuccess, setImportSuccess] = useState<{ included: number; guests: number; occupied: number } | null>(null);
+  const [arrivalEvents, setArrivalEvents] = useState<ArrivalEvent[]>([]);
+  const [rooms, setRooms] = useState(initialRooms);
+  const [query, setQuery] = useState("");
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [selected, setSelected] = useState<Room | null>(null);
+  const [checkinInfo, setCheckinInfo] = useState<Room | null>(null);
+  const [checkInCount, setCheckInCount] = useState(1);
+  const [groupRoomNumber, setGroupRoomNumber] = useState("");
+  const [groupRoomPickerOpen, setGroupRoomPickerOpen] = useState(false);
+  const [panel, setPanel] = useState<"stats" | "week" | "add" | "delete" | "finish" | "import" | null>(null);
+  const [history, setHistory] = useState<DayRecord[]>([]);
+  const [importPreview, setImportPreview] = useState<Room[]>([]);
+  const [photoImporting, setPhotoImporting] = useState(false);
+  const [photoError, setPhotoError] = useState("");
+  const [editMode, setEditMode] = useState(false);
+  const [guestInfoEditOnly, setGuestInfoEditOnly] = useState(false);
+  const [guestInfoPickerOpen, setGuestInfoPickerOpen] = useState(false);
+  const [guestInfoDraft, setGuestInfoDraft] = useState<string[]>([]);
+  const [guestInfoCustom, setGuestInfoCustom] = useState("");
+  const [remarkOpen, setRemarkOpen] = useState(false);
+  const [remarkDraft, setRemarkDraft] = useState("");
+  const [syncText, setSyncText] = useState("Aktuell");
+  const [newRoom, setNewRoom] = useState({ room: "", guests: "", people: "1", included: true });
+  const fileRef = useRef<HTMLInputElement>(null);
+  const photoRef = useRef<HTMLInputElement>(null);
+  const roomsRef = useRef(rooms);
+  const arrivalsRef = useRef(arrivalEvents);
+  const historyRef = useRef(history);
+  const cloudWriteRef = useRef<Promise<void> | null>(null);
+
+  useEffect(() => { roomsRef.current = rooms; }, [rooms]);
+
+  useEffect(() => {
+    if (sessionStorage.getItem("ambassador-splash-seen")) {
+      setShowSplash(false);
+      return;
+    }
+    sessionStorage.setItem("ambassador-splash-seen", "1");
+    const timer = window.setTimeout(() => setShowSplash(false), 2680);
+    return () => window.clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    const selector = ".group-room-popup-list, .guest-info-picker-body, .guest-edit-modal .modal-body, .checkin-choice-modal .modal-body, .present-guest-modal .modal-body";
+    const handlers = new Map<HTMLElement, EventListener>();
+
+    const updateCue = (el: HTMLElement) => {
+      const maxScroll = Math.max(0, el.scrollHeight - el.clientHeight);
+      el.dataset.scrollCueUp = el.scrollTop > 3 ? "true" : "false";
+      el.dataset.scrollCueDown = maxScroll > 3 && el.scrollTop < maxScroll - 3 ? "true" : "false";
+    };
+
+    const bind = (el: HTMLElement) => {
+      if (!handlers.has(el)) {
+        const handler: EventListener = () => updateCue(el);
+        el.addEventListener("scroll", handler, { passive: true });
+        handlers.set(el, handler);
+      }
+      updateCue(el);
+    };
+
+    const updatePageCue = () => {
+      const root = document.documentElement;
+      const maxScroll = Math.max(0, root.scrollHeight - window.innerHeight);
+      root.dataset.pageScrollCueUp = window.scrollY > 4 ? "true" : "false";
+      root.dataset.pageScrollCueDown = maxScroll > 4 && window.scrollY < maxScroll - 4 ? "true" : "false";
+    };
+
+    const scan = () => {
+      document.querySelectorAll<HTMLElement>(selector).forEach(bind);
+      updatePageCue();
+    };
+    const frame = requestAnimationFrame(scan);
+    const observer = new MutationObserver(() => requestAnimationFrame(scan));
+    observer.observe(document.body, { childList: true, subtree: true });
+    const onResize = () => scan();
+    const onWindowScroll = () => updatePageCue();
+    window.addEventListener("resize", onResize);
+    window.addEventListener("scroll", onWindowScroll, { passive: true });
+
+    return () => {
+      cancelAnimationFrame(frame);
+      observer.disconnect();
+      window.removeEventListener("resize", onResize);
+      window.removeEventListener("scroll", onWindowScroll);
+      handlers.forEach((handler, el) => el.removeEventListener("scroll", handler));
+      delete document.documentElement.dataset.pageScrollCueUp;
+      delete document.documentElement.dataset.pageScrollCueDown;
+    };
+  }, []);
+
+  useEffect(() => {
+    try {
+      const preferences = JSON.parse(localStorage.getItem("ambassador-guest-preferences") || "{}");
+      let changed = false;
+      const hydrated = rooms.map(room => {
+        if (!room.guests.length || room.guestInfo?.length) return room;
+        const saved = preferences[normalizeGuestKey(room.guests[0])];
+        if (!Array.isArray(saved) || !saved.length) return room;
+        changed = true;
+        return { ...room, guestInfo: saved };
+      });
+      if (changed) setRooms(hydrated);
+    } catch { /* no cached returning-guest preferences */ }
+  }, [rooms]);
+
+  useEffect(() => {
+    if (!selected?.guests?.length || selected.guestInfo?.length) return;
+    try {
+      const preferences = JSON.parse(localStorage.getItem("ambassador-guest-preferences") || "{}");
+      const saved = preferences[normalizeGuestKey(selected.guests[0])];
+      if (!Array.isArray(saved) || !saved.length) return;
+      setSelected({ ...selected, guestInfo: saved });
+    } catch { /* no cached returning-guest preferences */ }
+  }, [selected]);
+  useEffect(() => { arrivalsRef.current = arrivalEvents; }, [arrivalEvents]);
+  useEffect(() => { historyRef.current = history; }, [history]);
+
+  useEffect(() => {
+    if (!selected) {
+      setCheckInCount(1);
+      return;
+    }
+    const remaining = Math.max(1, getRemainingCount(selected));
+    setCheckInCount(current => Math.min(Math.max(1, current || 1), remaining));
+  }, [selected]);
+
+  useEffect(() => {
+    try {
+      const savedLanguage = localStorage.getItem("ambassador-language");
+      if (savedLanguage === "de" || savedLanguage === "en" || savedLanguage === "vi") setLanguage(savedLanguage);
+      const todayKey = dateKey();
+      if (sessionStorage.getItem("ambassador-v2-login") === todayKey) setStage("load");
+      const saved = localStorage.getItem("ambassador-breakfast-rooms");
+      const data = saved ? JSON.parse(saved) : null;
+      if (Array.isArray(data) && data.length === 44) setRooms(data.map((room: Room) => normalizeRoom(room)));
+      const eventData = JSON.parse(localStorage.getItem("ambassador-breakfast-arrivals") || "null");
+      if (eventData?.date === todayKey && Array.isArray(eventData.events)) setArrivalEvents(eventData.events);
+      const savedHistory = JSON.parse(localStorage.getItem("ambassador-breakfast-history") || "[]");
+      if (Array.isArray(savedHistory)) setHistory(savedHistory);
+    } catch { /* Keep the safe initial list. */ }
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+    let loading = false;
+
+    const applyCloud = (cloud: CloudModel) => {
+      if (!active || !cloud || cl
