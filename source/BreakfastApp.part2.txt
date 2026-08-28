@@ -1,0 +1,473 @@
+oud.date !== dateKey()) return;
+      if (Array.isArray(cloud.rooms)) {
+        const next = completeInventory(cloud.rooms).map(room => normalizeRoom(room));
+        roomsRef.current = next;
+        setRooms(next);
+        localStorage.setItem("ambassador-breakfast-rooms", JSON.stringify(next));
+      }
+      if (Array.isArray(cloud.v8Arrivals)) {
+        arrivalsRef.current = cloud.v8Arrivals;
+        setArrivalEvents(cloud.v8Arrivals);
+        localStorage.setItem("ambassador-breakfast-arrivals", JSON.stringify({ date: dateKey(), events: cloud.v8Arrivals }));
+      }
+      if (Array.isArray(cloud.v8History)) {
+        historyRef.current = cloud.v8History;
+        setHistory(cloud.v8History);
+        localStorage.setItem("ambassador-breakfast-history", JSON.stringify(cloud.v8History));
+      }
+    };
+
+    const loadCloud = async () => {
+      if (loading) return;
+      loading = true;
+      try {
+        const response = await fetch(`${cloudRowUrl(dateKey())}&select=payload,updated_at`, {
+          headers: cloudHeaders(),
+          cache: "no-store",
+        });
+        if (!response.ok) throw new Error("Cloud list unavailable");
+        const rows = await response.json() as Array<{ payload?: CloudModel; updated_at?: number }>;
+        const cloud = rows?.[0]?.payload;
+        if (cloud) applyCloud(cloud);
+        if (active) setSyncText("Aktuell auf allen Geräten");
+      } catch {
+        if (active) setSyncText("Offline – lokaler Stand");
+      } finally {
+        loading = false;
+      }
+    };
+
+    void loadCloud();
+    const timer = window.setInterval(() => void loadCloud(), 1500);
+    const refreshNow = () => void loadCloud();
+    window.addEventListener("focus", refreshNow);
+    document.addEventListener("visibilitychange", refreshNow);
+    window.addEventListener("online", refreshNow);
+
+    return () => {
+      active = false;
+      window.clearInterval(timer);
+      window.removeEventListener("focus", refreshNow);
+      document.removeEventListener("visibilitychange", refreshNow);
+      window.removeEventListener("online", refreshNow);
+    };
+  }, []);
+
+  const loadGuestPreferences = async () => {
+    try {
+      const response = await fetch(SUPABASE_URL + "/rest/v1/" + GUEST_PREF_TABLE + "?select=guest_key,guest_info", { headers: cloudHeaders(), cache: "no-store" });
+      if (!response.ok) return;
+      const rows = await response.json() as Array<{ guest_key: string; guest_info?: string[] }>;
+      const preferences = Object.fromEntries(rows.map(row => [row.guest_key, Array.isArray(row.guest_info) ? row.guest_info : []]));
+      localStorage.setItem("ambassador-guest-preferences", JSON.stringify(preferences));
+      setRooms(current => current.map(room => {
+        if (!room.guests.length || room.guestInfo?.length) return room;
+        const saved = preferences[normalizeGuestKey(room.guests[0])];
+        return saved?.length ? { ...room, guestInfo: saved } : room;
+      }));
+    } catch { /* Persistent preferences are optional while offline. */ }
+  };
+
+  const saveGuestPreference = async (guestName: string, guestInfo: string[]) => {
+    const guestKey = normalizeGuestKey(guestName);
+    if (!guestKey) return;
+    try {
+      const cached = JSON.parse(localStorage.getItem("ambassador-guest-preferences") || "{}");
+      cached[guestKey] = guestInfo;
+      localStorage.setItem("ambassador-guest-preferences", JSON.stringify(cached));
+    } catch { /* Cloud write below still gets a chance. */ }
+    try {
+      await fetch(SUPABASE_URL + "/rest/v1/" + GUEST_PREF_TABLE + "?on_conflict=guest_key", {
+        method: "POST",
+        headers: cloudHeaders({ Prefer: "resolution=merge-duplicates,return=minimal" }),
+        body: JSON.stringify({ guest_key: guestKey, guest_info: guestInfo, updated_at: Date.now() }),
+      });
+    } catch { /* Daily room state remains saved even if preference cloud is temporarily unavailable. */ }
+  };
+
+  useEffect(() => {
+    void loadGuestPreferences();
+    const refresh = () => void loadGuestPreferences();
+    window.addEventListener("focus", refresh);
+    window.addEventListener("online", refresh);
+    return () => { window.removeEventListener("focus", refresh); window.removeEventListener("online", refresh); };
+  }, []);
+
+  const changeLanguage = (next: Language) => { setLanguage(next); localStorage.setItem("ambassador-language", next); };
+  const c = { ...COPY[language], dailyList: COPY[language].breakfastList };
+  const tr = (de: string, en: string, vi: string) => language === "de" ? de : language === "en" ? en : vi;
+  const editHint = language === "de"
+    ? "Zimmer antippen, um Gastinformationen zu bearbeiten"
+    : language === "en"
+      ? "Tap a room to edit guest information"
+      : "Chạm vào phòng để chỉnh sửa thông tin khách";
+  const languageSwitch = <div className="language-switch" aria-label="Language / Sprache / Ngôn ngữ">{(["de", "en", "vi"] as Language[]).map(value => <button key={value} className={language === value ? "active" : ""} onClick={() => changeLanguage(value)} type="button">{value.toUpperCase()}</button>)}</div>;
+
+  const saveCloud = (nextRooms: Room[], nextArrivals = arrivalsRef.current, nextHistory = historyRef.current) => {
+    roomsRef.current = nextRooms;
+    arrivalsRef.current = nextArrivals;
+    historyRef.current = nextHistory;
+    const write = async () => {
+      try {
+        setSyncText("Wird synchronisiert …");
+        const now = Date.now();
+        const payload: CloudModel = {
+          date: dateKey(),
+          rooms: nextRooms,
+          updated: now,
+          v8Arrivals: nextArrivals,
+          v8History: nextHistory,
+        };
+        const response = await fetch(`${SUPABASE_URL}/rest/v1/${CLOUD_TABLE}?on_conflict=list_date`, {
+          method: "POST",
+          headers: cloudHeaders({
+            Prefer: "resolution=merge-duplicates,return=minimal",
+            "cache-control": "no-cache",
+          }),
+          body: JSON.stringify({ list_date: dateKey(), payload, updated_at: now }),
+        });
+        if (!response.ok) throw new Error(`Cloud save failed: ${response.status}`);
+        setSyncText("Auf allen Geräten gespeichert");
+      } catch {
+        setSyncText("Offline – wird erneut versucht");
+      }
+    };
+    cloudWriteRef.current = (cloudWriteRef.current || Promise.resolve()).then(write).finally(() => { cloudWriteRef.current = null; });
+  };
+
+  const persist = (next: Room[], nextArrivals = arrivalsRef.current, nextHistory = historyRef.current) => {
+    const normalized = next.map(room => normalizeRoom(room));
+    setRooms(normalized);
+    try {
+      localStorage.setItem("ambassador-breakfast-rooms", JSON.stringify(normalized));
+      setSyncText("Lokal gespeichert …");
+    } catch { setSyncText("Temporärer Stand"); }
+    saveCloud(normalized, nextArrivals, nextHistory);
+  };
+
+  const occupiedRooms = rooms.filter(r => r.guests.length > 0);
+  const totalGuests = occupiedRooms.reduce((sum, r) => sum + r.people, 0);
+  const includedGuests = occupiedRooms.filter(r => r.included).reduce((sum, r) => sum + r.people, 0);
+  const presentIncluded = occupiedRooms.filter(r => r.included).reduce((sum, r) => sum + getArrivedCount(r), 0);
+  const openCount = Math.max(0, includedGuests - presentIncluded);
+  const progress = includedGuests ? Math.round((presentIncluded / includedGuests) * 100) : 0;
+  const filtered = useMemo(() => rooms.filter(r => `${r.room} ${r.guests.join(" ")} ${r.table || ""}`.toLowerCase().includes(query.toLowerCase())), [rooms, query]);
+  const openRooms = filtered.filter(r => r.included && getRemainingCount(r) > 0 && !roomIsDeparted(r));
+  const presentRooms = filtered.filter(r => roomIsPresent(r) && getRemainingCount(r) === 0);
+  const departedRooms = filtered.filter(r => roomIsDeparted(r));
+  const otherRooms = filtered.filter(r => !r.included && !roomIsPresent(r) && !roomIsDeparted(r));
+
+  const checkInGuests = (room: Room, requestedCount: number) => {
+    const remaining = getRemainingCount(room);
+    const actualCount = Math.max(0, Math.min(remaining, requestedCount));
+    if (!actualCount) return;
+
+    const nextEvents = [...arrivalEvents, { room: room.room, at: Date.now(), included: room.included, people: actualCount }];
+    setArrivalEvents(nextEvents);
+    const eventDate = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Zurich" }).format(new Date());
+    localStorage.setItem("ambassador-breakfast-arrivals", JSON.stringify({ date: eventDate, events: nextEvents }));
+
+    const nextRoom = normalizeRoom({
+      ...room,
+      arrivedCount: getArrivedCount(room) + actualCount,
+      departedCount: 0,
+      present: true,
+      departed: false,
+      table: room.table || "Tisch 1",
+    });
+
+    persist(rooms.map(item => item.room === room.room ? nextRoom : item), nextEvents);
+    setSelected(null);
+    setCheckInCount(1);
+    setGroupRoomNumber("");
+    setCheckinInfo(nextRoom);
+  };
+
+  const checkInGroup = (primary: Room, requestedCount: number, linked: Room) => {
+    const primaryCount = Math.max(0, Math.min(getRemainingCount(primary), requestedCount));
+    const linkedCount = getRemainingCount(linked);
+    if (!primary.table || (!primaryCount && !linkedCount)) return;
+
+    const at = Date.now();
+    const additions: ArrivalEvent[] = [];
+    if (primaryCount) additions.push({ room: primary.room, at, included: primary.included, people: primaryCount });
+    if (linkedCount) additions.push({ room: linked.room, at, included: linked.included, people: linkedCount });
+    const nextEvents = [...arrivalEvents, ...additions];
+    setArrivalEvents(nextEvents);
+    localStorage.setItem("ambassador-breakfast-arrivals", JSON.stringify({ date: dateKey(), events: nextEvents }));
+
+    const nextPrimary = normalizeRoom({
+      ...primary,
+      arrivedCount: getArrivedCount(primary) + primaryCount,
+      departedCount: 0,
+      present: true,
+      departed: false,
+      table: primary.table,
+    });
+    const nextLinked = normalizeRoom({
+      ...linked,
+      arrivedCount: getArrivedCount(linked) + linkedCount,
+      departedCount: 0,
+      present: true,
+      departed: false,
+      table: primary.table,
+    });
+
+    const nextRooms = rooms.map(item => item.room === primary.room ? nextPrimary : item.room === linked.room ? nextLinked : item);
+    persist(nextRooms, nextEvents);
+    setSelected(null);
+    setGroupRoomNumber("");
+    setCheckInCount(1);
+    setCheckinInfo(nextPrimary);
+  };
+
+  const togglePresence = (room: Room) => {
+    const arrivedCount = getArrivedCount(room);
+    if (!arrivedCount) {
+      checkInGuests(room, 1);
+      return;
+    }
+    const nextRoom = normalizeRoom({ ...room, departedCount: arrivedCount, present: false, departed: true });
+    persist(rooms.map(item => item.room === room.room ? nextRoom : item));
+    setSelected(null);
+  };
+
+  const bulkLeavePresent = () => {
+    const presentRoomCount = rooms.filter(room => roomIsPresent(room)).length;
+    const presentGuestCount = rooms.reduce((sum, room) => sum + Math.max(0, getArrivedCount(room) - getDepartedCount(room)), 0);
+
+    if (!presentGuestCount) {
+      window.alert(tr("Aktuell sind keine Gäste als anwesend markiert.", "No guests are currently marked as present.", "Hiện không có khách nào được đánh dấu là đang có mặt."));
+      return;
+    }
+
+    const confirmed = window.confirm(tr(
+      presentGuestCount + " anwesende Gäste in " + presentRoomCount + " Zimmern auf „Verlassen“ setzen?\n\nDer Frühstückstag bleibt geöffnet. Noch nicht erschienene Gäste bleiben weiterhin offen.",
+      "Mark " + presentGuestCount + " present guests in " + presentRoomCount + " rooms as “Left”?\n\nBreakfast stays open. Guests who have not arrived yet remain open.",
+      "Đánh dấu " + presentGuestCount + " khách đang có mặt trong " + presentRoomCount + " phòng là “Đã rời đi”?\n\nBữa sáng vẫn mở. Những khách chưa đến vẫn tiếp tục ở trạng thái chờ."
+    ));
+    if (!confirmed) return;
+
+    const next = rooms.map(room => {
+      const arrivedCount = getArrivedCount(room);
+      const departedCount = getDepartedCount(room);
+      if (arrivedCount <= departedCount) return room;
+      return normalizeRoom({ ...room, departedCount: arrivedCount, present: false });
+    });
+
+    persist(next);
+    setSelected(null);
+    setSyncText(tr(
+      presentGuestCount + " Gäste auf „Verlassen“ gesetzt",
+      presentGuestCount + " guests marked as left",
+      presentGuestCount + " khách đã được đánh dấu là đã rời đi"
+    ));
+  };
+
+  const importMews = async (file: File) => {
+    setSyncText("Liste wird gelesen …");
+    try {
+      const workbook = XLSX.read(await file.arrayBuffer(), { type: "array", cellDates: false, cellStyles: false, cellHTML: false, cellFormula: false, bookDeps: false, bookVBA: false, dense: true, sheets: ["Customers"], sheetRows: 1500 });
+      const sheet = workbook.Sheets.Customers;
+      if (!sheet) throw new Error("Das Tabellenblatt „Customers“ fehlt.");
+      const rows = XLSX.utils.sheet_to_json<unknown[]>(sheet, { header: 1, raw: false, defval: "" });
+      const headers = (rows[0] || []).map(value => String(value ?? "").trim());
+      const columns = { room: headers.indexOf("Space number"), customer: headers.indexOf("Customer"), companions: headers.indexOf("Companions"), products: headers.indexOf("Products") };
+      if (Object.values(columns).some(value => value < 0)) throw new Error("Benötigte Mews-Spalten fehlen.");
+      const clean = (value: unknown) => String(value ?? "").replace(/\u00a0/g, " ").replace(/\s+/g, " ").trim();
+      const isName = (value: unknown) => { const text = clean(value); return Boolean(text && !/^\d+$/.test(text) && /[A-Za-zÀ-ž]/.test(text)); };
+      type Imported = { room: number; customer: string; people: number; guests: string[]; product: string; arrival: string; departure: string };
+      const imported: Imported[] = []; let current: Imported | null = null;
+      const flush = () => { if (!current) return; current.guests = [...new Set(current.guests.filter(name => isName(name)))]; if (!current.guests.length && isName(current.customer)) current.guests = [current.customer]; imported.push(current); current = null; };
+      for (const row of rows.slice(1)) {
+        const roomText = clean(row[columns.room]); const customer = clean(row[columns.customer]); const companions = clean(row[columns.companions]); const product = clean(row[columns.products]);
+        if (/^Number of guests$/i.test(roomText)) { flush(); break; }
+        const stay = companions.match(/^(\d+)\s+People\s+(\d{2}\.\d{2}\.\d{4})\s*-\s*(\d{2}\.\d{2}\.\d{4})$/i);
+        const roomNumber = Number(roomText);
+        if (HOTEL_ROOMS.includes(roomNumber) && customer && customer !== "19" && stay) { flush(); current = { room: roomNumber, customer, people: Number(stay[1]) || 1, guests: [], product: product === "19" ? "" : product, arrival: stay[2], departure: stay[3] }; continue; }
+        if (!current || roomNumber !== current.room) continue;
+        if (product && product !== "19") current.product = [current.product, product].filter(Boolean).join(" ");
+        if (isName(companions)) current.guests.push(companions);
+      }
+      flush();
+      if (!imported.length) throw new Error("Keine gültigen Hotelzimmer gefunden.");
+      const grouped = new Map<number, Imported>();
+      imported.forEach(item => { const previous = grouped.get(item.room); grouped.set(item.room, previous ? { ...item, people: Math.max(previous.people, item.people), guests: [...new Set([...previous.guests, ...item.guests])], product: `${previous.product} ${item.product}` } : item); });
+      const parseDate = (value: string) => { const [d,m,y] = value.split("."); return `${y}-${m}-${d}`; };
+      const todayKey = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Zurich" }).format(new Date());
+      const notes = JSON.parse(localStorage.getItem("ambassador-guest-notes") || "{}");
+      const guestHistory = JSON.parse(localStorage.getItem("ambassador-guest-history") || "{}");
+      const guestPreferences = JSON.parse(localStorage.getItem("ambassador-guest-preferences") || "{}");
+      const next = HOTEL_ROOMS.map(room => { const item = grouped.get(room); if (!item) return normalizeRoom({ room, guests: [], people: 0, included: false, present: false }); const guests = [...new Set([item.customer, ...item.guests].filter(name => isName(name)))]; const arrival = parseDate(item.arrival); const departure = parseDate(item.departure); const breakfastDay = Math.max(1, Math.floor((new Date(`${todayKey}T12:00:00`).getTime() - new Date(`${arrival}T12:00:00`).getTime()) / 86400000) + 1); return normalizeRoom({ room, guests, people: item.people, included: /continental\s+breakfast|breakfast\s+étagère|breakfast\s+etagere/i.test(item.product), present: false, arrival, departure, breakfastDay, note: notes[guests[0]] || "", previousStays: guestHistory[guests[0]] || [], guestInfo: guestPreferences[normalizeGuestKey(guests[0])] || [] }); });
+      setImportPreview(next); setMenuOpen(false); setPanel("import"); setSyncText(`${grouped.size} Zimmer erkannt`);
+    } catch (error) {
+      setMenuOpen(false); setSyncText("Laden fehlgeschlagen");
+      window.alert(error instanceof Error ? `Die Mews-Liste konnte nicht gelesen werden: ${error.message}` : "Die Mews-Liste konnte nicht gelesen werden.");
+    }
+  };
+
+  const importMewsPhotos = async (files: File[]) => {
+    if (!files.length || photoImporting) return;
+    setPhotoImporting(true);
+    setPhotoError("");
+    setSyncText(tr("Fotos werden gelesen …", "Reading photos …", "Đang đọc ảnh …"));
+
+    const compressPhoto = (file: File) => new Promise<Blob>((resolve, reject) => {
+      const image = new Image();
+      const url = URL.createObjectURL(file);
+      image.onload = () => {
+        try {
+          const maxSide = 1800;
+          const scale = Math.min(1, maxSide / Math.max(image.naturalWidth, image.naturalHeight));
+          const canvas = document.createElement("canvas");
+          canvas.width = Math.max(1, Math.round(image.naturalWidth * scale));
+          canvas.height = Math.max(1, Math.round(image.naturalHeight * scale));
+          const context = canvas.getContext("2d");
+          if (!context) throw new Error("Bild konnte nicht vorbereitet werden.");
+          context.fillStyle = "#ffffff";
+          context.fillRect(0, 0, canvas.width, canvas.height);
+          context.drawImage(image, 0, 0, canvas.width, canvas.height);
+          canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error("Bild konnte nicht komprimiert werden.")), "image/jpeg", 0.84);
+        } catch (error) { reject(error); }
+        finally { URL.revokeObjectURL(url); }
+      };
+      image.onerror = () => { URL.revokeObjectURL(url); reject(new Error("Ein Foto konnte nicht geöffnet werden.")); };
+      image.src = url;
+    });
+
+    try {
+      const form = new FormData();
+      const selectedFiles = files.slice(0, 6);
+      for (let index = 0; index < selectedFiles.length; index += 1) {
+        const file = selectedFiles[index];
+        try {
+          const blob = await compressPhoto(file);
+          form.append("images", blob, `mews-seite-${index + 1}.jpg`);
+        } catch (error) {
+          const supportedOriginal = /image\/(jpeg|png|webp)/i.test(file.type) && file.size <= 4 * 1024 * 1024;
+          if (!supportedOriginal) throw error;
+          form.append("images", file, file.name || `mews-seite-${index + 1}`);
+        }
+      }
+      const response = await fetch("/api/mews-photo", { method: "POST", body: form, cache: "no-store" });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(payload.error || tr("Die Fotos konnten nicht erkannt werden.", "The photos could not be recognized.", "Không thể nhận dạng ảnh."));
+
+      type PhotoRoom = { room: number; customer: string; guests: string[]; people: number; product?: string; arrival: string; departure: string };
+      const recognized = Array.isArray(payload.rooms) ? payload.rooms as PhotoRoom[] : [];
+      if (!recognized.length) throw new Error(tr("Keine gültigen Hotelzimmer erkannt.", "No valid hotel rooms recognized.", "Không nhận dạng được phòng hợp lệ."));
+
+      const cleanName = (value: unknown) => String(value ?? "").replace(/\s+/g, " ").trim();
+      const parseDate = (value: string) => { const [d,m,y] = value.split("."); return `${y}-${m}-${d}`; };
+      const todayKey = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Zurich" }).format(new Date());
+      const notes = JSON.parse(localStorage.getItem("ambassador-guest-notes") || "{}");
+      const guestHistory = JSON.parse(localStorage.getItem("ambassador-guest-history") || "{}");
+      const guestPreferences = JSON.parse(localStorage.getItem("ambassador-guest-preferences") || "{}");
+      const byRoom = new Map(recognized.map(item => [Number(item.room), item]));
+      const next = HOTEL_ROOMS.map(room => {
+        const item = byRoom.get(room);
+        if (!item) return normalizeRoom({ room, guests: [], people: 0, included: false, present: false });
+        const guests = [...new Set([cleanName(item.customer), ...(item.guests || []).map(cleanName)].filter(name => name && !/^\d+$/.test(name)))];
+        const arrival = parseDate(item.arrival);
+        const departure = parseDate(item.departure);
+        const breakfastDay = Math.max(1, Math.floor((new Date(`${todayKey}T12:00:00`).getTime() - new Date(`${arrival}T12:00:00`).getTime()) / 86400000) + 1);
+        return normalizeRoom({ room, guests, people: Math.max(1, Number(item.people) || guests.length || 1), included: /continental\s+breakfast|breakfast\s+étagère|breakfast\s+etagere/i.test(item.product || ""), present: false, arrival, departure, breakfastDay, note: notes[guests[0]] || "", previousStays: guestHistory[guests[0]] || [], guestInfo: guestPreferences[normalizeGuestKey(guests[0])] || [] });
+      });
+      const occupied = next.filter(room => room.guests.length).length;
+      const guests = next.reduce((sum, room) => sum + room.people, 0);
+      const included = next.filter(room => room.included).reduce((sum, room) => sum + room.people, 0);
+      persist(next, []);
+      localStorage.removeItem("ambassador-breakfast-arrivals");
+      setArrivalEvents([]);
+      setStage("app");
+      setSyncText(tr(`${occupied} Zimmer aus Fotos importiert`, `${occupied} rooms imported from photos`, `Đã nhập ${occupied} phòng từ ảnh`));
+      setImportSuccess({ included, guests, occupied });
+      window.setTimeout(() => setImportSuccess(null), 4700);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : tr("Fotoimport fehlgeschlagen.", "Photo import failed.", "Nhập ảnh thất bại.");
+      setPhotoError(message);
+      setSyncText(tr("Fotoimport fehlgeschlagen", "Photo import failed", "Nhập ảnh thất bại"));
+    } finally {
+      setPhotoImporting(false);
+    }
+  };
+
+  const clearList = async () => {
+    const next = HOTEL_ROOMS.map(room => (normalizeRoom({ room, guests: [], people: 0, included: false, present: false }) satisfies Room));
+    setRooms(next); setPanel(null);
+    try {
+      localStorage.removeItem("ambassador-breakfast-rooms"); localStorage.removeItem("ambassador-breakfast-arrivals"); setArrivalEvents([]);
+      const response = await fetch(cloudRowUrl(dateKey()), { method: "DELETE", headers: cloudHeaders(), cache: "no-store" });
+      setSyncText(response.ok ? "Auf allen Geräten gelöscht" : "Liste lokal gelöscht");
+    } catch { setSyncText("Liste lokal gelöscht"); }
+  };
+
+  const addRoom = async () => {
+    const roomNumber = Number(newRoom.room);
+    const guests = newRoom.guests.split(/\n|,/).map(value => value.trim()).filter(Boolean);
+    if (!HOTEL_ROOMS.includes(roomNumber) || !guests.length) return;
+    persist(rooms.map(room => room.room === roomNumber ? normalizeRoom({ ...room, guests, people: Math.max(1, Number(newRoom.people) || guests.length), included: newRoom.included, present: false, table: undefined, arrivedCount: 0, departedCount: 0 }) : room));
+    setNewRoom({ room: "", guests: "", people: "1", included: true }); setPanel(null);
+  };
+
+  const locale = language === "de" ? "de-CH" : language === "vi" ? "vi-VN" : "en-GB";
+  const today = new Intl.DateTimeFormat(locale, { weekday: "long", day: "2-digit", month: "2-digit", year: "numeric", timeZone: "Europe/Zurich" }).format(new Date());
+  const stayText = (room: Room) => {
+    if (!room.departure) return tr("Aufenthaltsdauer nicht verfügbar", "Stay duration unavailable", "Không có thông tin thời gian lưu trú");
+    const todayKey = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Zurich" }).format(new Date());
+    const days = Math.max(0, Math.ceil((new Date(`${room.departure}T12:00:00`).getTime() - new Date(`${todayKey}T12:00:00`).getTime()) / 86400000));
+    return days === 0
+      ? tr("Reist heute ab", "Departs today", "Trả phòng hôm nay")
+      : days === 1
+        ? tr("Bleibt noch 1 Tag", "Stays 1 more day", "Còn ở lại 1 ngày")
+        : tr(`Bleibt noch ${days} Tage`, `Stays ${days} more days`, `Còn ở lại ${days} ngày`);
+  };
+  const saveRoomDetails = (room: Room) => {
+    persist(rooms.map(item => item.room === room.room ? normalizeRoom({ ...item, ...room }) : item));
+    if (room.guests[0]) {
+      const notes = JSON.parse(localStorage.getItem("ambassador-guest-notes") || "{}");
+      notes[room.guests[0]] = room.note || "";
+      localStorage.setItem("ambassador-guest-notes", JSON.stringify(notes));
+      void saveGuestPreference(room.guests[0], room.guestInfo || []);
+    }
+    setSelected(null);
+    if (guestInfoEditOnly) { setGuestInfoEditOnly(false); setEditMode(false); }
+  };
+
+  const login = (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!password.trim()) { setLoginError(c.requiredPassword); return; }
+    const todayKey = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Zurich" }).format(new Date());
+    sessionStorage.setItem("ambassador-v2-login", todayKey); setLoginError(""); setStage("load");
+  };
+
+  const logout = () => { sessionStorage.removeItem("ambassador-v2-login"); setMenuOpen(false); setPassword(""); setStage("login"); };
+
+  const confirmImport = () => {
+    const occupied = importPreview.filter(room => room.guests.length).length;
+    const guests = importPreview.reduce((sum, room) => sum + room.people, 0);
+    const included = importPreview.filter(room => room.included).reduce((sum, room) => sum + room.people, 0);
+    persist(importPreview, []); localStorage.removeItem("ambassador-breakfast-arrivals"); setArrivalEvents([]); setPanel(null); setSyncText("Mews-Liste übernommen"); setImportSuccess({ included, guests, occupied });
+    window.setTimeout(() => setImportSuccess(null), 4700);
+  };
+
+  const includedArrived = arrivalEvents.filter(event => event.included).reduce((sum, event) => sum + event.people, 0);
+  const additionalArrived = arrivalEvents.filter(event => !event.included).reduce((sum, event) => sum + event.people, 0);
+  const includedNoShow = Math.max(0, includedGuests - includedArrived);
+  const sortedArrivals = [...arrivalEvents].sort((a, b) => a.at - b.at);
+  const timeText = (timestamp?: number) => timestamp ? new Intl.DateTimeFormat(locale, { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Zurich" }).format(new Date(timestamp)) : "–";
+  const peak = (() => {
+    if (!arrivalEvents.length) return { label: "–", people: 0 };
+    const buckets = new Map<number, number>();
+    arrivalEvents.forEach(event => { const date = new Date(event.at); const start = new Date(date); start.setMinutes(Math.floor(date.getMinutes() / 30) * 30, 0, 0); buckets.set(start.getTime(), (buckets.get(start.getTime()) || 0) + event.people); });
+    const [start, people] = [...buckets.entries()].sort((a, b) => b[1] - a[1] || a[0] - b[0])[0];
+    return { label: `${timeText(start)}–${timeText(start + 30 * 60 * 1000)}`, people };
+  })();
+  const eightyWindow = (() => {
+    const expanded = sortedArrivals.flatMap(event => Array.from({ length: event.people }, () => event.at));
+    if (!expanded.length) return "–";
+    const start = expanded[Math.floor((expanded.length - 1) * .1)];
+    const end = expanded[Math.ceil((expanded.length - 1) * .9)];
+    return `${timeText(start)}–${timeText(end)}`;
+  })();
+  const arrivedTotal = includedArrived + additionalArriv
