@@ -4,7 +4,7 @@
   "private": true,
   "engines": { "node": "22.x" },
   "scripts": {
-    "prebuild": "node scripts/materialize-app.mjs && node scripts/final-master-cleanup.mjs",
+    "prebuild": "node scripts/materialize-app.mjs",
     "dev": "npm run prebuild && next dev",
     "typecheck": "tsc --noEmit",
     "quality": "node scripts/quality-gate.mjs",

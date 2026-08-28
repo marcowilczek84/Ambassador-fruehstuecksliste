@@ -206,4 +206,16 @@ app = replaceOrThrow(app,
   '      const rawMessage = error instanceof Error ? error.message : "";\n      const technicalGatewayError = /AI Gateway|credit card|vercel\\.com\\/d\\?/i.test(rawMessage);\n      const message = technicalGatewayError\n        ? tr("Die Fotoerkennung ist momentan nicht verfügbar. Bitte später erneut versuchen oder die Mews-Datei importieren.", "Photo recognition is currently unavailable. Please try again later or import the Mews file.", "Nhận dạng ảnh hiện không khả dụng. Vui lòng thử lại sau hoặc nhập tệp Mews.")\n        : (rawMessage || tr("Fotoimport fehlgeschlagen.", "Photo import failed.", "Nhập ảnh thất bại."));\n      setPhotoError(message);',
   "friendly photo error");
 
+/* Final production defaults belong in this single canonical materializer. */
+app = replaceOrThrow(app,
+  'const [stage, setStage] = useState<"login" | "load" | "photo" | "app">("login");',
+  'const [stage, setStage] = useState<"login" | "load" | "photo" | "app">("load");',
+  "production start screen");
+app = app
+  .replace('tr("Mews-Liste fotografieren", "Photograph Mews list", "Chụp danh sách Mews")', 'tr("Foto erkennen", "Recognize photo", "Nhận dạng ảnh")')
+  .replace('tr("Eine oder mehrere Seiten aufnehmen", "Capture one or more pages", "Chụp một hoặc nhiều trang")', 'tr("Papierliste intelligent lesen", "Read paper list intelligently", "Đọc danh sách giấy thông minh")')
+  .replace('tr("Mews-Datei importieren", "Import Mews file", "Nhập tệp Mews")', 'tr("Mews-Datei", "Mews file", "Tệp Mews")')
+  .replace('{panel === "stats-menu" as any &&', '{(panel as any) === "stats-menu" &&')
+  .replace(/Ambassador Frühstück · Version 9/g, "Ambassador Frühstück · Final Master");
+
 await writeFile("app/BreakfastApp.tsx", app);

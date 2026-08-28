@@ -17,7 +17,6 @@
 //   // ...
 // }
 
-import "./final-master.css";
 import "./load-intelligence.css";
 import BreakfastApp from "./BreakfastApp";
 import ThemeSelector from "./ThemeSelector";

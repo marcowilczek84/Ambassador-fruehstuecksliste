@@ -322,7 +322,7 @@ export default function BreakfastApp() {
       if (sessionStorage.getItem("ambassador-v2-login") === todayKey) setStage("load");
       const saved = localStorage.getItem("ambassador-breakfast-rooms");
       const data = saved ? JSON.parse(saved) : null;
-      if (Array.isArray(data) && data.length === 44) setRooms(data.map((room: Room) => normalizeRoom(room)));
+      if (Array.isArray(data) && data.length === HOTEL_ROOMS.length) setRooms(data.map((room: Room) => normalizeRoom(room)));
       const eventData = JSON.parse(localStorage.getItem("ambassador-breakfast-arrivals") || "null");
       if (eventData?.date === todayKey && Array.isArray(eventData.events)) setArrivalEvents(eventData.events);
       const savedHistory = JSON.parse(localStorage.getItem("ambassador-breakfast-history") || "[]");
@@ -335,4 +335,4 @@ export default function BreakfastApp() {
     let loading = false;
 
     const applyCloud = (cloud: CloudModel) => {
-      if (!active || !cloud || cl
+      if (!active || !cloud || cloud.date !== dateKey()) return;
