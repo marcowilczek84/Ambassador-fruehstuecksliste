@@ -165,7 +165,7 @@ Für jedes Zimmer:
 - confidence: realistische Sicherheit zwischen 0 und 1
 - warnings: nur konkrete Unsicherheiten
 
-Ein Zimmerblock beginnt bei seiner Zimmernummer und endet unmittelbar vor der nächsten Zimmernummer. Ordne Namen und Angaben niemals einem benachbarten Zimmer zu. Anreise und Abreise stehen zusammen im Aufenthaltsblock im Muster "x People TT.MM.JJJJ - TT.MM.JJJJ". Sobald du die Anreise erkennst, lies im selben Block gezielt auch die Abreise nach dem Bindestrich. Prüfe für jeden Zimmerblock separat die rechte Produktspalte auf eine Frühstücksleistung; überspringe diese Prüfung bei keinem Zimmer. Wenn die Produktspalte abgeschnitten oder unleserlich ist, setze included nicht anhand einer Vermutung und füge eine kurze Warnung hinzu. Wenn ein Zimmerblock am oberen oder unteren Bildrand abgeschnitten ist und die Angaben nicht eindeutig vollständig zugeordnet werden können, lasse diesen Block aus; er wird auf einem anderen Foto gelesen. "People" beziehungsweise "x People" ist die Personenzahl. Eine Zahl vor "Continental breakfast" ist die Anzahl der Frühstücksleistungen, nicht automatisch die Personenzahl. Erfinde keine Namen, Daten oder Leistungen. Bei unleserlichen Angaben verwende leere Strings beziehungsweise eine kurze Warnung. Ignoriere Seitenköpfe, Summenzeilen und "Number of guests".`,
+Ein Zimmerblock beginnt bei seiner Zimmernummer und endet unmittelbar vor der nächsten Zimmernummer. Ordne Namen und Angaben niemals einem benachbarten Zimmer zu. Anreise und Abreise stehen zusammen im Aufenthaltsblock im Muster "x People TT.MM.JJJJ - TT.MM.JJJJ". Sobald du die Anreise erkennst, lies im selben Block gezielt auch die Abreise nach dem Bindestrich. Prüfe für jeden Zimmerblock separat die rechte Produktspalte auf eine Frühstücksleistung; überspringe diese Prüfung bei keinem Zimmer. Eine vollständig sichtbare, leere Produktzelle bedeutet eindeutig included=false und breakfastConfidence mindestens 0.95. Nur wenn die Produktspalte tatsächlich abgeschnitten oder unleserlich ist, setze eine niedrige breakfastConfidence und füge eine kurze Warnung hinzu. Wenn ein Zimmerblock am oberen oder unteren Bildrand abgeschnitten ist und die Angaben nicht eindeutig vollständig zugeordnet werden können, lasse diesen Block aus; er wird auf einem anderen Foto gelesen. "People" beziehungsweise "x People" ist die Personenzahl. Eine Zahl vor "Continental breakfast" ist die Anzahl der Frühstücksleistungen, nicht automatisch die Personenzahl. Erfinde keine Namen, Daten oder Leistungen. Bei unleserlichen Angaben verwende leere Strings beziehungsweise eine kurze Warnung. Ignoriere Seitenköpfe, Summenzeilen und "Number of guests".`,
             },
             image,
           ],
@@ -203,7 +203,7 @@ Prüfe jeden Zimmerblock einzeln:
 - Abgeschnittene Blöcke am Bildrand nur übernehmen, wenn sie auf einem anderen Foto vollständig sind.
 - Personenzahl ausschließlich aus "x People" lesen; Frühstücksmengen nicht als Personenzahl verwenden.
 - Anreise und Abreise immer gemeinsam aus "x People TT.MM.JJJJ - TT.MM.JJJJ" lesen. Wenn eine Anreise vorhanden ist, suche im selben Block nochmals gezielt nach der Abreise.
-- Prüfe bei jedem einzelnen Zimmer noch einmal die rechte Produkt-/Leistungsspalte. "Continental breakfast", "Breakfast Étagère" oder "Breakfast Etagere" bedeutet included=true. Fehlt eine solche Leistung eindeutig, included=false. Ist die Spalte unleserlich, markiere das Zimmer zur Prüfung. Eine davorstehende Menge gehört zur Frühstücksleistung und darf die Personenzahl nicht verändern.
+- Prüfe bei jedem einzelnen Zimmer noch einmal die rechte Produkt-/Leistungsspalte. "Continental breakfast", "Breakfast Étagère" oder "Breakfast Etagere" bedeutet included=true. Eine vollständig sichtbare leere Produktzelle bedeutet eindeutig included=false und breakfastConfidence mindestens 0.95. Nur eine tatsächlich abgeschnittene oder unleserliche Spalte ist unsicher. Eine davorstehende Menge gehört zur Frühstücksleistung und darf die Personenzahl nicht verändern.
 - Setze breakfastConfidence nur dann auf mindestens 0.9, wenn die Produktspalte für dieses Zimmer eindeutig lesbar ist und included dadurch sicher true oder sicher false ist.
 - Keine Angaben erfinden. Unsichere Angaben kurz auf Deutsch markieren.
 
@@ -242,7 +242,7 @@ Gültige Zimmer: 20-28, 30-38, 40-48, 50-54, 56-58 und 60-68.`,
     });
     const uncertainRooms = result.rooms.filter(room =>
       !room.guests.length || !room.arrival || !room.departure ||
-      room.confidence < 0.8 || room.breakfastConfidence < 0.85
+      room.breakfastConfidence < 0.75
     );
     if (uncertainRooms.length) {
       return NextResponse.json({
