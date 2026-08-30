@@ -119,7 +119,7 @@ export async function POST(request: Request) {
   try {
     const formData = await request.formData();
     const files = formData.getAll("photos").filter((value): value is File => value instanceof File);
-    if (!files.length || files.length > 4) {
+    if (!files.length || files.length > 12) {
       return NextResponse.json({ error: "Bitte 1 bis 4 Fotos auswählen." }, { status: 400 });
     }
 
@@ -149,7 +149,7 @@ export async function POST(request: Request) {
         content: [
           {
             type: "text",
-            text: `Lies diese fotografierten Seiten einer zusammengehörigen Hotel-Zimmerliste. Analysiere zunächst jede Seite für sich und führe die Ergebnisse anschließend zu genau einer Liste zusammen. Doppelt fotografierte Seiten oder Zimmer dürfen nur einmal vorkommen.
+            text: `Lies diese fotografierten Seiten einer zusammengehörigen Hotel-Zimmerliste. Jede Originalseite wurde für bessere Lesbarkeit in drei überlappende, vergrößerte Abschnitte geteilt. Führe zusammengehörige Abschnitte und wiederholte Zimmer zu genau einer Liste zusammen. Analysiere jeden sichtbaren Zimmerblock vollständig von der Zimmernummer links bis zur Produktspalte rechts. Doppelt sichtbare Zimmer dürfen nur einmal vorkommen.
 
 Extrahiere ausschließlich echte Zimmerblöcke. Gültige Zimmer sind:
 20-28, 30-38, 40-48, 50-54, 56-58 und 60-68.
@@ -186,7 +186,7 @@ Ein Zimmerblock beginnt bei seiner Zimmernummer und endet unmittelbar vor der n�
         content: [
           {
             type: "text",
-            text: `Kontrolliere den folgenden ersten Entwurf noch einmal sorgfältig gegen alle Originalfotos und gib eine korrigierte, eindeutige Gesamtliste zurück.
+            text: `Kontrolliere den folgenden ersten Entwurf noch einmal sorgfältig gegen alle vergrößerten, überlappenden Fotoabschnitte und gib eine korrigierte, eindeutige Gesamtliste zurück.
 
 Erster Entwurf:
 ${JSON.stringify(draft)}
