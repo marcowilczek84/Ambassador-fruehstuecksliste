@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>Liste wird übernommen</title>
+  <style>
+    html,body,iframe{width:100%;height:100%;margin:0;border:0;background:#fff}
+    iframe{display:block}
+    .status{position:fixed;inset:0;z-index:5;display:grid;place-items:center;background:#fff;color:#1c777b;font:650 16px system-ui;text-align:center}
+    .status span:before{content:"";display:block;width:28px;height:28px;margin:0 auto 14px;border:3px solid #dce3e1;border-top-color:#1c777b;border-radius:50%;animation:spin .8s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+  </style>
+</head>
+<body>
+  <div class="status" id="status"><span>Liste wird in die App übernommen …</span></div>
+  <iframe id="app" src="/index-live.html" title="Frühstücksliste"></iframe>
+  <script>
+    (function(){
+      const raw=localStorage.getItem('ambassador-photo-import-v1');
+      const status=document.querySelector('#status');
+      let payload;
+      try{payload=JSON.parse(raw||'null')}catch(error){}
+      if(!payload||!Array.isArray(payload.rooms)||!payload.rooms.length){location.replace('/index-live.html');return}
+      const frame=document.querySelector('#app');
+      frame.addEventListener('load',async()=>{
+        let attempts=0;
+        const timer=setInterval(async()=>{
+          const doc=frame.contentDocument;
+          const input=doc&&doc.querySelector('input[type="file"][accept*=".xlsx"]');
+          if(!input){if(++attempts>240){clearInterval(timer);status.textContent='Die App konnte nicht geöffnet werden.'}return}
+          clearInterval(timer);
+          try{
+            const response=await fetch('/api/photo-list',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({rooms:payload.rooms})});
+            if(!response.ok)throw new Error('Importdatei konnte nicht erstellt werden.');
+            const blob=await response.blob();
+            const file=new File([blob],'Ambassador_Fotoliste.xlsx',{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+            try{const transfer=new DataTransfer;transfer.items.add(file);input.files=transfer.files}catch(error){Object.defineProperty(input,'files',{configurable:true,value:[file]})}
+            input.dispatchEvent(new Event('change',{bubbles:true}));
+            let acceptAttempts=0;
+            const acceptTimer=setInterval(()=>{
+              const button=doc.querySelector('.import-modal .modal-action.primary');
+              if(button){
+                clearInterval(acceptTimer);
+                button.click();
+                localStorage.removeItem('ambassador-photo-import-v1');
+                status.remove();
+                setTimeout(()=>location.replace('/index-live.html'),1800);
+              }else if(++acceptAttempts>200){clearInterval(acceptTimer);status.textContent='Die Liste konnte nicht übernommen werden.'}
+            },100);
+          }catch(error){status.textContent='Die Liste konnte nicht übernommen werden.'}
+        },100);
+      });
+    })();
+  </script>
+</body>
+</html>
