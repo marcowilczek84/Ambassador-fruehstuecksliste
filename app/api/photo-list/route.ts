@@ -14,6 +14,7 @@ const recognitionSchema = z.object({
     arrival: z.string(),
     departure: z.string(),
     included: z.boolean(),
+    breakfastConfidence: z.number().min(0).max(1),
     confidence: z.number().min(0).max(1),
     warnings: z.array(z.string()),
   })),
@@ -35,6 +36,7 @@ type RecognizedRoom = {
   arrival: string;
   departure: string;
   included: boolean;
+  breakfastConfidence: number;
   confidence: number;
   warnings: string[];
 };
@@ -76,6 +78,7 @@ const normalizeResult = (input: unknown) => {
       arrival: validDate(item.arrival),
       departure: validDate(item.departure),
       included: Boolean(item.included),
+      breakfastConfidence: Math.max(0, Math.min(1, Number(item.breakfastConfidence) || 0)),
       confidence: Math.max(0, Math.min(1, Number(item.confidence) || 0)),
       warnings,
     };
@@ -92,7 +95,8 @@ const normalizeResult = (input: unknown) => {
       arrival: previous.arrival || normalized.arrival,
       departure: previous.departure || normalized.departure,
       included: previous.included || normalized.included,
-      confidence: Math.min(previous.confidence, normalized.confidence),
+      breakfastConfidence: Math.max(previous.breakfastConfidence, normalized.breakfastConfidence),
+      confidence: Math.max(previous.confidence, normalized.confidence),
       warnings: [...new Set([...previous.warnings, ...normalized.warnings])],
     });
   }
@@ -157,6 +161,7 @@ Für jedes Zimmer:
 - people: gebuchte Personenzahl, nicht automatisch nur die Zahl erkannter Namen
 - arrival und departure: exakt TT.MM.JJJJ
 - included: Prüfe bei jedem Zimmer ausdrücklich die rechte Produkt-/Leistungsspalte. true, wenn dort "Continental breakfast", "Breakfast Étagère"/"Breakfast Etagere" oder eine eindeutig gleichbedeutende Frühstücksleistung steht; sonst false
+- breakfastConfidence: Sicherheit nur für die Entscheidung, ob Frühstück inklusive ist, zwischen 0 und 1
 - confidence: realistische Sicherheit zwischen 0 und 1
 - warnings: nur konkrete Unsicherheiten
 
@@ -199,6 +204,7 @@ Prüfe jeden Zimmerblock einzeln:
 - Personenzahl ausschließlich aus "x People" lesen; Frühstücksmengen nicht als Personenzahl verwenden.
 - Anreise und Abreise immer gemeinsam aus "x People TT.MM.JJJJ - TT.MM.JJJJ" lesen. Wenn eine Anreise vorhanden ist, suche im selben Block nochmals gezielt nach der Abreise.
 - Prüfe bei jedem einzelnen Zimmer noch einmal die rechte Produkt-/Leistungsspalte. "Continental breakfast", "Breakfast Étagère" oder "Breakfast Etagere" bedeutet included=true. Fehlt eine solche Leistung eindeutig, included=false. Ist die Spalte unleserlich, markiere das Zimmer zur Prüfung. Eine davorstehende Menge gehört zur Frühstücksleistung und darf die Personenzahl nicht verändern.
+- Setze breakfastConfidence nur dann auf mindestens 0.9, wenn die Produktspalte für dieses Zimmer eindeutig lesbar ist und included dadurch sicher true oder sicher false ist.
 - Keine Angaben erfinden. Unsichere Angaben kurz auf Deutsch markieren.
 
 Gültige Zimmer: 20-28, 30-38, 40-48, 50-54, 56-58 und 60-68.`,
@@ -234,6 +240,15 @@ Gültige Zimmer: 20-28, 30-38, 40-48, 50-54, 56-58 und 60-68.`,
       rooms: [...checkedRooms, ...draft.rooms.filter(room => !checkedRoomNumbers.has(room.room))],
       warnings: verified.warnings,
     });
+    const uncertainRooms = result.rooms.filter(room =>
+      !room.guests.length || !room.arrival || !room.departure ||
+      room.confidence < 0.8 || room.breakfastConfidence < 0.85
+    );
+    if (uncertainRooms.length) {
+      return NextResponse.json({
+        error: `Diese Zimmer sind noch nicht eindeutig lesbar: ${uncertainRooms.map(room => room.room).join(", ")}. Bitte die betreffende Seite noch einmal gerade fotografieren.`,
+      }, { status: 422 });
+    }
     if (!result.rooms.length) {
       return NextResponse.json({ error: "Auf den Fotos wurden keine Zimmer sicher erkannt." }, { status: 422 });
     }
