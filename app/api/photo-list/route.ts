@@ -315,6 +315,56 @@ Wiederholte Zeilen derselben Zimmernummer bilden einen Block. Schreibe jeden Gas
       }
     }
     if (uncertainRooms.length) {
+      try {
+        const targets = uncertainRooms.map(room => room.room);
+        const { output: finalRepairOutput } = await generateText({
+          model: "google/gemini-2.5-flash",
+          output: Output.object({ schema: recognitionSchema }),
+          providerOptions: {
+            gateway: {
+              tags: ["feature:photo-list-final-repair", "app:ambassador-fruehstuecksliste"],
+              user: "hotel-ambassador-zurich",
+            },
+          },
+          messages: [{
+            role: "user",
+            content: [
+              {
+                type: "text",
+                text: `Ergänze ausschließlich die noch unvollständigen Zimmer ${targets.join(", ")} aus den vergrößerten Fotoabschnitten. Lies für jedes Zielzimmer den vollständigen Namen buchstabengetreu sowie Personenzahl, Anreise und Abreise aus demselben durch waagerechte Linien begrenzten Zimmerblock. Prüfe auch die Produktspalte auf Continental breakfast oder Breakfast Étagère. Gib nur diese Zielzimmer zurück und lasse kein lesbares Feld leer.`,
+              },
+              ...images,
+            ],
+          }],
+        });
+        const finalRepair = normalizeResult(finalRepairOutput);
+        const finalByRoom = new Map(finalRepair.rooms.map(room => [room.room, room]));
+        result = normalizeResult({
+          rooms: result.rooms.map(room => {
+            const fix = finalByRoom.get(room.room);
+            if (!fix) return room;
+            return {
+              ...room,
+              guests: fix.guests.length ? fix.guests : room.guests,
+              people: fix.people || room.people,
+              arrival: fix.arrival || room.arrival,
+              departure: fix.departure || room.departure,
+              included: fix.included,
+              breakfastConfidence: fix.breakfastConfidence,
+              confidence: fix.confidence,
+              warnings: fix.warnings,
+            };
+          }),
+          warnings: result.warnings,
+        });
+        uncertainRooms = result.rooms.filter(room =>
+          !room.guests.length || !room.arrival || !room.departure
+        );
+      } catch (finalRepairError) {
+        console.warn("Final targeted AI repair failed", finalRepairError);
+      }
+    }
+    if (uncertainRooms.length) {
       return NextResponse.json({
         error: `Diese Zimmer sind noch nicht eindeutig lesbar: ${uncertainRooms.map(room => room.room).join(", ")}. Bitte die betreffende Seite noch einmal gerade fotografieren.`,
       }, { status: 422 });
