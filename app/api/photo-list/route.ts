@@ -136,7 +136,7 @@ export async function POST(request: Request) {
     })));
 
     const { output: initialOutput } = await generateText({
-      model: "google/gemini-3.7-flash",
+      model: "google/gemini-2.5-flash",
       output: Output.object({ schema: recognitionSchema }),
       providerOptions: {
         gateway: {
@@ -173,7 +173,7 @@ Ein Zimmerblock beginnt bei seiner Zimmernummer und endet unmittelbar vor der nÃ
 
     const draft = normalizeResult(initialOutput);
     const { output: verifiedOutput } = await generateText({
-      model: "openai/gpt-5.4-mini",
+      model: "google/gemini-2.5-flash",
       output: Output.object({ schema: recognitionSchema }),
       providerOptions: {
         gateway: {
@@ -241,7 +241,7 @@ GÃ¼ltige Zimmer: 20-28, 30-38, 40-48, 50-54, 56-58 und 60-68.`,
       try {
         const targets = uncertainRooms.map(room => room.room);
         const { output: repairedOutput } = await generateText({
-          model: "openai/gpt-5.4-mini",
+          model: "google/gemini-2.5-flash",
           output: Output.object({ schema: recognitionSchema }),
           providerOptions: {
             gateway: {
