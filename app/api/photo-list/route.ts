@@ -10,7 +10,7 @@ const recognitionSchema = z.object({
   rooms: z.array(z.object({
     room: z.number().int(),
     guests: z.array(z.string()),
-    people: z.number().int().min(1).max(8),
+    people: z.number().int().min(0).max(8),
     arrival: z.string(),
     departure: z.string(),
     included: z.boolean(),
