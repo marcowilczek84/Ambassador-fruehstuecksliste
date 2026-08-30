@@ -1,8 +1,24 @@
 import { NextResponse } from "next/server";
 import * as XLSX from "xlsx";
+import { generateText, Output } from "ai";
+import { z } from "zod";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
+
+const recognitionSchema = z.object({
+  rooms: z.array(z.object({
+    room: z.number().int(),
+    guests: z.array(z.string()),
+    people: z.number().int().min(1).max(8),
+    arrival: z.string(),
+    departure: z.string(),
+    included: z.boolean(),
+    confidence: z.number().min(0).max(1),
+    warnings: z.array(z.string()),
+  })),
+  warnings: z.array(z.string()),
+});
 
 const HOTEL_ROOMS = new Set([
   20, 21, 22, 23, 24, 25, 26, 27, 28,
@@ -94,6 +110,83 @@ const normalizeResult = (input: unknown) => {
     : [];
   return { rooms, warnings: globalWarnings };
 };
+
+export async function POST(request: Request) {
+  try {
+    const formData = await request.formData();
+    const files = formData.getAll("photos").filter((value): value is File => value instanceof File);
+    if (!files.length || files.length > 4) {
+      return NextResponse.json({ error: "Bitte 1 bis 4 Fotos auswählen." }, { status: 400 });
+    }
+
+    const supported = new Set(["image/jpeg", "image/png", "image/webp"]);
+    if (files.some(file => !supported.has(file.type) || file.size > 4_000_000)) {
+      return NextResponse.json({ error: "Ein Foto ist zu groß oder hat ein nicht unterstütztes Format." }, { status: 400 });
+    }
+
+    const images = await Promise.all(files.map(async file => ({
+      type: "file" as const,
+      mediaType: file.type,
+      filename: file.name,
+      data: { type: "data" as const, data: new Uint8Array(await file.arrayBuffer()) },
+    })));
+
+    const { output } = await generateText({
+      model: "google/gemini-3.7-flash",
+      output: Output.object({ schema: recognitionSchema }),
+      providerOptions: {
+        gateway: {
+          tags: ["feature:photo-list", "app:ambassador-fruehstuecksliste"],
+          user: "hotel-ambassador-zurich",
+        },
+      },
+      messages: [{
+        role: "user",
+        content: [
+          {
+            type: "text",
+            text: `Lies diese fotografierten Hotel-Zimmerlisten als zusammengehörige Liste.
+
+Extrahiere ausschließlich echte Zimmerblöcke. Gültige Zimmer sind:
+20-28, 30-38, 40-48, 50-54, 56-58 und 60-68.
+
+Für jedes Zimmer:
+- room: Zimmernummer
+- guests: alle vollständigen Gastnamen; jeder Name als eigener Eintrag
+- people: gebuchte Personenzahl, nicht automatisch nur die Zahl erkannter Namen
+- arrival und departure: exakt TT.MM.JJJJ
+- included: true, wenn "Continental breakfast", "Breakfast Étagère" oder eine eindeutige Frühstücksleistung beim Zimmer steht
+- confidence: realistische Sicherheit zwischen 0 und 1
+- warnings: nur konkrete Unsicherheiten
+
+Verbinde Einträge desselben Zimmers über mehrere Fotos. Erfinde keine Namen, Daten oder Leistungen. Bei unleserlichen Angaben verwende leere Strings beziehungsweise eine Warnung. Ignoriere Seitenköpfe, Summenzeilen und "Number of guests".`,
+          },
+          ...images,
+        ],
+      }],
+    });
+
+    const result = normalizeResult(output);
+    if (!result.rooms.length) {
+      return NextResponse.json({ error: "Auf den Fotos wurden keine Zimmer sicher erkannt." }, { status: 422 });
+    }
+    return NextResponse.json(result, {
+      headers: { "Cache-Control": "no-store, max-age=0" },
+    });
+  } catch (error) {
+    console.error("AI photo recognition failed", error);
+    const status = error && typeof error === "object" && "statusCode" in error
+      ? Number((error as { statusCode?: number }).statusCode)
+      : 500;
+    if (status === 402) {
+      return NextResponse.json({ error: "Das AI-Guthaben ist aufgebraucht. Bitte das Budget im Vercel AI Gateway prüfen." }, { status: 402 });
+    }
+    if (status === 429) {
+      return NextResponse.json({ error: "Die AI ist gerade ausgelastet. Bitte kurz warten und erneut versuchen." }, { status: 429 });
+    }
+    return NextResponse.json({ error: "Die AI konnte die Fotos nicht lesen. Bitte erneut versuchen." }, { status: 500 });
+  }
+}
 
 export async function PUT(request: Request) {
   try {
