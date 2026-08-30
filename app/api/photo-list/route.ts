@@ -21,6 +21,13 @@ const recognitionSchema = z.object({
   warnings: z.array(z.string()),
 });
 
+const nameVerificationSchema = z.object({
+  rooms: z.array(z.object({
+    room: z.number().int(),
+    guests: z.array(z.string()),
+  })),
+});
+
 const HOTEL_ROOMS = new Set([
   20, 21, 22, 23, 24, 25, 26, 27, 28,
   30, 31, 32, 33, 34, 35, 36, 37, 38,
@@ -123,7 +130,7 @@ export async function POST(request: Request) {
     const formData = await request.formData();
     const files = formData.getAll("photos").filter((value): value is File => value instanceof File);
     if (!files.length || files.length > 24) {
-      return NextResponse.json({ error: "Bitte 1 bis 4 Fotos auswählen." }, { status: 400 });
+      return NextResponse.json({ error: "Bitte Fotos auswählen." }, { status: 400 });
     }
 
     const supported = new Set(["image/jpeg", "image/png", "image/webp"]);
@@ -137,6 +144,11 @@ export async function POST(request: Request) {
       filename: file.name,
       data: { type: "data" as const, data: new Uint8Array(await file.arrayBuffer()) },
     })));
+    const tableImages = images.filter(image => !image.filename.toLocaleLowerCase("de").includes("namen-zoom"));
+    const nameImages = images.filter(image => image.filename.toLocaleLowerCase("de").includes("namen-zoom"));
+    if (!tableImages.length) {
+      return NextResponse.json({ error: "Die Tabellenfotos fehlen." }, { status: 400 });
+    }
 
     const { output: initialOutput } = await generateText({
       model: "google/gemini-2.5-flash",
@@ -169,7 +181,7 @@ Für jedes Zimmer:
 
 Ein Zimmerblock beginnt bei seiner Zimmernummer und endet unmittelbar vor der nächsten Zimmernummer. Wiederholte Zeilen derselben Zimmernummer gehören zu demselben Zimmerblock. Der erste Name kann sowohl in der Customer- als auch nochmals in der Companions-Spalte stehen; nimm denselben Namen innerhalb eines Zimmers nur einmal auf. Ordne Namen und Angaben niemals einem benachbarten Zimmer zu. Anreise und Abreise stehen zusammen im Aufenthaltsblock im Muster "x People TT.MM.JJJJ - TT.MM.JJJJ". Sobald du die Anreise erkennst, lies im selben Block gezielt auch die Abreise nach dem Bindestrich. Prüfe für jeden Zimmerblock separat die rechte Produktspalte auf eine Frühstücksleistung; überspringe diese Prüfung bei keinem Zimmer. Eine vollständig sichtbare, leere Produktzelle bedeutet eindeutig included=false und breakfastConfidence mindestens 0.95. Nur wenn die Produktspalte tatsächlich abgeschnitten oder unleserlich ist, setze eine niedrige breakfastConfidence und füge eine kurze Warnung hinzu. Wenn ein Zimmerblock am oberen oder unteren Bildrand abgeschnitten ist und die Angaben nicht eindeutig vollständig zugeordnet werden können, nutze die vollständige Wiederholung auf einem anderen Foto. "People" beziehungsweise "x People" ist die Personenzahl. Eine Zahl vor "Continental breakfast" ist die Gesamtzahl der Frühstücksleistungen über den Aufenthalt und niemals die Personenzahl. Hohe zusammengeführte Tabellenzellen können Zimmernummer und Namen unten oder mittig anzeigen: Ordne Produkt und Aufenthaltsdaten anhand der gemeinsamen waagerechten oberen und unteren Blockgrenzen zu, niemals anhand des optisch nächsten Textes. Erfinde keine Namen, Daten, Platzhalternamen oder Leistungen. Bei unleserlichen Angaben verwende leere Strings beziehungsweise eine kurze Warnung. Ignoriere Seitenköpfe, Summenzeilen und "Number of guests".`,
           },
-          ...images,
+          ...tableImages,
         ],
       }],
     });
@@ -206,7 +218,7 @@ Prüfe jeden Zimmerblock einzeln:
 
 Gültige Zimmer: 20-28, 30-38, 40-48, 50-54, 56-58 und 60-68.`,
           },
-          ...images,
+          ...tableImages,
         ],
       }],
     });
@@ -283,7 +295,7 @@ ${JSON.stringify(currentCandidates)}
 
 Wiederholte Zeilen derselben Zimmernummer bilden einen Block. Schreibe jeden Gastnamen buchstabengetreu vom Foto ab. Ergänze, entferne oder verändere keine Buchstaben und füge keine Akzente hinzu, die nicht gedruckt sind. Lies die Personenzahl und immer beide Daten aus "x People TT.MM.JJJJ - TT.MM.JJJJ". Prüfe außerdem die rechte Produktspalte: Continental breakfast oder Breakfast Étagère bedeutet included=true; eine klar sichtbare leere Produktzelle bedeutet included=false. Hohe zusammengeführte Zellen können ihre Zimmernummer oder ihren Namen unten anzeigen: Ordne anhand der gemeinsamen waagerechten Blockgrenzen zu, nicht anhand der nächsten Textzeile. Gib nur die genannten Zielzimmer zurück und erfinde keine Platzhalternamen.`,
               },
-              ...images,
+              ...tableImages,
             ],
           }],
         });
@@ -333,7 +345,7 @@ Wiederholte Zeilen derselben Zimmernummer bilden einen Block. Schreibe jeden Gas
                 type: "text",
                 text: `Ergänze ausschließlich die noch unvollständigen Zimmer ${targets.join(", ")} aus den vergrößerten Fotoabschnitten. Lies für jedes Zielzimmer den vollständigen Namen buchstabengetreu sowie Personenzahl, Anreise und Abreise aus demselben durch waagerechte Linien begrenzten Zimmerblock. Prüfe auch die Produktspalte auf Continental breakfast oder Breakfast Étagère. Gib nur diese Zielzimmer zurück und lasse kein lesbares Feld leer.`,
               },
-              ...images,
+              ...tableImages,
             ],
           }],
         });
@@ -371,6 +383,55 @@ Wiederholte Zeilen derselben Zimmernummer bilden einen Block. Schreibe jeden Gas
     }
     if (!result.rooms.length) {
       return NextResponse.json({ error: "Auf den Fotos wurden keine Zimmer sicher erkannt." }, { status: 422 });
+    }
+
+    // Der zusätzliche Namens-Zoom darf ausschließlich Schreibweisen von
+    // Gastnamen verbessern. Frühstück, Personenzahl und Aufenthaltsdaten
+    // bleiben deshalb immer bei der aus vollständigen Tabellenstreifen
+    // verifizierten Entscheidung.
+    if (nameImages.length) {
+      try {
+        const { output: nameOutput } = await generateText({
+          model: "google/gemini-2.5-flash",
+          output: Output.object({ schema: nameVerificationSchema }),
+          providerOptions: {
+            gateway: {
+              tags: ["feature:photo-list-name-verification", "app:ambassador-fruehstuecksliste"],
+              user: "hotel-ambassador-zurich",
+            },
+          },
+          messages: [{
+            role: "user",
+            content: [
+              {
+                type: "text",
+                text: `Prüfe ausschließlich die Schreibweise der Gastnamen für die bereits erkannten Zimmer. Die Bilder mit "namen-zoom" zeigen die Namensspalten vergrößert; die vollständigen Tabellenstreifen helfen nur bei der Zuordnung zur Zimmernummer.
+
+Aktuelle Zuordnung:
+${JSON.stringify(result.rooms.map(room => ({ room: room.room, guests: room.guests })))}
+
+Gib für jedes eindeutig sichtbare Zimmer nur room und alle dort gedruckten Gastnamen zurück. Schreibe jeden Namen buchstabengetreu ab. Ergänze oder entferne keine Person. Übernimm keinen Namen aus einem benachbarten Zimmer. Wenn die vergrößerte Schreibweise nicht sicherer ist, behalte die aktuelle Schreibweise bei.`,
+              },
+              ...tableImages,
+              ...nameImages,
+            ],
+          }],
+        });
+        const verifiedNames = new Map(
+          nameOutput.rooms
+            .filter(item => HOTEL_ROOMS.has(item.room))
+            .map(item => [item.room, [...new Set(item.guests.map(cleanText).filter(isRealGuest))]]),
+        );
+        result = {
+          ...result,
+          rooms: result.rooms.map(room => {
+            const names = verifiedNames.get(room.room);
+            return names?.length ? { ...room, guests: names } : room;
+          }),
+        };
+      } catch (nameVerificationError) {
+        console.warn("AI name verification failed", nameVerificationError);
+      }
     }
     return NextResponse.json(result, {
       headers: { "Cache-Control": "no-store, max-age=0" },
