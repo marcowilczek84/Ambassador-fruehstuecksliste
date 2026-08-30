@@ -12,3 +12,7 @@ npm run build
 ```
 
 Die Produktionsadresse darf erst nach erfolgreicher Prüfung einer separaten Vercel-Vorschau auf diesen Stand umgestellt werden.
+
+## Fotoerkennung
+
+Der Foto-Konverter nutzt Vercel AI Gateway für die strukturierte Erkennung der gedruckten Zimmerlisten. Erkannte Daten werden vor dem XLSX-Export zur Kontrolle angezeigt.
