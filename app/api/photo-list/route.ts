@@ -47,6 +47,9 @@ const cleanText = (value: unknown) =>
     .replace(/\s+/g, " ")
     .trim();
 
+const isRealGuest = (name: string) => /[\p{L}]/u.test(name) &&
+  !/unleserlich|unbekannt|unknown|not readable|nicht lesbar/i.test(name);
+
 const validDate = (value: unknown) => {
   const text = cleanText(value);
   const match = text.match(/^(\d{2})\.(\d{2})\.(\d{4})$/);
@@ -65,7 +68,7 @@ const normalizeResult = (input: unknown) => {
     if (!HOTEL_ROOMS.has(room)) continue;
 
     const guests = Array.isArray(item.guests)
-      ? [...new Set(item.guests.map(cleanText).filter(name => /[\p{L}]/u.test(name)))]
+      ? [...new Set(item.guests.map(cleanText).filter(isRealGuest))]
       : [];
     const people = Math.max(1, Math.min(8, Number(item.people) || guests.length || 1));
     const warnings = Array.isArray(item.warnings)
@@ -105,7 +108,7 @@ const normalizeResult = (input: unknown) => {
     const warnings = [...room.warnings];
     if (!room.guests.length) warnings.push("Kein Gastname sicher erkannt");
     if (!room.arrival || !room.departure) warnings.push("Aufenthaltsdatum kontrollieren");
-    if (room.people < room.guests.length) room.people = room.guests.length;
+    if (room.people < room.guests.length) warnings.push("Gedruckte Personenzahl weicht von der Anzahl gelesener Namen ab");
     return { ...room, warnings: [...new Set(warnings)] };
   });
 
@@ -164,7 +167,7 @@ Für jedes Zimmer:
 - confidence: realistische Sicherheit zwischen 0 und 1
 - warnings: nur konkrete Unsicherheiten
 
-Ein Zimmerblock beginnt bei seiner Zimmernummer und endet unmittelbar vor der nächsten Zimmernummer. Wiederholte Zeilen derselben Zimmernummer gehören zu demselben Zimmerblock. Der erste Name kann sowohl in der Customer- als auch nochmals in der Companions-Spalte stehen; nimm denselben Namen innerhalb eines Zimmers nur einmal auf. Ordne Namen und Angaben niemals einem benachbarten Zimmer zu. Anreise und Abreise stehen zusammen im Aufenthaltsblock im Muster "x People TT.MM.JJJJ - TT.MM.JJJJ". Sobald du die Anreise erkennst, lies im selben Block gezielt auch die Abreise nach dem Bindestrich. Prüfe für jeden Zimmerblock separat die rechte Produktspalte auf eine Frühstücksleistung; überspringe diese Prüfung bei keinem Zimmer. Eine vollständig sichtbare, leere Produktzelle bedeutet eindeutig included=false und breakfastConfidence mindestens 0.95. Nur wenn die Produktspalte tatsächlich abgeschnitten oder unleserlich ist, setze eine niedrige breakfastConfidence und füge eine kurze Warnung hinzu. Wenn ein Zimmerblock am oberen oder unteren Bildrand abgeschnitten ist und die Angaben nicht eindeutig vollständig zugeordnet werden können, nutze die vollständige Wiederholung auf einem anderen Foto. "People" beziehungsweise "x People" ist die Personenzahl. Eine Zahl vor "Continental breakfast" ist die Gesamtzahl der Frühstücksleistungen über den Aufenthalt und niemals die Personenzahl. Erfinde keine Namen, Daten oder Leistungen. Bei unleserlichen Angaben verwende leere Strings beziehungsweise eine kurze Warnung. Ignoriere Seitenköpfe, Summenzeilen und "Number of guests".`,
+Ein Zimmerblock beginnt bei seiner Zimmernummer und endet unmittelbar vor der nächsten Zimmernummer. Wiederholte Zeilen derselben Zimmernummer gehören zu demselben Zimmerblock. Der erste Name kann sowohl in der Customer- als auch nochmals in der Companions-Spalte stehen; nimm denselben Namen innerhalb eines Zimmers nur einmal auf. Ordne Namen und Angaben niemals einem benachbarten Zimmer zu. Anreise und Abreise stehen zusammen im Aufenthaltsblock im Muster "x People TT.MM.JJJJ - TT.MM.JJJJ". Sobald du die Anreise erkennst, lies im selben Block gezielt auch die Abreise nach dem Bindestrich. Prüfe für jeden Zimmerblock separat die rechte Produktspalte auf eine Frühstücksleistung; überspringe diese Prüfung bei keinem Zimmer. Eine vollständig sichtbare, leere Produktzelle bedeutet eindeutig included=false und breakfastConfidence mindestens 0.95. Nur wenn die Produktspalte tatsächlich abgeschnitten oder unleserlich ist, setze eine niedrige breakfastConfidence und füge eine kurze Warnung hinzu. Wenn ein Zimmerblock am oberen oder unteren Bildrand abgeschnitten ist und die Angaben nicht eindeutig vollständig zugeordnet werden können, nutze die vollständige Wiederholung auf einem anderen Foto. "People" beziehungsweise "x People" ist die Personenzahl. Eine Zahl vor "Continental breakfast" ist die Gesamtzahl der Frühstücksleistungen über den Aufenthalt und niemals die Personenzahl. Hohe zusammengeführte Tabellenzellen können Zimmernummer und Namen unten oder mittig anzeigen: Ordne Produkt und Aufenthaltsdaten anhand der gemeinsamen waagerechten oberen und unteren Blockgrenzen zu, niemals anhand des optisch nächsten Textes. Erfinde keine Namen, Daten, Platzhalternamen oder Leistungen. Bei unleserlichen Angaben verwende leere Strings beziehungsweise eine kurze Warnung. Ignoriere Seitenköpfe, Summenzeilen und "Number of guests".`,
           },
           ...images,
         ],
@@ -214,9 +217,16 @@ Gültige Zimmer: 20-28, 30-38, 40-48, 50-54, 56-58 und 60-68.`,
     // entscheidung bleibt dagegen maßgeblich.
     const verified = normalizeResult(verifiedOutput);
     const draftByRoom = new Map(draft.rooms.map(room => [room.room, room]));
+    const disputedRoomNumbers = new Set<number>();
     const checkedRooms = verified.rooms.map(room => {
       const fallback = draftByRoom.get(room.room);
       if (!fallback) return room;
+      if (
+        (fallback.people > 0 && room.people > 0 && fallback.people !== room.people) ||
+        (fallback.arrival && room.arrival && fallback.arrival !== room.arrival) ||
+        (fallback.departure && room.departure && fallback.departure !== room.departure) ||
+        fallback.included !== room.included
+      ) disputedRoomNumbers.add(room.room);
       return {
         ...room,
         guests: room.guests.length ? room.guests : fallback.guests,
@@ -237,9 +247,18 @@ Gültige Zimmer: 20-28, 30-38, 40-48, 50-54, 56-58 und 60-68.`,
     let uncertainRooms = result.rooms.filter(room =>
       !room.guests.length || !room.arrival || !room.departure
     );
-    if (uncertainRooms.length) {
+    const repairRoomNumbers = new Set([
+      ...uncertainRooms.map(room => room.room),
+      ...disputedRoomNumbers,
+    ]);
+    if (repairRoomNumbers.size) {
       try {
-        const targets = uncertainRooms.map(room => room.room);
+        const targets = [...repairRoomNumbers].sort((a, b) => a - b);
+        const currentCandidates = targets.map(room => ({
+          room,
+          firstReading: draftByRoom.get(room),
+          secondReading: result.rooms.find(item => item.room === room),
+        }));
         const { output: repairedOutput } = await generateText({
           model: "google/gemini-2.5-flash",
           output: Output.object({ schema: recognitionSchema }),
@@ -254,12 +273,12 @@ Gültige Zimmer: 20-28, 30-38, 40-48, 50-54, 56-58 und 60-68.`,
             content: [
               {
                 type: "text",
-                text: `Lies ausschließlich die noch unvollständigen Zimmer ${targets.join(", ")} erneut aus den Originalfotos. Vergrößere gedanklich den vollständigen Zimmerblock, auch wenn er nahe am oberen oder unteren Seitenrand steht.
+                text: `Lies ausschließlich die unvollständigen oder zwischen zwei Lesungen widersprüchlichen Zimmer ${targets.join(", ")} erneut aus den vergrößerten Fotoabschnitten. Entscheide selbst anhand der sichtbaren Tabellenlinien; übernimm nicht einfach eine der vorigen Lesungen.
 
-Aktueller unvollständiger Stand:
-${JSON.stringify(uncertainRooms)}
+Vorige Lesungen:
+${JSON.stringify(currentCandidates)}
 
-Wiederholte Zeilen derselben Zimmernummer bilden einen Block. Lies die Personenzahl und immer beide Daten aus "x People TT.MM.JJJJ - TT.MM.JJJJ". Prüfe außerdem die rechte Produktspalte: Continental breakfast oder Breakfast Étagère bedeutet included=true; eine klar sichtbare leere Produktzelle bedeutet included=false. Gib nur die genannten Zielzimmer zurück und erfinde nichts.`,
+Wiederholte Zeilen derselben Zimmernummer bilden einen Block. Lies die Personenzahl und immer beide Daten aus "x People TT.MM.JJJJ - TT.MM.JJJJ". Prüfe außerdem die rechte Produktspalte: Continental breakfast oder Breakfast Étagère bedeutet included=true; eine klar sichtbare leere Produktzelle bedeutet included=false. Hohe zusammengeführte Zellen können ihre Zimmernummer oder ihren Namen unten anzeigen: Ordne anhand der gemeinsamen waagerechten Blockgrenzen zu, nicht anhand der nächsten Textzeile. Gib nur die genannten Zielzimmer zurück und erfinde keine Platzhalternamen.`,
               },
               ...images,
             ],
