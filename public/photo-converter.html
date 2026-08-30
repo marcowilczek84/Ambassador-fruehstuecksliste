@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <title>Papierliste lokal erkennen</title>
+  <title>Papierliste intelligent erkennen</title>
   <style>
     :root{--ink:#171c19;--muted:#747e79;--line:#dce3e1;--wash:#f7f9f8;--petrol:#1c777b;--petrol-soft:#edf7f7;--yellow:#ffd400;--red:#a9443f}
     *{box-sizing:border-box}html,body{margin:0;min-height:100%;background:#fff;color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;-webkit-font-smoothing:antialiased}
@@ -34,8 +34,8 @@
         <div class="mark" aria-hidden="true">
           <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L8 6H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-3z"/><circle cx="12" cy="12.5" r="3.5"/><path d="m17.5 9 .7.7 1.3-1.4"/></svg>
         </div>
-        <h1>Papierliste lokal erkennen</h1>
-        <p>Fotografiere alle Seiten. Die lokale Erkennung verbindet Zimmerblöcke, Gastnamen, Aufenthaltsdaten und Frühstücksleistungen automatisch.</p>
+        <h1>Papierliste intelligent erkennen</h1>
+        <p>Fotografiere alle Seiten. Die AI verbindet Zimmerblöcke, Gastnamen, Aufenthaltsdaten und Frühstücksleistungen automatisch.</p>
       </section>
 
       <section class="panel">
@@ -50,13 +50,13 @@
         <div class="previews" id="previews"></div>
         <div class="actions">
           <button class="action" type="button" id="clear" disabled>Auswahl löschen</button>
-          <button class="action primary" type="button" id="analyze" disabled>Liste lokal erkennen</button>
+          <button class="action primary" type="button" id="analyze" disabled>Liste intelligent erkennen</button>
         </div>
         <div class="privacy">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
-          <span>Die Fotos werden ausschließlich auf diesem Gerät gelesen, nicht hochgeladen und nicht gespeichert. Vor dem Export kannst du jede Angabe kontrollieren.</span>
+          <span>Die Fotos werden verschlüsselt zur Erkennung übertragen und nicht in der App gespeichert. Vor dem Export kannst du jede Angabe kontrollieren.</span>
         </div>
-        <div class="progress" id="progress"><span class="spinner"></span><span id="progressText">Die Seiten werden lokal gelesen und zusammengeführt …</span></div>
+        <div class="progress" id="progress"><span class="spinner"></span><span id="progressText">Die Seiten werden intelligent gelesen und zusammengeführt …</span></div>
         <div class="error" id="error"></div>
       </section>
 
@@ -75,7 +75,6 @@
       </section>
     </main>
   </div>
-  <script src="/ocr/tesseract.min.js"></script>
   <script>
     const els={files:document.querySelector('#files'),choose:document.querySelector('#choose'),drop:document.querySelector('#dropzone'),previews:document.querySelector('#previews'),clear:document.querySelector('#clear'),analyze:document.querySelector('#analyze'),progress:document.querySelector('#progress'),progressText:document.querySelector('#progressText'),error:document.querySelector('#error'),review:document.querySelector('#review'),rooms:document.querySelector('#rooms'),warnings:document.querySelector('#warnings'),roomCount:document.querySelector('#roomCount'),guestCount:document.querySelector('#guestCount'),includedCount:document.querySelector('#includedCount'),reanalyze:document.querySelector('#reanalyze'),export:document.querySelector('#export'),reviewError:document.querySelector('#reviewError')};
     let selected=[];let result={rooms:[],warnings:[]};
@@ -118,7 +117,9 @@
     function finishRooms(records){const rooms=[...records.values()].map(entry=>{if(!entry.people)entry.people=Math.max(1,entry.guests.length);if(entry.people<entry.guests.length)entry.people=entry.guests.length;const average=entry.scores.length?entry.scores.reduce((a,b)=>a+b,0)/entry.scores.length:65;if(!entry.guests.length)entry.warnings.push('Gastname nicht sicher erkannt');if(!entry.arrival||!entry.departure)entry.warnings.push('Aufenthaltsdaten prüfen');if(average<78)entry.warnings.push('Texterkennung bitte kontrollieren');entry.product=entry.included?`${entry.people} x Continental breakfast`:'';return{room:entry.room,people:entry.people,guests:entry.guests,arrival:entry.arrival,departure:entry.departure,included:entry.included,product:entry.product,confidence:Math.max(.45,Math.min(.92,average/100)),warnings:[...new Set(entry.warnings)]}}).filter(room=>room.guests.length||room.arrival||room.departure).sort((a,b)=>a.room-b.room);return{rooms,warnings:rooms.some(room=>room.warnings.length)?['Lokale OCR kann bei schrägen oder unscharfen Fotos Fehler machen. Gelbe Einträge bitte prüfen.']:[]}}
     async function roomCrop(file){const url=URL.createObjectURL(file);try{const image=await new Promise((resolve,reject)=>{const img=new Image;img.onload=()=>resolve(img);img.onerror=reject;img.src=url});const canvas=document.createElement('canvas');canvas.width=Math.round(image.naturalWidth*.35);canvas.height=image.naturalHeight;const context=canvas.getContext('2d',{willReadFrequently:true});context.filter='grayscale(1) contrast(1.45)';context.drawImage(image,0,0,canvas.width,canvas.height,0,0,canvas.width,canvas.height);return canvas}finally{URL.revokeObjectURL(url)}}
     async function recognizeLocally(){if(!window.Tesseract)throw new Error('Die lokale Texterkennung konnte nicht geladen werden. Bitte Internetverbindung prüfen.');let page=1;let stage='text';const worker=await Tesseract.createWorker('eng',Tesseract.OEM.LSTM_ONLY,{workerPath:'/ocr/worker.min.js',logger:message=>{if(message.status==='recognizing text'){const percent=Math.round((message.progress||0)*100);els.progressText.textContent=stage==='rooms'?`Seite ${page} von ${selected.length} · Zimmer erkennen ${percent} %`:`Seite ${page} von ${selected.length} · Inhalte lesen ${percent} %`}}});const records=new Map;try{for(let i=0;i<selected.length;i++){page=i+1;stage='rooms';els.progressText.textContent=`Seite ${page} von ${selected.length} wird vorbereitet …`;await worker.setParameters({tessedit_pageseg_mode:Tesseract.PSM.SPARSE_TEXT,tessedit_char_whitelist:'0123456789'});const roomOutput=await worker.recognize(await roomCrop(selected[i]),{}, {tsv:true,text:true});const anchors=roomAnchors(roomOutput.data.tsv);stage='text';await worker.setParameters({tessedit_pageseg_mode:Tesseract.PSM.AUTO,tessedit_char_whitelist:'',preserve_interword_spaces:'1'});const output=await worker.recognize(selected[i],{}, {text:true,tsv:true});const parsed=parseTsv(output.data.tsv,anchors);if(parsed.size){for(const [room,entry] of parsed){if(!records.has(room))records.set(room,entry);else{const existing=records.get(room);entry.guests.forEach(name=>addName(existing,name));existing.people=Math.max(existing.people,entry.people);existing.arrival=existing.arrival||entry.arrival;existing.departure=existing.departure||entry.departure;existing.included=existing.included||entry.included;existing.scores.push(...entry.scores)}}}else parsePlainText(output.data.text,records)}}finally{await worker.terminate()}const data=finishRooms(records);if(!data.rooms.length)throw new Error('Keine Zimmer sicher erkannt. Bitte die Seiten gerader und näher fotografieren.');return data}
-    els.analyze.onclick=async()=>{showError(els.error,'');els.analyze.disabled=true;els.progressText.textContent='Lokale Texterkennung wird geladen …';els.progress.classList.add('show');try{render(await recognizeLocally())}catch(error){showError(els.error,error.message)}finally{els.progress.classList.remove('show');els.analyze.disabled=false}};
+    async function prepareUpload(file){const url=URL.createObjectURL(file);try{const image=await new Promise((resolve,reject)=>{const img=new Image;img.onload=()=>resolve(img);img.onerror=reject;img.src=url});const longest=Math.max(image.naturalWidth,image.naturalHeight);const scale=Math.min(1,2000/longest);const canvas=document.createElement('canvas');canvas.width=Math.max(1,Math.round(image.naturalWidth*scale));canvas.height=Math.max(1,Math.round(image.naturalHeight*scale));canvas.getContext('2d').drawImage(image,0,0,canvas.width,canvas.height);return await new Promise((resolve,reject)=>canvas.toBlob(blob=>blob?resolve(new File([blob],file.name.replace(/\.[^.]+$/,'.jpg'),{type:'image/jpeg'})):reject(new Error('Foto konnte nicht vorbereitet werden.')),'image/jpeg',.84))}finally{URL.revokeObjectURL(url)}}
+    async function recognizeWithAI(){const form=new FormData;for(let index=0;index<selected.length;index++){els.progressText.textContent=`Foto ${index+1} von ${selected.length} wird vorbereitet …`;form.append('photos',await prepareUpload(selected[index]))}els.progressText.textContent='Die AI liest Zimmer, Namen und Aufenthaltsdaten …';const response=await fetch('/api/photo-list',{method:'POST',body:form});const data=await response.json();if(!response.ok)throw new Error(data.error||'Die AI-Erkennung ist fehlgeschlagen.');return data}
+    els.analyze.onclick=async()=>{showError(els.error,'');els.analyze.disabled=true;els.progressText.textContent='Fotos werden vorbereitet …';els.progress.classList.add('show');try{render(await recognizeWithAI())}catch(error){showError(els.error,error.message)}finally{els.progress.classList.remove('show');els.analyze.disabled=false}};
     els.export.onclick=async()=>{showError(els.reviewError,'');els.export.disabled=true;try{const response=await fetch('/api/photo-list',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({rooms:collect()})});if(!response.ok){const data=await response.json();throw new Error(data.error||'Export fehlgeschlagen.')}const blob=await response.blob();const url=URL.createObjectURL(blob);const link=document.createElement('a');link.href=url;link.download=`Ambassador_Fotoliste_${new Date().toISOString().slice(0,10)}.xlsx`;link.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}catch(error){showError(els.reviewError,error.message)}finally{els.export.disabled=false}};
   </script>
 </body>
