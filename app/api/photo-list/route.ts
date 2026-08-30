@@ -146,6 +146,7 @@ export async function POST(request: Request) {
     })));
     const tableImages = images.filter(image => !image.filename.toLocaleLowerCase("de").includes("namen-zoom"));
     const nameImages = images.filter(image => image.filename.toLocaleLowerCase("de").includes("namen-zoom"));
+    const fullPageMode = images.every(image => image.filename.toLocaleLowerCase("de").includes("full-page"));
     if (!tableImages.length) {
       return NextResponse.json({ error: "Die Tabellenfotos fehlen." }, { status: 400 });
     }
@@ -164,7 +165,7 @@ export async function POST(request: Request) {
         content: [
           {
             type: "text",
-            text: `Lies diese fotografierten Seiten einer zusammengehörigen Hotel-Zimmerliste. Jede Originalseite wurde für bessere Lesbarkeit in fünf kurze, überlappende Abschnitte sowie einen zusätzlichen Namen-Zoom geteilt. Nutze die kurzen vollständigen Tabellenabschnitte für Zimmerzuordnung, Personenzahl, Daten und Produktspalte. Nutze die mit "namen-zoom" bezeichneten Bilder zusätzlich, um jeden Gastnamen buchstabengetreu zu prüfen. Führe zusammengehörige Abschnitte und wiederholte Zimmer zu genau einer Liste zusammen. Analysiere jeden sichtbaren Zimmerblock vollständig von der Zimmernummer links bis zur Produktspalte rechts. Doppelt sichtbare Zimmer dürfen nur einmal vorkommen.
+            text: `Lies diese fotografierten Seiten einer zusammengehörigen Hotel-Zimmerliste. ${fullPageMode ? "Jedes Bild zeigt eine vollständige Seite. Vergrößere gedanklich jeden Tabellenbereich und kontrolliere deine vollständige Auslesung vor der Ausgabe ein zweites Mal." : "Jede Originalseite wurde für bessere Lesbarkeit in fünf kurze, überlappende Abschnitte sowie einen zusätzlichen Namen-Zoom geteilt. Nutze die kurzen vollständigen Tabellenabschnitte für Zimmerzuordnung, Personenzahl, Daten und Produktspalte. Nutze die mit namen-zoom bezeichneten Bilder zusätzlich, um jeden Gastnamen buchstabengetreu zu prüfen."} Führe zusammengehörige Seiten, Abschnitte und wiederholte Zimmer zu genau einer Liste zusammen. Analysiere jeden sichtbaren Zimmerblock vollständig von der Zimmernummer links bis zur Produktspalte rechts. Doppelt sichtbare Zimmer dürfen nur einmal vorkommen.
 
 Extrahiere ausschließlich echte Zimmerblöcke. Gültige Zimmer sind:
 20-28, 30-38, 40-48, 50-54, 56-58 und 60-68.
@@ -187,6 +188,14 @@ Ein Zimmerblock beginnt bei seiner Zimmernummer und endet unmittelbar vor der n�
     });
 
     const draft = normalizeResult(initialOutput);
+    if (fullPageMode) {
+      if (!draft.rooms.length) {
+        return NextResponse.json({ error: "Auf den Fotos wurden keine Zimmer sicher erkannt." }, { status: 422 });
+      }
+      return NextResponse.json(draft, {
+        headers: { "Cache-Control": "no-store, max-age=0" },
+      });
+    }
     const { output: verifiedOutput } = await generateText({
       model: "google/gemini-2.5-flash",
       output: Output.object({ schema: recognitionSchema }),
