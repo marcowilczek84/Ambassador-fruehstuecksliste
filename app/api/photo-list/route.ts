@@ -230,13 +230,68 @@ Gültige Zimmer: 20-28, 30-38, 40-48, 50-54, 56-58 und 60-68.`,
       };
     });
     const checkedRoomNumbers = new Set(checkedRooms.map(room => room.room));
-    const result = normalizeResult({
+    let result = normalizeResult({
       rooms: [...checkedRooms, ...draft.rooms.filter(room => !checkedRoomNumbers.has(room.room))],
       warnings: verified.warnings,
     });
-    const uncertainRooms = result.rooms.filter(room =>
+    let uncertainRooms = result.rooms.filter(room =>
       !room.guests.length || !room.arrival || !room.departure
     );
+    if (uncertainRooms.length) {
+      try {
+        const targets = uncertainRooms.map(room => room.room);
+        const { output: repairedOutput } = await generateText({
+          model: "google/gemini-2.5-flash",
+          output: Output.object({ schema: recognitionSchema }),
+          providerOptions: {
+            gateway: {
+              tags: ["feature:photo-list-targeted-repair", "app:ambassador-fruehstuecksliste"],
+              user: "hotel-ambassador-zurich",
+            },
+          },
+          messages: [{
+            role: "user",
+            content: [
+              {
+                type: "text",
+                text: `Lies ausschließlich die noch unvollständigen Zimmer ${targets.join(", ")} erneut aus den Originalfotos. Vergrößere gedanklich den vollständigen Zimmerblock, auch wenn er nahe am oberen oder unteren Seitenrand steht.
+
+Aktueller unvollständiger Stand:
+${JSON.stringify(uncertainRooms)}
+
+Wiederholte Zeilen derselben Zimmernummer bilden einen Block. Lies die Personenzahl und immer beide Daten aus "x People TT.MM.JJJJ - TT.MM.JJJJ". Prüfe außerdem die rechte Produktspalte: Continental breakfast oder Breakfast Étagère bedeutet included=true; eine klar sichtbare leere Produktzelle bedeutet included=false. Gib nur die genannten Zielzimmer zurück und erfinde nichts.`,
+              },
+              ...images,
+            ],
+          }],
+        });
+        const repaired = normalizeResult(repairedOutput);
+        const repairedByRoom = new Map(repaired.rooms.map(room => [room.room, room]));
+        result = normalizeResult({
+          rooms: result.rooms.map(room => {
+            const fix = repairedByRoom.get(room.room);
+            if (!fix) return room;
+            return {
+              ...room,
+              guests: fix.guests.length ? fix.guests : room.guests,
+              people: fix.people || room.people,
+              arrival: fix.arrival || room.arrival,
+              departure: fix.departure || room.departure,
+              included: fix.included,
+              breakfastConfidence: fix.breakfastConfidence,
+              confidence: fix.confidence,
+              warnings: fix.warnings,
+            };
+          }),
+          warnings: result.warnings,
+        });
+        uncertainRooms = result.rooms.filter(room =>
+          !room.guests.length || !room.arrival || !room.departure
+        );
+      } catch (repairError) {
+        console.warn("Targeted AI repair failed", repairError);
+      }
+    }
     if (uncertainRooms.length) {
       return NextResponse.json({
         error: `Diese Zimmer sind noch nicht eindeutig lesbar: ${uncertainRooms.map(room => room.room).join(", ")}. Bitte die betreffende Seite noch einmal gerade fotografieren.`,
