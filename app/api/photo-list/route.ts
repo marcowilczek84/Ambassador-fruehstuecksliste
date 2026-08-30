@@ -132,7 +132,7 @@ export async function POST(request: Request) {
     })));
 
     const { output } = await generateText({
-      model: "google/gemini-3.7-flash",
+      model: "google/gemini-2.5-flash",
       output: Output.object({ schema: recognitionSchema }),
       providerOptions: {
         gateway: {
