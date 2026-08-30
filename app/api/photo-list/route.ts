@@ -4,7 +4,7 @@ import { generateText, Output } from "ai";
 import { z } from "zod";
 
 export const runtime = "nodejs";
-export const maxDuration = 60;
+export const maxDuration = 300;
 
 const recognitionSchema = z.object({
   rooms: z.array(z.object({
