@@ -221,7 +221,10 @@ Gültige Zimmer: 20-28, 30-38, 40-48, 50-54, 56-58 und 60-68.`,
     const checkedRooms = verified.rooms.map(room => {
       const fallback = draftByRoom.get(room.room);
       if (!fallback) return room;
+      const firstNames = fallback.guests.map(name => name.toLocaleLowerCase("de")).sort().join("|");
+      const secondNames = room.guests.map(name => name.toLocaleLowerCase("de")).sort().join("|");
       if (
+        (firstNames && secondNames && firstNames !== secondNames) ||
         (fallback.people > 0 && room.people > 0 && fallback.people !== room.people) ||
         (fallback.arrival && room.arrival && fallback.arrival !== room.arrival) ||
         (fallback.departure && room.departure && fallback.departure !== room.departure) ||
@@ -278,7 +281,7 @@ Gültige Zimmer: 20-28, 30-38, 40-48, 50-54, 56-58 und 60-68.`,
 Vorige Lesungen:
 ${JSON.stringify(currentCandidates)}
 
-Wiederholte Zeilen derselben Zimmernummer bilden einen Block. Lies die Personenzahl und immer beide Daten aus "x People TT.MM.JJJJ - TT.MM.JJJJ". Prüfe außerdem die rechte Produktspalte: Continental breakfast oder Breakfast Étagère bedeutet included=true; eine klar sichtbare leere Produktzelle bedeutet included=false. Hohe zusammengeführte Zellen können ihre Zimmernummer oder ihren Namen unten anzeigen: Ordne anhand der gemeinsamen waagerechten Blockgrenzen zu, nicht anhand der nächsten Textzeile. Gib nur die genannten Zielzimmer zurück und erfinde keine Platzhalternamen.`,
+Wiederholte Zeilen derselben Zimmernummer bilden einen Block. Schreibe jeden Gastnamen buchstabengetreu vom Foto ab. Ergänze, entferne oder verändere keine Buchstaben und füge keine Akzente hinzu, die nicht gedruckt sind. Lies die Personenzahl und immer beide Daten aus "x People TT.MM.JJJJ - TT.MM.JJJJ". Prüfe außerdem die rechte Produktspalte: Continental breakfast oder Breakfast Étagère bedeutet included=true; eine klar sichtbare leere Produktzelle bedeutet included=false. Hohe zusammengeführte Zellen können ihre Zimmernummer oder ihren Namen unten anzeigen: Ordne anhand der gemeinsamen waagerechten Blockgrenzen zu, nicht anhand der nächsten Textzeile. Gib nur die genannten Zielzimmer zurück und erfinde keine Platzhalternamen.`,
               },
               ...images,
             ],
