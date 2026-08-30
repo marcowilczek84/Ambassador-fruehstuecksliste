@@ -208,7 +208,32 @@ Gültige Zimmer: 20-28, 30-38, 40-48, 50-54, 56-58 und 60-68.`,
       }],
     });
 
-    const result = normalizeResult(verifiedOutput);
+    // Die Kontrollrunde darf erkannte Werte korrigieren, aber keine zuvor
+    // gelesenen Angaben durch leere Felder verlieren. Nur fehlende Werte
+    // werden aus dem ersten Entwurf ergänzt; die verifizierte Frühstücks-
+    // entscheidung bleibt dagegen maßgeblich.
+    const verified = normalizeResult(verifiedOutput);
+    const draftByRoom = new Map(draft.rooms.map(room => [room.room, room]));
+    const checkedRooms = verified.rooms.map(room => {
+      const fallback = draftByRoom.get(room.room);
+      if (!fallback) return room;
+      return {
+        ...room,
+        guests: room.guests.length ? room.guests : fallback.guests,
+        arrival: room.arrival || fallback.arrival,
+        departure: room.departure || fallback.departure,
+        warnings: [...new Set([...room.warnings, ...(
+          (!room.arrival && fallback.arrival) || (!room.departure && fallback.departure)
+            ? ["Aufenthaltsdaten aus erster Erkennung ergänzt"]
+            : []
+        )])],
+      };
+    });
+    const checkedRoomNumbers = new Set(checkedRooms.map(room => room.room));
+    const result = normalizeResult({
+      rooms: [...checkedRooms, ...draft.rooms.filter(room => !checkedRoomNumbers.has(room.room))],
+      warnings: verified.warnings,
+    });
     if (!result.rooms.length) {
       return NextResponse.json({ error: "Auf den Fotos wurden keine Zimmer sicher erkannt." }, { status: 422 });
     }
