@@ -122,7 +122,7 @@ export async function POST(request: Request) {
   try {
     const formData = await request.formData();
     const files = formData.getAll("photos").filter((value): value is File => value instanceof File);
-    if (!files.length || files.length > 12) {
+    if (!files.length || files.length > 20) {
       return NextResponse.json({ error: "Bitte 1 bis 4 Fotos auswählen." }, { status: 400 });
     }
 
@@ -152,7 +152,7 @@ export async function POST(request: Request) {
         content: [
           {
             type: "text",
-            text: `Lies diese fotografierten Seiten einer zusammengehörigen Hotel-Zimmerliste. Jede Originalseite wurde für bessere Lesbarkeit in drei überlappende, vergrößerte Abschnitte geteilt. Führe zusammengehörige Abschnitte und wiederholte Zimmer zu genau einer Liste zusammen. Analysiere jeden sichtbaren Zimmerblock vollständig von der Zimmernummer links bis zur Produktspalte rechts. Doppelt sichtbare Zimmer dürfen nur einmal vorkommen.
+            text: `Lies diese fotografierten Seiten einer zusammengehörigen Hotel-Zimmerliste. Jede Originalseite wurde für bessere Lesbarkeit in fünf kurze, überlappende, vergrößerte Abschnitte geteilt. Führe zusammengehörige Abschnitte und wiederholte Zimmer zu genau einer Liste zusammen. Analysiere jeden sichtbaren Zimmerblock vollständig von der Zimmernummer links bis zur Produktspalte rechts. Doppelt sichtbare Zimmer dürfen nur einmal vorkommen.
 
 Extrahiere ausschließlich echte Zimmerblöcke. Gültige Zimmer sind:
 20-28, 30-38, 40-48, 50-54, 56-58 und 60-68.
