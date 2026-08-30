@@ -235,8 +235,7 @@ Gültige Zimmer: 20-28, 30-38, 40-48, 50-54, 56-58 und 60-68.`,
       warnings: verified.warnings,
     });
     const uncertainRooms = result.rooms.filter(room =>
-      !room.guests.length || !room.arrival || !room.departure ||
-      room.breakfastConfidence < 0.75
+      !room.guests.length || !room.arrival || !room.departure
     );
     if (uncertainRooms.length) {
       return NextResponse.json({
