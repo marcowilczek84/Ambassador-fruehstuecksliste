@@ -98,11 +98,19 @@
   function clickMenuAction(shell, label) {
     document.body.classList.add("proxy-menu-action");
     shell.querySelector(".icon-button")?.click();
-    requestAnimationFrame(() => {
+    let attempts = 0;
+    const triggerAction = () => {
       const action = [...document.querySelectorAll(".menu-card button")].find((button) => normalize(button.textContent || "").includes(label));
-      action?.click();
-      requestAnimationFrame(() => document.body.classList.remove("proxy-menu-action"));
-    });
+      if (action) {
+        action.click();
+        requestAnimationFrame(() => requestAnimationFrame(() => document.body.classList.remove("proxy-menu-action")));
+        return;
+      }
+      attempts += 1;
+      if (attempts < 30) requestAnimationFrame(triggerAction);
+      else document.body.classList.remove("proxy-menu-action");
+    };
+    requestAnimationFrame(triggerAction);
   }
 
   function buildReceptionToolbar(shell) {
@@ -266,7 +274,7 @@
     root.querySelectorAll(".menu-card").forEach((menu) => {
       menu.querySelectorAll("*").forEach((node) => {
         if (node.children.length === 0 && normalize(node.textContent || "").includes("Ambassador Liste · 8.27.0")) {
-          node.textContent = "Ambassador Liste · 8.33.4";
+          node.textContent = "Ambassador Liste · 8.33.5";
         }
       });
     });
