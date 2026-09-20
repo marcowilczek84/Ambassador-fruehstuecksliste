@@ -99,7 +99,7 @@
     document.body.classList.add("proxy-menu-action");
     shell.querySelector(".icon-button")?.click();
     requestAnimationFrame(() => {
-      const action = [...document.querySelectorAll("button")].find((button) => normalize(button.textContent || "").includes(label));
+      const action = [...document.querySelectorAll(".menu-card button")].find((button) => normalize(button.textContent || "").includes(label));
       action?.click();
       requestAnimationFrame(() => document.body.classList.remove("proxy-menu-action"));
     });
@@ -266,7 +266,7 @@
     root.querySelectorAll(".menu-card").forEach((menu) => {
       menu.querySelectorAll("*").forEach((node) => {
         if (node.children.length === 0 && normalize(node.textContent || "").includes("Ambassador Liste · 8.27.0")) {
-          node.textContent = "Ambassador Liste · 8.33.3";
+          node.textContent = "Ambassador Liste · 8.33.4";
         }
       });
     });
