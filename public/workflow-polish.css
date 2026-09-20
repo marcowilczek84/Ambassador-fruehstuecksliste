@@ -1,0 +1,380 @@
+/* 8.28: the entitlement colour remains visible after a guest is recorded. */
+.room-row.included.present,
+.ipad-room-grid .room-row.included.present {
+  border-left-color: var(--yellow) !important;
+}
+
+.room-row.included.present .room-number,
+.ipad-room-grid .room-row.included.present .room-number {
+  color: #806600 !important;
+}
+
+/* One uninterrupted table plan. */
+.table-range-switch {
+  display: none !important;
+}
+
+.checkin-choice-modal .table-picker {
+  grid-template-columns: repeat(10, minmax(0, 1fr)) !important;
+}
+
+/* The workflow no longer uses a live departure state or undo prompt. */
+.checkin-confirmation {
+  display: none !important;
+}
+
+/* Compact discoverable open-only action inside the existing heading. */
+.hero h2 {
+  align-items: center !important;
+  display: flex !important;
+  gap: 12px !important;
+  min-width: 0 !important;
+}
+
+.open-filter-button {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  color: var(--petrol, #1c777b);
+  cursor: pointer;
+  flex: 0 0 auto;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 650;
+  margin-left: auto;
+  padding: 5px 0 5px 8px;
+  white-space: nowrap;
+}
+
+/* A single, calm outline system for cards, dialogs and form controls. */
+.app-shell {
+  --ui-border: #dce3e1;
+  --ui-border-strong: #cbd7d4;
+}
+
+.modal,
+.checkin-choice-modal,
+.guest-info-picker-modal,
+.remark-popup-modal,
+.group-room-popup,
+.menu-card,
+.success-panel {
+  border: 1px solid var(--ui-border, #dce3e1) !important;
+  box-shadow: 0 14px 42px rgba(23, 52, 51, 0.14) !important;
+  outline: 0 !important;
+}
+
+.modal input,
+.modal select,
+.modal textarea,
+.checkin-choice-modal input,
+.checkin-choice-modal select,
+.checkin-choice-modal textarea,
+.guest-info-picker-modal input,
+.remark-popup-modal textarea {
+  border: 1px solid var(--ui-border, #dce3e1) !important;
+  box-shadow: none !important;
+  outline: 0 !important;
+}
+
+.modal input:focus,
+.modal select:focus,
+.modal textarea:focus,
+.checkin-choice-modal input:focus,
+.checkin-choice-modal select:focus,
+.checkin-choice-modal textarea:focus,
+.guest-info-picker-modal input:focus,
+.remark-popup-modal textarea:focus {
+  border-color: var(--petrol, #1c777b) !important;
+  box-shadow: 0 0 0 3px rgba(28, 119, 123, 0.13) !important;
+}
+
+.open-filter-button:focus-visible {
+  border-radius: 7px;
+  outline: 3px solid #1c777b2b;
+  outline-offset: 3px;
+}
+
+.app-shell.open-only .room-row[data-open-match="false"] {
+  display: none !important;
+}
+
+.app-shell.open-only .section[data-open-section="false"] {
+  display: none !important;
+}
+
+.app-shell.breakfast-finished .room-row {
+  cursor: pointer !important;
+}
+
+.app-shell.breakfast-finished .bottom-button:not(.finish) {
+  cursor: default !important;
+  opacity: 0.48 !important;
+}
+
+/* Shared role selection. The existing load card remains intact behind this first step. */
+.entry-screen.role-pending > .load-card {
+  display: none !important;
+}
+
+.role-selection {
+  width: min(590px, calc(100vw - 40px));
+  text-align: center;
+  transform: translateY(-1.5vh);
+}
+
+.role-logo {
+  width: min(210px, 50vw);
+  height: auto;
+  margin: 0 auto 24px;
+}
+
+.role-app-mark,
+.role-icon {
+  display: grid;
+  place-items: center;
+  color: #1c777b;
+  background: #fff;
+  border: 1.5px solid #1c777b;
+}
+
+.role-app-mark {
+  width: 58px;
+  height: 58px;
+  margin: 0 auto 16px;
+  border-radius: 17px;
+}
+
+.role-app-mark svg { width: 31px; height: 31px; }
+.role-icon svg { width: 25px; height: 25px; }
+.role-app-mark svg,
+.role-icon svg { fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+
+.role-eyebrow {
+  display: block;
+  color: #7b8481;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.role-selection h1 {
+  margin: 7px 0 0;
+  color: #111;
+  font-size: 28px;
+  font-weight: 680;
+  line-height: 1.08;
+  letter-spacing: -.045em;
+}
+
+.role-date {
+  margin: 7px 0 0;
+  color: #89918e;
+  font-size: 14px;
+  line-height: 1.3;
+}
+
+.role-prompt {
+  margin: 22px 0 9px;
+  color: #67716d;
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.role-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.role-options button {
+  appearance: none;
+  min-width: 0;
+  min-height: 112px;
+  padding: 14px 16px;
+  color: #17201d;
+  background: #fff;
+  border: 1px solid #d5ddda;
+  border-radius: 12px;
+  box-shadow: none;
+  cursor: pointer;
+  text-align: center;
+}
+
+.role-options button:hover { border-color: #91bab7; background: #f8fbfa; }
+.role-options button:focus-visible { outline: 3px solid rgba(28,119,123,.15); outline-offset: 2px; }
+.role-icon { width: 38px; height: 38px; margin: 0 auto 9px; border: 0; border-radius: 9px; }
+.role-options strong { display: block; font-size: 15px; line-height: 1.2; }
+.role-options small { display: block; margin-top: 4px; color: #7c8582; font-size: 11px; line-height: 1.3; }
+
+.active-role-badge {
+  appearance: none;
+  margin: 5px auto 0;
+  padding: 3px 12px;
+  color: #fff;
+  background: #1c777b;
+  border: 0;
+  border-radius: 99px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+/* Reception is a safe editing workspace: no operational check-in or day-end actions. */
+body[data-app-role="reception"] .open-filter-button,
+body[data-app-role="reception"] .bottom-button.finish {
+  display: none !important;
+}
+
+body[data-app-role="reception"] .bottom-bar {
+  grid-template-columns: 1fr !important;
+}
+
+body[data-app-role="reception"] .room-row {
+  cursor: default !important;
+}
+
+body[data-app-role="service"] .entry-screen:not(.role-pending) .load-choice {
+  display: none !important;
+}
+
+body[data-app-role="service"] .entry-screen:not(.role-pending) .load-actions {
+  grid-template-columns: 1fr !important;
+}
+
+.service-waiting-note {
+  margin: 0;
+  padding: 15px 16px;
+  color: #6f7975;
+  background: #f7f9f8;
+  border: 1px solid #dce3e1;
+  border-radius: 11px;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+@media (max-width: 560px) {
+  .role-selection { width: calc(100vw - 40px); transform: none; }
+  .role-logo { width: min(170px, 48vw); margin-bottom: 18px; }
+  .role-app-mark { width: 50px; height: 50px; margin-bottom: 13px; border-radius: 15px; }
+  .role-selection h1 { font-size: 25px; }
+  .role-prompt { margin-top: 17px; }
+  .role-options { grid-template-columns: 1fr; gap: 9px; }
+  .role-options button {
+    min-height: 76px;
+    display: grid;
+    grid-template-columns: 42px minmax(0,1fr);
+    grid-template-rows: auto auto;
+    column-gap: 12px;
+    padding: 10px 13px;
+    text-align: left;
+  }
+  .role-icon { grid-row: 1 / 3; margin: 0; align-self: center; }
+  .role-options strong { align-self: end; }
+  .role-options small { align-self: start; }
+
+  .open-filter-button {
+    font-size: 11px;
+    padding-left: 5px;
+  }
+
+  .checkin-choice-modal .table-picker {
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+    max-height: min(38dvh, 360px) !important;
+    overflow-y: auto !important;
+  }
+
+  .modal,
+  .checkin-choice-modal,
+  .guest-info-picker-modal,
+  .remark-popup-modal,
+  .group-room-popup,
+  .menu-card {
+    width: calc(100vw - 20px) !important;
+    max-width: calc(100vw - 20px) !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+}
+
+@media (min-width: 700px) and (max-width: 1400px) and (orientation: landscape) {
+  /* Start screen: compact, modern two-card layout that uses the iPad width. */
+  .entry-screen .load-card {
+    width: min(590px, calc(100vw - 64px)) !important;
+  }
+
+  .load-card .load-actions {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 12px !important;
+    margin-top: 26px !important;
+  }
+
+  .load-card .load-choice,
+  .load-card .entry-secondary {
+    width: 100% !important;
+    min-height: 72px !important;
+    height: 72px !important;
+    border: 1px solid var(--ui-border, #dce3e1) !important;
+    border-radius: 12px !important;
+    box-shadow: none !important;
+  }
+
+  .load-card .load-choice {
+    padding: 10px 13px !important;
+    grid-template-columns: 42px minmax(0, 1fr) !important;
+    gap: 11px !important;
+  }
+
+  .load-card .entry-secondary {
+    padding: 10px 16px !important;
+    color: #33413c !important;
+    background: #fff !important;
+  }
+
+  .load-card .load-choice:hover,
+  .load-card .entry-secondary:hover {
+    border-color: #9fc3c1 !important;
+    background: #f8fbfa !important;
+  }
+
+  .load-card .load-choice:focus-visible,
+  .load-card .entry-secondary:focus-visible {
+    outline: 3px solid rgba(28, 119, 123, 0.14) !important;
+    outline-offset: 2px !important;
+  }
+
+  .hero h2 {
+    width: 100% !important;
+    max-width: none !important;
+  }
+
+  .open-filter-button {
+    margin-left: auto !important;
+    padding-right: 0 !important;
+    text-align: right !important;
+  }
+
+  /* Search and open-only results start at the first column and fill left-to-right. */
+  .app-shell.compact-results .ipad-room-grid {
+    align-content: start !important;
+    grid-auto-flow: row !important;
+    grid-auto-rows: minmax(46px, auto) !important;
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+    grid-template-rows: none !important;
+    gap: 4px 16px !important;
+  }
+
+  .app-shell.compact-results .ipad-room-column {
+    display: contents !important;
+  }
+
+  .app-shell.compact-results .ipad-room-grid .room-row {
+    min-height: 46px !important;
+    height: auto !important;
+  }
+}

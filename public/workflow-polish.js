@@ -1,0 +1,228 @@
+(() => {
+  let openOnly = false;
+  let scheduled = false;
+  const roleKey = "ambassador-work-area";
+
+  const normalize = (value) => value.replace(/\s+/g, " ").trim();
+
+  function icon(name) {
+    if (name === "reception") {
+      return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 17h16M6 17a6 6 0 0 1 12 0M12 8v3M10 7h4"/></svg>';
+    }
+    return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 9h12v7a4 4 0 0 1-4 4H9a4 4 0 0 1-4-4V9Zm12 2h1a3 3 0 0 1 0 6h-1M8 4v2m4-2v2m4-2v2"/></svg>';
+  }
+
+  function selectRole(role) {
+    sessionStorage.setItem(roleKey, role);
+    document.body.dataset.appRole = role;
+    document.querySelector(".role-selection")?.remove();
+    document.querySelector(".entry-screen")?.classList.remove("role-pending");
+    schedule();
+  }
+
+  function renderRoleSelection(entry) {
+    if (!entry.querySelector(".load-card")) return;
+    const role = sessionStorage.getItem(roleKey);
+    document.body.dataset.appRole = role || "";
+    if (role) {
+      entry.classList.remove("role-pending");
+      document.querySelector(".role-selection")?.remove();
+      return;
+    }
+
+    entry.classList.add("role-pending");
+    if (entry.querySelector(".role-selection")) return;
+    const currentDate = entry.querySelector(".load-date")?.textContent || "";
+    const chooser = document.createElement("section");
+    chooser.className = "role-selection";
+    chooser.setAttribute("aria-label", "Arbeitsbereich auswählen");
+    chooser.innerHTML = `
+      <img class="role-logo" src="/ambassador-logo.svg?v=confirmed-20260816-0517" alt="Ambassador Hotel Zürich">
+      <span class="role-app-mark">${icon("service")}</span>
+      <span class="role-eyebrow">Frühstücksliste</span>
+      <h1>Guten Morgen</h1>
+      <p class="role-date">${currentDate}</p>
+      <p class="role-prompt">Bereich auswählen</p>
+      <div class="role-options">
+        <button type="button" data-role="reception">
+          <span class="role-icon">${icon("reception")}</span>
+          <strong>Rezeption</strong>
+          <small>Liste laden und Gäste bearbeiten</small>
+        </button>
+        <button type="button" data-role="service">
+          <span class="role-icon">${icon("service")}</span>
+          <strong>Frühstücksservice</strong>
+          <small>Gäste erfassen und Tische verwalten</small>
+        </button>
+      </div>`;
+    chooser.querySelectorAll("[data-role]").forEach((button) => {
+      button.addEventListener("click", () => selectRole(button.dataset.role));
+    });
+    entry.prepend(chooser);
+  }
+
+  function addRoleBadge(shell, role) {
+    const title = shell.querySelector(".page-title");
+    if (!title) return;
+    let badge = title.querySelector(".active-role-badge");
+    if (!badge) {
+      badge = document.createElement("button");
+      badge.type = "button";
+      badge.className = "active-role-badge";
+      badge.title = "Arbeitsbereich wechseln";
+      badge.addEventListener("click", () => {
+        sessionStorage.removeItem(roleKey);
+        location.reload();
+      });
+      title.append(badge);
+    }
+    badge.textContent = role === "reception" ? "Rezeption" : "Service";
+  }
+
+  function applyRoleView(shell) {
+    const role = sessionStorage.getItem(roleKey);
+    if (!role) return;
+    document.body.dataset.appRole = role;
+    addRoleBadge(shell, role);
+    if (role !== "reception") return;
+
+    const editButton = shell.querySelector(".bottom-bar .bottom-button:not(.finish)");
+    if (editButton && !shell.dataset.receptionEditStarted) {
+      shell.dataset.receptionEditStarted = "true";
+      requestAnimationFrame(() => editButton.click());
+    }
+  }
+
+  function updateEntryForRole(entry) {
+    const role = sessionStorage.getItem(roleKey);
+    if (!role || entry.classList.contains("role-pending")) return;
+    entry.dataset.role = role;
+
+    let note = entry.querySelector(".service-waiting-note");
+    if (role === "service" && !entry.querySelector(".entry-secondary")) {
+      if (!note) {
+        note = document.createElement("p");
+        note.className = "service-waiting-note";
+        note.textContent = "Die Rezeption hat noch keine heutige Liste bereitgestellt.";
+        entry.querySelector(".load-actions")?.append(note);
+      }
+    } else {
+      note?.remove();
+    }
+  }
+
+  function removeDepartureControls(root) {
+    root.querySelectorAll("button").forEach((button) => {
+      const label = normalize(button.textContent || "");
+      if (label === "Verlassen" || label === "Alle Anwesenden verlassen") {
+        button.remove();
+      }
+    });
+  }
+
+  function markOpenRooms(shell) {
+    shell.querySelectorAll(".room-row").forEach((row) => {
+      const isOpen = row.classList.contains("included") &&
+        !row.classList.contains("departed") &&
+        (!row.classList.contains("present") || row.classList.contains("partial"));
+      row.dataset.openMatch = String(isOpen);
+    });
+
+    shell.querySelectorAll(".section").forEach((section) => {
+      section.dataset.openSection = String(Boolean(section.querySelector('.room-row[data-open-match="true"]')));
+    });
+  }
+
+  function updateFilter(shell) {
+    const heading = shell.querySelector(".hero h2");
+    if (!heading) return;
+
+    let button = heading.querySelector(".open-filter-button");
+    if (!button) {
+      button = document.createElement("button");
+      button.type = "button";
+      button.className = "open-filter-button";
+      button.addEventListener("click", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        openOnly = !openOnly;
+        updateFilter(shell);
+      });
+      heading.append(button);
+    }
+
+    shell.classList.toggle("open-only", openOnly);
+    const searchInput = shell.querySelector('.search-box input');
+    const searchActive = Boolean(searchInput && normalize(searchInput.value || ""));
+    shell.classList.toggle("compact-results", openOnly || searchActive);
+    button.setAttribute("aria-pressed", String(openOnly));
+    button.textContent = openOnly ? "Alle anzeigen ×" : "Offene anzeigen ›";
+    markOpenRooms(shell);
+  }
+
+  function updateCheckinDialog(root) {
+    root.querySelectorAll(".checkin-choice-modal").forEach((modal) => {
+      const primary = modal.querySelector(".modal-actions .primary");
+      if (!primary) return;
+
+      const selectedTable = modal.querySelector(".table-picker button.selected");
+      const roomService = modal.querySelector(".room-service-option.selected");
+      if (!selectedTable && !roomService) {
+        primary.disabled = false;
+        primary.textContent = "Ohne Tisch erfassen";
+      } else if (selectedTable) {
+        primary.textContent = `An Tisch ${normalize(selectedTable.textContent || "")} erfassen`;
+      }
+    });
+
+    root.querySelectorAll(".checkin-fact").forEach((fact) => {
+      const label = fact.querySelector("small");
+      const value = fact.querySelector("strong");
+      if (label && value && normalize(label.textContent || "") === "Tisch / Service" && !normalize(value.textContent || "")) {
+        value.textContent = "Kein Tisch";
+      }
+    });
+  }
+
+  function apply() {
+    scheduled = false;
+    const entry = document.querySelector(".entry-screen");
+    if (entry) renderRoleSelection(entry);
+    if (entry) updateEntryForRole(entry);
+    const shell = document.querySelector(".app-shell");
+    removeDepartureControls(document);
+    updateCheckinDialog(document);
+    if (shell) updateFilter(shell);
+    if (shell) applyRoleView(shell);
+    if (shell) {
+      const finished = Boolean(shell.querySelector(".bottom-button.finish.finished"));
+      shell.classList.toggle("breakfast-finished", finished);
+      shell.querySelectorAll(".room-row").forEach((row) => {
+        row.setAttribute("aria-disabled", String(finished));
+      });
+      const editButton = shell.querySelector(".bottom-bar .bottom-button:not(.finish)");
+      if (editButton) editButton.disabled = finished;
+    }
+  }
+
+  function schedule() {
+    if (scheduled) return;
+    scheduled = true;
+    requestAnimationFrame(apply);
+  }
+
+  document.addEventListener("input", (event) => {
+    if (event.target instanceof HTMLInputElement && event.target.closest(".search-box")) {
+      schedule();
+    }
+  });
+
+  new MutationObserver(schedule).observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ["class"],
+    childList: true,
+    subtree: true,
+    characterData: true
+  });
+  schedule();
+})();
