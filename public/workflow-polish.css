@@ -177,11 +177,21 @@
 }
 
 .role-prompt {
-  margin: 22px 0 9px;
+  margin: 18px 0 0;
   color: #67716d;
   font-size: 13px;
   font-weight: 650;
 }
+
+.role-options + .role-prompt { order: 3; }
+.role-selection { display: flex; flex-direction: column; align-items: stretch; }
+.role-selection .role-logo,
+.role-selection .role-app-mark,
+.role-selection .role-eyebrow,
+.role-selection h1,
+.role-selection .role-date { align-self: center; }
+.role-selection .role-options { order: 2; margin-top: 24px; }
+.role-selection .role-prompt { order: 3; }
 
 .role-options {
   display: grid;
@@ -213,7 +223,7 @@
   appearance: none;
   margin: 5px auto 0;
   padding: 3px 12px;
-  color: #fff;
+  color: #fff !important;
   background: #1c777b;
   border: 0;
   border-radius: 99px;
@@ -223,6 +233,71 @@
   text-transform: uppercase;
   cursor: pointer;
 }
+
+.active-role-badge:hover,
+.active-role-badge:focus,
+.active-role-badge:active { color: #fff !important; }
+
+.header-actions { display: flex !important; align-items: center !important; gap: 8px !important; }
+.view-switch-button {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  color: #1c777b;
+  background: #fff;
+  border: 1px solid #d5ddda;
+  border-radius: 10px;
+}
+.view-switch-button:hover { background: #f7faf9; border-color: #91bab7; }
+.view-switch-button svg {
+  width: 21px;
+  height: 21px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.role-switch-menu-action {
+  width: 100%;
+  min-height: 62px;
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  margin-top: 10px;
+  padding: 10px 12px;
+  color: #17201d;
+  background: #f7f9f8;
+  border: 1px solid #dce3e1;
+  border-radius: 11px;
+  text-align: left;
+}
+.role-switch-menu-action > span:first-child {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  color: #1c777b;
+  border: 1px solid #91bab7;
+  border-radius: 9px;
+}
+.role-switch-menu-action svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.role-switch-menu-action strong,
+.role-switch-menu-action small { display: block; }
+.role-switch-menu-action strong { font-size: 13px; }
+.role-switch-menu-action small { margin-top: 2px; color: #7c8582; font-size: 10px; }
 
 /* Reception is a safe editing workspace: no operational check-in or day-end actions. */
 body[data-app-role="reception"] .open-filter-button,
@@ -280,6 +355,10 @@ body[data-app-role="reception"] .room-row {
 }
 .reception-actions .reception-add { color: #fff; background: #1c777b; }
 
+.reception-table-head { display: none; }
+.reception-breakfast,
+.reception-remark { display: none; }
+
 body[data-app-role="service"] .entry-screen:not(.role-pending) .load-choice {
   display: none !important;
 }
@@ -300,11 +379,45 @@ body[data-app-role="service"] .entry-screen:not(.role-pending) .load-actions {
 }
 
 @media (max-width: 560px) {
+  .topbar {
+    grid-template-columns: 80px minmax(0, 1fr) 84px !important;
+    gap: 8px !important;
+    padding-left: 14px !important;
+    padding-right: 14px !important;
+  }
+  .header-logo {
+    width: 80px !important;
+    max-width: 80px !important;
+    justify-self: start !important;
+  }
+  .page-title {
+    min-width: 0 !important;
+    max-width: 100% !important;
+    overflow: hidden !important;
+  }
+  .page-title h1 {
+    max-width: 100% !important;
+    overflow: hidden !important;
+    font-size: 17px !important;
+    line-height: 1.08 !important;
+    letter-spacing: -.025em !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+  .page-title p { font-size: 10px !important; white-space: nowrap !important; }
+  .active-role-badge {
+    display: none !important;
+  }
+  .header-actions { min-width: 0 !important; justify-self: end !important; }
+  .icon-button,
+  .view-switch-button { width: 38px !important; height: 38px !important; border-radius: 9px !important; }
+
   .role-selection { width: calc(100vw - 40px); transform: none; }
   .role-logo { width: min(170px, 48vw); margin-bottom: 18px; }
   .role-app-mark { width: 50px; height: 50px; margin-bottom: 13px; border-radius: 15px; }
   .role-selection h1 { font-size: 25px; }
-  .role-prompt { margin-top: 17px; }
+  .role-prompt { margin-top: 14px; }
+  .role-selection .role-options { margin-top: 18px; }
   .role-options { grid-template-columns: 1fr; gap: 9px; }
   .role-options button {
     min-height: 76px;
@@ -367,6 +480,35 @@ body[data-app-role="service"] .entry-screen:not(.role-pending) .load-actions {
     padding-top: 4px !important;
   }
 
+  body[data-app-role="reception"] .section-head { margin: 12px 0 7px !important; }
+  body[data-app-role="reception"] .room-row {
+    min-height: 68px !important;
+    grid-template-columns: 58px minmax(0, 1fr) auto !important;
+    padding: 9px 11px !important;
+    border: 1px solid #e0e6e3 !important;
+    border-left-width: 4px !important;
+    border-radius: 11px !important;
+  }
+  body[data-app-role="reception"] .room-number { font-size: 24px !important; }
+  body[data-app-role="reception"] .guest-names strong { font-size: 15px !important; }
+  body[data-app-role="reception"] .room-state { font-size: 10px !important; }
+  body[data-app-role="reception"] .reception-breakfast,
+  body[data-app-role="reception"] .reception-remark { display: none !important; }
+  body[data-app-role="reception"] .bottom-bar { display: none !important; }
+
+  body[data-app-role="reception"] .modal-layer:has(.guest-edit-modal) {
+    display: flex !important;
+    align-items: flex-end !important;
+    padding: 28px 10px max(10px, env(safe-area-inset-bottom)) !important;
+    background: rgba(20, 29, 27, .34) !important;
+  }
+  body[data-app-role="reception"] .guest-edit-modal {
+    width: 100% !important;
+    max-width: none !important;
+    max-height: 88dvh !important;
+    border-radius: 18px !important;
+  }
+
   .open-filter-button {
     font-size: 11px;
     padding-left: 5px;
@@ -393,16 +535,17 @@ body[data-app-role="service"] .entry-screen:not(.role-pending) .load-actions {
 
 @media (min-width: 700px) and (max-width: 1400px) and (orientation: landscape) {
   body[data-app-role="reception"] .app-shell {
-    grid-template-rows: 72px 82px 48px minmax(0, 1fr) 60px !important;
+    grid-template-rows: 82px 106px 58px minmax(0, 1fr) !important;
   }
 
   body[data-app-role="reception"] .hero {
     display: flex !important;
     align-items: center !important;
-    height: 72px !important;
-    min-height: 72px !important;
-    margin: 4px 24px 6px !important;
-    padding: 10px 14px !important;
+    height: 88px !important;
+    min-height: 88px !important;
+    margin: 4px 24px 10px !important;
+    padding: 14px 18px !important;
+    border-radius: 12px !important;
   }
 
   body[data-app-role="reception"] .hero::after,
@@ -413,38 +556,109 @@ body[data-app-role="service"] .entry-screen:not(.role-pending) .load-actions {
   body[data-app-role="reception"] .search-wrap {
     position: static !important;
     width: auto !important;
-    height: 48px !important;
-    padding: 3px 24px 7px !important;
+    height: 58px !important;
+    padding: 4px 24px 10px !important;
   }
 
   body[data-app-role="reception"] .search-row { height: 38px !important; }
 
   body[data-app-role="reception"] .content,
   body[data-app-role="reception"] .content.sections-grid {
+    display: block !important;
     overflow-y: auto !important;
-    padding: 3px 24px 10px !important;
+    padding: 0 24px 16px !important;
+    transition: width .2s ease !important;
   }
+
+  body[data-app-role="reception"] .app-shell:has(.guest-edit-modal) .content {
+    width: 64% !important;
+    padding-right: 12px !important;
+  }
+
+  body[data-app-role="reception"] .reception-table-head {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 3 !important;
+    display: grid !important;
+    grid-template-columns: 88px minmax(0, 1.5fr) 80px 145px 110px 20px !important;
+    gap: 10px !important;
+    padding: 11px 14px 9px !important;
+    color: #7b8481 !important;
+    background: #fff !important;
+    border-bottom: 1px solid #dfe5e2 !important;
+    font-size: 10px !important;
+    font-weight: 700 !important;
+    letter-spacing: .04em !important;
+    text-transform: uppercase !important;
+  }
+
+  body[data-app-role="reception"] .section-head { display: none !important; }
 
   body[data-app-role="reception"] .ipad-room-grid {
     display: grid !important;
     grid-template-columns: 1fr !important;
     grid-template-rows: none !important;
-    grid-auto-rows: 48px !important;
-    gap: 5px !important;
+    grid-auto-rows: 52px !important;
+    gap: 0 !important;
     height: auto !important;
   }
 
   body[data-app-role="reception"] .ipad-room-column { display: contents !important; }
 
   body[data-app-role="reception"] .ipad-room-grid .room-row {
-    min-height: 48px !important;
-    height: 48px !important;
-    grid-template-columns: 88px minmax(0, 1fr) 120px !important;
+    min-height: 52px !important;
+    height: 52px !important;
+    grid-template-columns: 88px minmax(0, 1.5fr) 80px 145px 110px 20px !important;
+    gap: 10px !important;
     align-items: center !important;
     padding: 5px 12px !important;
-    border: 1px solid #e1e6e4 !important;
-    border-left-width: 4px !important;
-    border-radius: 9px !important;
+    border: 0 !important;
+    border-bottom: 1px solid #e1e6e4 !important;
+    border-radius: 0 !important;
+  }
+
+  body[data-app-role="reception"] .ipad-room-grid .room-row.included { border-left: 0 !important; }
+  body[data-app-role="reception"] .ipad-room-grid .room-key { display: contents !important; }
+  body[data-app-role="reception"] .ipad-room-grid .room-number { grid-column: 1 !important; align-self: center !important; }
+  body[data-app-role="reception"] .ipad-room-grid .guest-names { grid-column: 2 !important; }
+  body[data-app-role="reception"] .ipad-room-grid .guest-names .meta-line { display: none !important; }
+  body[data-app-role="reception"] .ipad-room-grid .people { grid-column: 3 !important; align-self: center !important; }
+  body[data-app-role="reception"] .ipad-room-grid .room-tail { grid-column: 6 !important; display: block !important; }
+  body[data-app-role="reception"] .ipad-room-grid .room-tail > :not(.room-edit-icon) { display: none !important; }
+  body[data-app-role="reception"] .reception-breakfast {
+    grid-column: 4 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: fit-content !important;
+    min-width: 104px !important;
+    min-height: 30px !important;
+    padding: 4px 10px !important;
+    color: #59615f !important;
+    background: #f0f2f1 !important;
+    border-radius: 8px !important;
+    font-size: 11px !important;
+  }
+  body[data-app-role="reception"] .reception-breakfast.included {
+    color: #7a5a00 !important;
+    background: #fff1bd !important;
+  }
+  body[data-app-role="reception"] .reception-remark {
+    grid-column: 5 !important;
+    display: flex !important;
+    align-items: center !important;
+    color: #8b9390 !important;
+    font-size: 13px !important;
+  }
+  body[data-app-role="reception"] .reception-remark.has-remark { color: #1c777b !important; }
+  body[data-app-role="reception"] .reception-remark svg {
+    width: 19px !important;
+    height: 19px !important;
+    fill: none !important;
+    stroke: currentColor !important;
+    stroke-width: 1.7 !important;
+    stroke-linecap: round !important;
+    stroke-linejoin: round !important;
   }
 
   body[data-app-role="reception"] .ipad-room-grid .room-number { font-size: 17px !important; }
@@ -454,7 +668,7 @@ body[data-app-role="service"] .entry-screen:not(.role-pending) .load-actions {
   body[data-app-role="reception"] .modal-layer:has(.guest-edit-modal) {
     align-items: stretch !important;
     justify-content: flex-end !important;
-    padding: 82px 22px 68px 64% !important;
+    padding: 260px 22px 18px 65% !important;
     background: transparent !important;
     backdrop-filter: none !important;
     pointer-events: none !important;
@@ -465,9 +679,13 @@ body[data-app-role="service"] .entry-screen:not(.role-pending) .load-actions {
     max-width: none !important;
     height: 100% !important;
     max-height: none !important;
+    border: 1px solid #dce3e1 !important;
     border-radius: 13px !important;
+    box-shadow: 0 12px 32px rgba(22, 39, 35, .08) !important;
     pointer-events: auto !important;
   }
+
+  body[data-app-role="reception"] .bottom-bar { display: none !important; }
 
   /* Start screen: compact, modern two-card layout that uses the iPad width. */
   .entry-screen .load-card {

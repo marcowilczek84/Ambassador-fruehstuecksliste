@@ -79,6 +79,22 @@
     badge.textContent = role === "reception" ? "Rezeption" : "Service";
   }
 
+  function addViewSwitcher(shell, role) {
+    const actions = shell.querySelector(".header-actions");
+    if (!actions || actions.querySelector(".view-switch-button")) return;
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "view-switch-button";
+    button.title = role === "reception" ? "Zum Frühstücksservice wechseln" : "Zur Rezeption wechseln";
+    button.setAttribute("aria-label", button.title);
+    button.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h11l-3-3M17 17H6l3 3M18 7l-3 3M6 17l3-3"/></svg>';
+    button.addEventListener("click", () => {
+      sessionStorage.removeItem(roleKey);
+      location.reload();
+    });
+    actions.prepend(button);
+  }
+
   function clickMenuAction(shell, label) {
     shell.querySelector(".icon-button")?.click();
     requestAnimationFrame(() => {
@@ -89,9 +105,11 @@
   function buildReceptionToolbar(shell) {
     const hero = shell.querySelector(".hero");
     if (!hero || hero.querySelector(".reception-toolbar")) return;
-    const rooms = shell.querySelectorAll(".room-row").length;
-    const guests = [...shell.querySelectorAll(".room-row .people")].reduce((total, node) => {
-      const match = normalize(node.textContent || "").match(/\d+/);
+    const occupiedRows = [...shell.querySelectorAll(".room-row")].filter((row) => !row.querySelector(".vacant"));
+    const rooms = occupiedRows.length;
+    const guests = occupiedRows.reduce((total, row) => {
+      const node = row.querySelector(".people");
+      const match = normalize(node?.textContent || "").match(/\d+/);
       return total + (match ? Number(match[0]) : 0);
     }, 0);
     const toolbar = document.createElement("div");
@@ -113,16 +131,59 @@
     hero.append(toolbar);
   }
 
+  function buildReceptionTable(shell) {
+    const content = shell.querySelector(".content");
+    if (!content || content.querySelector(".reception-table-head")) return;
+    const head = document.createElement("div");
+    head.className = "reception-table-head";
+    head.innerHTML = "<span>Zimmer</span><span>Gast</span><span>Gäste</span><span>Frühstück</span><span>Bemerkung</span><span></span>";
+    content.prepend(head);
+  }
+
+  function enhanceReceptionRows(shell) {
+    shell.querySelectorAll(".room-row").forEach((row) => {
+      let breakfast = row.querySelector(".reception-breakfast");
+      if (!breakfast) {
+        breakfast = document.createElement("span");
+        breakfast.className = "reception-breakfast";
+        row.append(breakfast);
+      }
+      const included = row.classList.contains("included");
+      breakfast.classList.toggle("included", included);
+      breakfast.textContent = included ? "inklusive" : "nicht inklusive";
+
+      let remark = row.querySelector(".reception-remark");
+      if (!remark) {
+        remark = document.createElement("span");
+        remark.className = "reception-remark";
+        row.append(remark);
+      }
+      const hasRemark = Boolean(row.querySelector(".guest-info-indicator"));
+      remark.classList.toggle("has-remark", hasRemark);
+      remark.innerHTML = hasRemark
+        ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h9l4 4v14H6zM15 3v5h5M9 12h7M9 16h7"/></svg>'
+        : "–";
+    });
+  }
+
   function applyRoleView(shell) {
     const role = sessionStorage.getItem(roleKey);
     if (!role) return;
     document.body.dataset.appRole = role;
     addRoleBadge(shell, role);
+    addViewSwitcher(shell, role);
     const title = shell.querySelector(".page-title h1");
-    if (title) title.textContent = role === "reception" ? "Frühstücksliste · Rezeption" : "Frühstücksliste · Service";
+    if (title) {
+      const compactHeader = window.matchMedia("(max-width: 560px)").matches;
+      title.textContent = compactHeader
+        ? "Frühstücksliste"
+        : role === "reception" ? "Frühstücksliste · Rezeption" : "Frühstücksliste · Service";
+    }
     if (role !== "reception") return;
 
     buildReceptionToolbar(shell);
+    buildReceptionTable(shell);
+    enhanceReceptionRows(shell);
 
     const editButton = shell.querySelector(".bottom-bar .bottom-button:not(.finish)");
     if (editButton && !shell.dataset.receptionEditStarted) {
@@ -145,6 +206,19 @@
         label === "Frühstück beenden" ||
         label === "Statistik"
       )) button.remove();
+    });
+
+    root.querySelectorAll(".menu-card").forEach((menu) => {
+      if (menu.querySelector(".role-switch-menu-action")) return;
+      const switchButton = document.createElement("button");
+      switchButton.type = "button";
+      switchButton.className = "role-switch-menu-action";
+      switchButton.innerHTML = `<span>${role === "reception" ? icon("service") : icon("reception")}</span><span><strong>Ansicht wechseln</strong><small>${role === "reception" ? "Zum Frühstücksservice" : "Zur Rezeption"}</small></span>`;
+      switchButton.addEventListener("click", () => {
+        sessionStorage.removeItem(roleKey);
+        location.reload();
+      });
+      menu.append(switchButton);
     });
   }
 
@@ -272,6 +346,8 @@
       schedule();
     }
   });
+
+  window.addEventListener("resize", schedule, { passive: true });
 
   new MutationObserver(schedule).observe(document.documentElement, {
     attributes: true,
