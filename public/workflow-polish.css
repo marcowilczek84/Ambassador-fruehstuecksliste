@@ -670,6 +670,93 @@ body[data-app-role="service"] .entry-screen:not(.role-pending) .load-actions {
     border-color: #e1b900 !important;
   }
 
+  /* Explicit breakfast entitlement choice in both work areas. */
+  .guest-edit-modal .reception-original-included { display: none !important; }
+  .guest-edit-modal .reception-breakfast-choice {
+    grid-column: 1 / -1 !important;
+    display: grid !important;
+    gap: 7px !important;
+  }
+  .guest-edit-modal .reception-breakfast-choice > span {
+    color: #27312e !important;
+    font-size: 13px !important;
+    font-weight: 650 !important;
+  }
+  .guest-edit-modal .reception-breakfast-choice > div {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+  }
+  .guest-edit-modal .reception-breakfast-choice button {
+    min-height: 48px !important;
+    color: #3e4744 !important;
+    background: #fff !important;
+    border: 1px solid #dce3e1 !important;
+    border-radius: 10px !important;
+    font-size: 13px !important;
+    font-weight: 650 !important;
+  }
+  .guest-edit-modal .reception-breakfast-choice button.selected {
+    color: #715500 !important;
+    background: #fff9df !important;
+    border-color: #e1b900 !important;
+  }
+
+  /* Compact check-in sheet with a contained table scroller. */
+  .modal-layer:has(.checkin-choice-modal) {
+    align-items: flex-end !important;
+    padding: 18px 10px max(10px, env(safe-area-inset-bottom)) !important;
+  }
+  .checkin-choice-modal {
+    width: 100% !important;
+    max-width: none !important;
+    max-height: 90dvh !important;
+    overflow: hidden !important;
+    border-radius: 18px !important;
+  }
+  .checkin-choice-modal .modal-head { padding: 14px 16px 12px !important; }
+  .checkin-choice-modal .modal-head h2 { font-size: 24px !important; }
+  .checkin-choice-modal .modal-head p { margin-top: 2px !important; font-size: 13px !important; }
+  .checkin-choice-modal .modal-body {
+    gap: 10px !important;
+    padding: 10px 16px 12px !important;
+    overflow: hidden !important;
+  }
+  .checkin-choice-modal .room-service-option {
+    min-height: 64px !important;
+    padding: 10px 13px !important;
+  }
+  .checkin-choice-modal .room-service-option strong { font-size: 15px !important; }
+  .checkin-choice-modal .room-service-option small { font-size: 11px !important; }
+  .checkin-choice-modal .table-picker {
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+    gap: 7px !important;
+    max-height: min(35dvh, 300px) !important;
+    padding-right: 3px !important;
+    overflow-y: auto !important;
+    overscroll-behavior: contain !important;
+  }
+  .checkin-choice-modal .table-picker button {
+    min-height: 43px !important;
+    height: 43px !important;
+    border-radius: 9px !important;
+    font-size: 14px !important;
+  }
+  .checkin-choice-modal .group-room-trigger {
+    min-height: 58px !important;
+    padding: 9px 13px !important;
+  }
+  .checkin-choice-modal .modal-actions {
+    gap: 8px !important;
+    padding-top: 9px !important;
+  }
+  .checkin-choice-modal .modal-actions button {
+    min-height: 50px !important;
+    padding: 8px 10px !important;
+    font-size: 13px !important;
+    white-space: nowrap !important;
+  }
+
   .open-filter-button {
     font-size: 11px;
     padding-left: 5px;

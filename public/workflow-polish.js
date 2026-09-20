@@ -275,7 +275,7 @@
     root.querySelectorAll(".menu-card").forEach((menu) => {
       menu.querySelectorAll("*").forEach((node) => {
         if (node.children.length === 0 && normalize(node.textContent || "").includes("Ambassador Liste · 8.27.0")) {
-          node.textContent = "Ambassador Liste · 8.33.7";
+          node.textContent = "Ambassador Liste · 8.33.8";
         }
       });
     });
@@ -358,13 +358,30 @@
       const primary = modal.querySelector(".modal-actions .primary");
       if (!primary) return;
 
-      const selectedTable = modal.querySelector(".table-picker button.selected");
+      const selectedTable = modal.dataset.selectedTable || normalize(modal.querySelector(".table-picker button.selected")?.textContent || "");
       const roomService = modal.querySelector(".room-service-option.selected");
+      if (!modal.dataset.choiceListeners) {
+        modal.dataset.choiceListeners = "true";
+        modal.querySelectorAll(".table-picker button").forEach((button) => {
+          button.addEventListener("click", () => {
+            modal.dataset.selectedTable = normalize(button.textContent || "");
+            window.setTimeout(() => updateCheckinDialog(modal), 0);
+          });
+        });
+        modal.querySelectorAll(".room-service-option").forEach((button) => {
+          button.addEventListener("click", () => {
+            modal.dataset.selectedTable = "";
+            window.setTimeout(() => updateCheckinDialog(modal), 0);
+          });
+        });
+      }
       if (!selectedTable && !roomService) {
         primary.disabled = false;
         primary.textContent = "Ohne Tisch erfassen";
       } else if (selectedTable) {
-        primary.textContent = `An Tisch ${normalize(selectedTable.textContent || "")} erfassen`;
+        primary.textContent = `An Tisch ${selectedTable} erfassen`;
+      } else if (roomService) {
+        primary.textContent = "Roomservice erfassen";
       }
     });
 
@@ -388,7 +405,7 @@
     updateCheckinDialog(document);
     if (shell) updateFilter(shell);
     if (shell) applyRoleView(shell);
-    if (document.body.dataset.appRole === "reception") enhanceReceptionModal(document);
+    enhanceReceptionModal(document);
     if (shell) {
       const finished = Boolean(shell.querySelector(".bottom-button.finish.finished"));
       shell.classList.toggle("breakfast-finished", finished);
