@@ -103,7 +103,7 @@
       const action = [...document.querySelectorAll(".menu-card button")].find((button) => normalize(button.textContent || "").includes(label));
       if (action) {
         action.click();
-        requestAnimationFrame(() => requestAnimationFrame(() => document.body.classList.remove("proxy-menu-action")));
+        window.setTimeout(() => document.body.classList.remove("proxy-menu-action"), 120);
         return;
       }
       attempts += 1;
@@ -274,7 +274,7 @@
     root.querySelectorAll(".menu-card").forEach((menu) => {
       menu.querySelectorAll("*").forEach((node) => {
         if (node.children.length === 0 && normalize(node.textContent || "").includes("Ambassador Liste · 8.27.0")) {
-          node.textContent = "Ambassador Liste · 8.33.5";
+          node.textContent = "Ambassador Liste · 8.33.6";
         }
       });
     });
