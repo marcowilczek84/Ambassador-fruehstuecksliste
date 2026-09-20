@@ -319,6 +319,54 @@ body[data-app-role="service"] .entry-screen:not(.role-pending) .load-actions {
   .role-options strong { align-self: end; }
   .role-options small { align-self: start; }
 
+  body[data-app-role="reception"] .app-shell {
+    grid-template-rows: auto auto 76px minmax(0, 1fr) auto !important;
+  }
+
+  body[data-app-role="reception"] .hero {
+    display: block !important;
+    margin: 8px 15px 4px !important;
+    padding: 14px !important;
+    min-height: 0 !important;
+    border: 1px solid #dce3e1 !important;
+    border-radius: 14px !important;
+  }
+
+  body[data-app-role="reception"] .hero > :not(.reception-toolbar),
+  body[data-app-role="reception"] .hero::after {
+    display: none !important;
+  }
+
+  body[data-app-role="reception"] .reception-toolbar {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  body[data-app-role="reception"] .reception-actions {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+  }
+
+  body[data-app-role="reception"] .reception-actions button {
+    min-height: 48px !important;
+    padding: 7px 9px !important;
+    font-size: 12px !important;
+    line-height: 1.15 !important;
+  }
+
+  body[data-app-role="reception"] .search-wrap {
+    position: static !important;
+    width: auto !important;
+    height: auto !important;
+    padding: 7px 15px 9px !important;
+  }
+
+  body[data-app-role="reception"] .content {
+    padding-top: 4px !important;
+  }
+
   .open-filter-button {
     font-size: 11px;
     padding-left: 5px;

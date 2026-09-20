@@ -105,7 +105,10 @@
         <button type="button" class="reception-upload">Mews-Liste laden</button>
         <button type="button" class="reception-add">＋ Zimmer hinzufügen</button>
       </div>`;
-    toolbar.querySelector(".reception-upload").addEventListener("click", () => location.reload());
+    toolbar.querySelector(".reception-upload").addEventListener("click", () => {
+      const fileInput = shell.querySelector('input[type="file"][accept*=".xlsx"]');
+      if (fileInput) fileInput.click();
+    });
     toolbar.querySelector(".reception-add").addEventListener("click", () => clickMenuAction(shell, "Zimmer hinzufügen"));
     hero.append(toolbar);
   }
@@ -126,6 +129,23 @@
       shell.dataset.receptionEditStarted = "true";
       requestAnimationFrame(() => editButton.click());
     }
+  }
+
+  function enforceRoleFunctions(root) {
+    const role = sessionStorage.getItem(roleKey);
+    if (!role) return;
+    root.querySelectorAll("button").forEach((button) => {
+      const label = normalize(button.textContent || "");
+      if (role === "service" && (
+        label === "Gäste bearbeiten" ||
+        label === "Zimmer hinzufügen" ||
+        label === "Frühstücksliste löschen"
+      )) button.remove();
+      if (role === "reception" && (
+        label === "Frühstück beenden" ||
+        label === "Statistik"
+      )) button.remove();
+    });
   }
 
   function updateEntryForRole(entry) {
@@ -225,6 +245,7 @@
     if (entry) renderRoleSelection(entry);
     if (entry) updateEntryForRole(entry);
     const shell = document.querySelector(".app-shell");
+    enforceRoleFunctions(document);
     removeDepartureControls(document);
     updateCheckinDialog(document);
     if (shell) updateFilter(shell);
