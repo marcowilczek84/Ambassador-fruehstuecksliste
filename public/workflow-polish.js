@@ -275,7 +275,7 @@
     root.querySelectorAll(".menu-card").forEach((menu) => {
       menu.querySelectorAll("*").forEach((node) => {
         if (node.children.length === 0 && normalize(node.textContent || "").includes("Ambassador Liste · 8.27.0")) {
-          node.textContent = "Ambassador Liste · 8.33.8";
+          node.textContent = "Ambassador Liste · 8.33.9";
         }
       });
     });
@@ -365,13 +365,13 @@
         modal.querySelectorAll(".table-picker button").forEach((button) => {
           button.addEventListener("click", () => {
             modal.dataset.selectedTable = normalize(button.textContent || "");
-            window.setTimeout(() => updateCheckinDialog(modal), 0);
+            window.setTimeout(() => updateCheckinDialog(document), 50);
           });
         });
         modal.querySelectorAll(".room-service-option").forEach((button) => {
           button.addEventListener("click", () => {
             modal.dataset.selectedTable = "";
-            window.setTimeout(() => updateCheckinDialog(modal), 0);
+            window.setTimeout(() => updateCheckinDialog(document), 50);
           });
         });
       }
