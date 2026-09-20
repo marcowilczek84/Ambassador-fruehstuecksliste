@@ -87,7 +87,7 @@
     button.className = "view-switch-button home-button";
     button.title = "Zur Startseite";
     button.setAttribute("aria-label", button.title);
-    button.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 11 9-8 9 8M5.5 9.5V21h13V9.5M9.5 21v-7h5v7"/></svg>';
+    button.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5V21h-6v-6H9v6H3z"/></svg>';
     button.addEventListener("click", () => {
       sessionStorage.removeItem(roleKey);
       location.reload();
@@ -172,6 +172,47 @@
         ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h9l4 4v14H6zM15 3v5h5M9 12h7M9 16h7"/></svg>'
         : "–";
     });
+
+    const occupiedRooms = new Set(
+      [...shell.querySelectorAll(".room-row.reception-occupied .room-number")]
+        .map((node) => normalize(node.textContent || ""))
+        .filter(Boolean)
+    );
+    const sections = [...shell.querySelectorAll(".content .section")];
+    sections.forEach((section, index) => {
+      section.classList.toggle("reception-continuation", index > 0);
+      if (index === 0) {
+        const heading = section.querySelector(".section-head h3");
+        const count = section.querySelector(".section-count");
+        if (heading) heading.textContent = "Belegte Zimmer";
+        if (count) count.textContent = String(occupiedRooms.size);
+      }
+    });
+  }
+
+  function enhanceReceptionModal(root) {
+    const modal = root.querySelector(".guest-edit-modal");
+    if (!modal) return;
+    const checkbox = modal.querySelector('input[type="checkbox"]');
+    const field = checkbox?.closest("label");
+    if (!checkbox || !field) return;
+    let choice = modal.querySelector(".reception-breakfast-choice");
+    if (!choice) {
+      choice = document.createElement("div");
+      choice.className = "reception-breakfast-choice";
+      choice.innerHTML = '<span>Frühstück</span><div><button type="button" data-included="true">✓ inklusive</button><button type="button" data-included="false">nicht inklusive</button></div>';
+      field.after(choice);
+      choice.querySelectorAll("button").forEach((button) => {
+        button.addEventListener("click", () => {
+          const next = button.dataset.included === "true";
+          if (checkbox.checked !== next) checkbox.click();
+          schedule();
+        });
+      });
+    }
+    field.classList.add("reception-original-included");
+    choice.querySelector('[data-included="true"]')?.classList.toggle("selected", checkbox.checked);
+    choice.querySelector('[data-included="false"]')?.classList.toggle("selected", !checkbox.checked);
   }
 
   function applyRoleView(shell) {
@@ -328,6 +369,7 @@
     updateCheckinDialog(document);
     if (shell) updateFilter(shell);
     if (shell) applyRoleView(shell);
+    if (document.body.dataset.appRole === "reception") enhanceReceptionModal(document);
     if (shell) {
       const finished = Boolean(shell.querySelector(".bottom-button.finish.finished"));
       shell.classList.toggle("breakfast-finished", finished);

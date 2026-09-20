@@ -245,20 +245,33 @@
   display: grid;
   place-items: center;
   flex: 0 0 auto;
-  color: #1c777b;
+  color: #1c777b !important;
   background: #fff;
   border: 1px solid #d5ddda;
   border-radius: 10px;
 }
 .view-switch-button:hover { background: #f7faf9; border-color: #91bab7; }
 .view-switch-button svg {
-  width: 21px;
-  height: 21px;
+  width: 24px;
+  height: 24px;
   fill: none;
   stroke: currentColor;
-  stroke-width: 1.8;
+  stroke-width: 1.7;
   stroke-linecap: round;
   stroke-linejoin: round;
+}
+
+body[data-app-role="reception"] .menu-footer .tip-app-entry { display: none !important; }
+body[data-app-role="reception"] .menu-footer { padding-top: 7px !important; }
+
+.success-overlay { background: #fff !important; backdrop-filter: none !important; }
+.success-panel {
+  width: min(520px, calc(100vw - 36px)) !important;
+  max-width: none !important;
+  background: #fff !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
 }
 
 html, body { max-width: 100%; overflow-x: hidden !important; }
@@ -541,6 +554,16 @@ body[data-app-role="service"] .entry-screen:not(.role-pending) .load-actions {
   body[data-app-role="reception"] .reception-remark { display: none !important; }
   body[data-app-role="reception"] .bottom-bar { display: none !important; }
 
+  body[data-app-role="reception"] .reception-continuation .section-head { display: none !important; }
+  body[data-app-role="reception"] .room-edit-icon svg { display: none !important; }
+  body[data-app-role="reception"] .room-edit-icon::after {
+    content: "›" !important;
+    color: #1c777b !important;
+    font-size: 28px !important;
+    font-weight: 400 !important;
+    line-height: 1 !important;
+  }
+
   body[data-app-role="reception"] .reception-actions .reception-add { color: #fff !important; }
 
   body[data-app-role="reception"] .modal-layer:has(.guest-edit-modal) {
@@ -554,6 +577,38 @@ body[data-app-role="service"] .entry-screen:not(.role-pending) .load-actions {
     max-width: none !important;
     max-height: 88dvh !important;
     border-radius: 18px !important;
+  }
+
+  body[data-app-role="reception"] .reception-original-included { display: none !important; }
+  body[data-app-role="reception"] .reception-breakfast-choice {
+    grid-column: 1 / -1 !important;
+    display: grid !important;
+    gap: 8px !important;
+  }
+  body[data-app-role="reception"] .reception-breakfast-choice > span {
+    color: #27312e !important;
+    font-size: 13px !important;
+    font-weight: 650 !important;
+  }
+  body[data-app-role="reception"] .reception-breakfast-choice > div {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+  }
+  body[data-app-role="reception"] .reception-breakfast-choice button {
+    min-height: 52px !important;
+    padding: 8px !important;
+    color: #3e4744 !important;
+    background: #fff !important;
+    border: 1px solid #dce3e1 !important;
+    border-radius: 10px !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+  }
+  body[data-app-role="reception"] .reception-breakfast-choice button.selected {
+    color: #715500 !important;
+    background: #fff9df !important;
+    border-color: #e1b900 !important;
   }
 
   .open-filter-button {
@@ -739,6 +794,17 @@ body[data-app-role="service"] .entry-screen:not(.role-pending) .load-actions {
   }
 
   body[data-app-role="reception"] .bottom-bar { display: none !important; }
+  body[data-app-role="reception"] .reception-continuation .section-head { display: none !important; }
+  body[data-app-role="reception"] .reception-original-included { display: none !important; }
+  body[data-app-role="reception"] .reception-breakfast-choice {
+    grid-column: 1 / -1 !important;
+    display: grid !important;
+    gap: 8px !important;
+  }
+  body[data-app-role="reception"] .reception-breakfast-choice > span { font-size: 12px !important; font-weight: 650 !important; }
+  body[data-app-role="reception"] .reception-breakfast-choice > div { display: grid !important; grid-template-columns: repeat(2, minmax(0,1fr)) !important; gap: 8px !important; }
+  body[data-app-role="reception"] .reception-breakfast-choice button { min-height: 44px !important; color: #3e4744 !important; background: #fff !important; border: 1px solid #dce3e1 !important; border-radius: 9px !important; font-size: 12px !important; }
+  body[data-app-role="reception"] .reception-breakfast-choice button.selected { color: #715500 !important; background: #fff9df !important; border-color: #e1b900 !important; }
 
   /* Start screen: compact, modern two-card layout that uses the iPad width. */
   .entry-screen .load-card {
