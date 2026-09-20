@@ -84,10 +84,10 @@
     if (!actions || actions.querySelector(".view-switch-button")) return;
     const button = document.createElement("button");
     button.type = "button";
-    button.className = "view-switch-button";
-    button.title = role === "reception" ? "Zum Frühstücksservice wechseln" : "Zur Rezeption wechseln";
+    button.className = "view-switch-button home-button";
+    button.title = "Zur Startseite";
     button.setAttribute("aria-label", button.title);
-    button.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h11l-3-3M17 17H6l3 3M18 7l-3 3M6 17l3-3"/></svg>';
+    button.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 11 9-8 9 8M5.5 9.5V21h13V9.5M9.5 21v-7h5v7"/></svg>';
     button.addEventListener("click", () => {
       sessionStorage.removeItem(roleKey);
       location.reload();
@@ -105,7 +105,14 @@
   function buildReceptionToolbar(shell) {
     const hero = shell.querySelector(".hero");
     if (!hero || hero.querySelector(".reception-toolbar")) return;
-    const occupiedRows = [...shell.querySelectorAll(".room-row")].filter((row) => !row.querySelector(".vacant"));
+    const uniqueRooms = new Map();
+    [...shell.querySelectorAll(".room-row")]
+      .filter((row) => !row.querySelector(".vacant"))
+      .forEach((row) => {
+        const room = normalize(row.querySelector(".room-number")?.textContent || "");
+        if (room && !uniqueRooms.has(room)) uniqueRooms.set(room, row);
+      });
+    const occupiedRows = [...uniqueRooms.values()];
     const rooms = occupiedRows.length;
     const guests = occupiedRows.reduce((total, row) => {
       const node = row.querySelector(".people");
@@ -149,6 +156,7 @@
         row.append(breakfast);
       }
       const included = row.classList.contains("included");
+      row.classList.toggle("reception-occupied", !row.querySelector(".vacant"));
       breakfast.classList.toggle("included", included);
       breakfast.textContent = included ? "inklusive" : "nicht inklusive";
 
@@ -179,6 +187,8 @@
         ? "Frühstücksliste"
         : role === "reception" ? "Frühstücksliste · Rezeption" : "Frühstücksliste · Service";
     }
+    const search = shell.querySelector('.search-box input');
+    if (search) search.placeholder = role === "reception" ? "Zimmer oder Name suchen" : "Zimmer, Name oder Tisch suchen";
     if (role !== "reception") return;
 
     buildReceptionToolbar(shell);
@@ -198,7 +208,6 @@
     root.querySelectorAll("button").forEach((button) => {
       const label = normalize(button.textContent || "");
       if (role === "service" && (
-        label === "Gäste bearbeiten" ||
         label === "Zimmer hinzufügen" ||
         label === "Frühstücksliste löschen"
       )) button.remove();
@@ -209,16 +218,11 @@
     });
 
     root.querySelectorAll(".menu-card").forEach((menu) => {
-      if (menu.querySelector(".role-switch-menu-action")) return;
-      const switchButton = document.createElement("button");
-      switchButton.type = "button";
-      switchButton.className = "role-switch-menu-action";
-      switchButton.innerHTML = `<span>${role === "reception" ? icon("service") : icon("reception")}</span><span><strong>Ansicht wechseln</strong><small>${role === "reception" ? "Zum Frühstücksservice" : "Zur Rezeption"}</small></span>`;
-      switchButton.addEventListener("click", () => {
-        sessionStorage.removeItem(roleKey);
-        location.reload();
+      menu.querySelectorAll("*").forEach((node) => {
+        if (node.children.length === 0 && normalize(node.textContent || "").includes("Ambassador Liste · 8.27.0")) {
+          node.textContent = "Ambassador Liste · 8.33.1";
+        }
       });
-      menu.append(switchButton);
     });
   }
 
