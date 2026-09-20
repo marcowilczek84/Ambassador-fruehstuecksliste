@@ -238,6 +238,48 @@ body[data-app-role="reception"] .room-row {
   cursor: default !important;
 }
 
+.reception-toolbar {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.reception-summary,
+.reception-actions {
+  display: flex;
+  align-items: center;
+}
+
+.reception-summary { gap: 12px; text-align: left; }
+.reception-summary-icon {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  color: #1c777b;
+  border: 1px solid #dce3e1;
+  border-radius: 10px;
+}
+.reception-summary-icon svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.reception-summary strong,
+.reception-summary small { display: block; }
+.reception-summary strong { color: #17201d; font-size: 16px; }
+.reception-summary small { margin-top: 3px; color: #7c8582; font-size: 12px; }
+.reception-actions { gap: 9px; }
+.reception-actions button {
+  min-height: 42px;
+  padding: 0 16px;
+  color: #1c777b;
+  background: #fff;
+  border: 1px solid #1c777b;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 650;
+}
+.reception-actions .reception-add { color: #fff; background: #1c777b; }
+
 body[data-app-role="service"] .entry-screen:not(.role-pending) .load-choice {
   display: none !important;
 }
@@ -302,6 +344,83 @@ body[data-app-role="service"] .entry-screen:not(.role-pending) .load-actions {
 }
 
 @media (min-width: 700px) and (max-width: 1400px) and (orientation: landscape) {
+  body[data-app-role="reception"] .app-shell {
+    grid-template-rows: 72px 82px 48px minmax(0, 1fr) 60px !important;
+  }
+
+  body[data-app-role="reception"] .hero {
+    display: flex !important;
+    align-items: center !important;
+    height: 72px !important;
+    min-height: 72px !important;
+    margin: 4px 24px 6px !important;
+    padding: 10px 14px !important;
+  }
+
+  body[data-app-role="reception"] .hero::after,
+  body[data-app-role="reception"] .hero > :not(.reception-toolbar) {
+    display: none !important;
+  }
+
+  body[data-app-role="reception"] .search-wrap {
+    position: static !important;
+    width: auto !important;
+    height: 48px !important;
+    padding: 3px 24px 7px !important;
+  }
+
+  body[data-app-role="reception"] .search-row { height: 38px !important; }
+
+  body[data-app-role="reception"] .content,
+  body[data-app-role="reception"] .content.sections-grid {
+    overflow-y: auto !important;
+    padding: 3px 24px 10px !important;
+  }
+
+  body[data-app-role="reception"] .ipad-room-grid {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    grid-template-rows: none !important;
+    grid-auto-rows: 48px !important;
+    gap: 5px !important;
+    height: auto !important;
+  }
+
+  body[data-app-role="reception"] .ipad-room-column { display: contents !important; }
+
+  body[data-app-role="reception"] .ipad-room-grid .room-row {
+    min-height: 48px !important;
+    height: 48px !important;
+    grid-template-columns: 88px minmax(0, 1fr) 120px !important;
+    align-items: center !important;
+    padding: 5px 12px !important;
+    border: 1px solid #e1e6e4 !important;
+    border-left-width: 4px !important;
+    border-radius: 9px !important;
+  }
+
+  body[data-app-role="reception"] .ipad-room-grid .room-number { font-size: 17px !important; }
+  body[data-app-role="reception"] .ipad-room-grid .guest-names strong { font-size: 13px !important; }
+  body[data-app-role="reception"] .ipad-room-grid .people { font-size: 10px !important; }
+
+  body[data-app-role="reception"] .modal-layer:has(.guest-edit-modal) {
+    align-items: stretch !important;
+    justify-content: flex-end !important;
+    padding: 82px 22px 68px 64% !important;
+    background: transparent !important;
+    backdrop-filter: none !important;
+    pointer-events: none !important;
+  }
+
+  body[data-app-role="reception"] .guest-edit-modal {
+    width: 100% !important;
+    max-width: none !important;
+    height: 100% !important;
+    max-height: none !important;
+    border-radius: 13px !important;
+    pointer-events: auto !important;
+  }
+
   /* Start screen: compact, modern two-card layout that uses the iPad width. */
   .entry-screen .load-card {
     width: min(590px, calc(100vw - 64px)) !important;

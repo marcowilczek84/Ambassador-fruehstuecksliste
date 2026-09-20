@@ -79,12 +79,47 @@
     badge.textContent = role === "reception" ? "Rezeption" : "Service";
   }
 
+  function clickMenuAction(shell, label) {
+    shell.querySelector(".icon-button")?.click();
+    requestAnimationFrame(() => {
+      [...document.querySelectorAll("button")].find((button) => normalize(button.textContent || "").includes(label))?.click();
+    });
+  }
+
+  function buildReceptionToolbar(shell) {
+    const hero = shell.querySelector(".hero");
+    if (!hero || hero.querySelector(".reception-toolbar")) return;
+    const rooms = shell.querySelectorAll(".room-row").length;
+    const guests = [...shell.querySelectorAll(".room-row .people")].reduce((total, node) => {
+      const match = normalize(node.textContent || "").match(/\d+/);
+      return total + (match ? Number(match[0]) : 0);
+    }, 0);
+    const toolbar = document.createElement("div");
+    toolbar.className = "reception-toolbar";
+    toolbar.innerHTML = `
+      <div class="reception-summary">
+        <span class="reception-summary-icon">${icon("reception")}</span>
+        <span><strong>Heutige Liste</strong><small>${rooms} Zimmer · ${guests} Gäste</small></span>
+      </div>
+      <div class="reception-actions">
+        <button type="button" class="reception-upload">Mews-Liste laden</button>
+        <button type="button" class="reception-add">＋ Zimmer hinzufügen</button>
+      </div>`;
+    toolbar.querySelector(".reception-upload").addEventListener("click", () => location.reload());
+    toolbar.querySelector(".reception-add").addEventListener("click", () => clickMenuAction(shell, "Zimmer hinzufügen"));
+    hero.append(toolbar);
+  }
+
   function applyRoleView(shell) {
     const role = sessionStorage.getItem(roleKey);
     if (!role) return;
     document.body.dataset.appRole = role;
     addRoleBadge(shell, role);
+    const title = shell.querySelector(".page-title h1");
+    if (title) title.textContent = role === "reception" ? "Frühstücksliste · Rezeption" : "Frühstücksliste · Service";
     if (role !== "reception") return;
+
+    buildReceptionToolbar(shell);
 
     const editButton = shell.querySelector(".bottom-bar .bottom-button:not(.finish)");
     if (editButton && !shell.dataset.receptionEditStarted) {
