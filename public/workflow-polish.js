@@ -99,6 +99,7 @@
     document.body.classList.add("proxy-menu-action");
     shell.querySelector(".icon-button")?.click();
     let attempts = 0;
+    window.setTimeout(() => document.body.classList.remove("proxy-menu-action"), 1500);
     const triggerAction = () => {
       const action = [...document.querySelectorAll(".menu-card button")].find((button) => normalize(button.textContent || "").includes(label));
       if (action) {
@@ -107,10 +108,10 @@
         return;
       }
       attempts += 1;
-      if (attempts < 30) requestAnimationFrame(triggerAction);
+      if (attempts < 40) window.setTimeout(triggerAction, 25);
       else document.body.classList.remove("proxy-menu-action");
     };
-    requestAnimationFrame(triggerAction);
+    window.setTimeout(triggerAction, 0);
   }
 
   function buildReceptionToolbar(shell) {
@@ -274,7 +275,7 @@
     root.querySelectorAll(".menu-card").forEach((menu) => {
       menu.querySelectorAll("*").forEach((node) => {
         if (node.children.length === 0 && normalize(node.textContent || "").includes("Ambassador Liste · 8.27.0")) {
-          node.textContent = "Ambassador Liste · 8.33.6";
+          node.textContent = "Ambassador Liste · 8.33.7";
         }
       });
     });
