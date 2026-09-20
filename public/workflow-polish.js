@@ -96,9 +96,12 @@
   }
 
   function clickMenuAction(shell, label) {
+    document.body.classList.add("proxy-menu-action");
     shell.querySelector(".icon-button")?.click();
     requestAnimationFrame(() => {
-      [...document.querySelectorAll("button")].find((button) => normalize(button.textContent || "").includes(label))?.click();
+      const action = [...document.querySelectorAll("button")].find((button) => normalize(button.textContent || "").includes(label));
+      action?.click();
+      requestAnimationFrame(() => document.body.classList.remove("proxy-menu-action"));
     });
   }
 
@@ -127,7 +130,7 @@
         <span><strong>Heutige Liste</strong><small>${rooms} Zimmer · ${guests} Gäste</small></span>
       </div>
       <div class="reception-actions">
-        <button type="button" class="reception-upload">Mews-Liste laden</button>
+        <button type="button" class="reception-upload">Neue Mews-Liste laden</button>
         <button type="button" class="reception-add">＋ Zimmer hinzufügen</button>
       </div>`;
     toolbar.querySelector(".reception-upload").addEventListener("click", () => {
@@ -156,6 +159,8 @@
         row.append(breakfast);
       }
       const included = row.classList.contains("included");
+      const roomNumber = Number.parseInt(normalize(row.querySelector(".room-number")?.textContent || ""), 10);
+      if (Number.isFinite(roomNumber)) row.style.setProperty("--reception-room-order", String(roomNumber));
       row.classList.toggle("reception-occupied", !row.querySelector(".vacant"));
       breakfast.classList.toggle("included", included);
       breakfast.textContent = included ? "inklusive" : "nicht inklusive";
@@ -261,7 +266,7 @@
     root.querySelectorAll(".menu-card").forEach((menu) => {
       menu.querySelectorAll("*").forEach((node) => {
         if (node.children.length === 0 && normalize(node.textContent || "").includes("Ambassador Liste · 8.27.0")) {
-          node.textContent = "Ambassador Liste · 8.33.1";
+          node.textContent = "Ambassador Liste · 8.33.3";
         }
       });
     });
@@ -271,6 +276,11 @@
     const role = sessionStorage.getItem(roleKey);
     if (!role || entry.classList.contains("role-pending")) return;
     entry.dataset.role = role;
+
+    const importButton = entry.querySelector(".load-choice");
+    const openButton = entry.querySelector(".entry-secondary");
+    const importTitle = importButton?.querySelector("strong");
+    if (importTitle) importTitle.textContent = openButton ? "Neue Mews-Liste laden" : "Mews-Liste laden";
 
     let note = entry.querySelector(".service-waiting-note");
     if (role === "service" && !entry.querySelector(".entry-secondary")) {

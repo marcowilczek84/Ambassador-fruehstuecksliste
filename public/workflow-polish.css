@@ -64,6 +64,28 @@
   outline: 0 !important;
 }
 
+/* Proxy menu actions are triggered without flashing the navigation sheet. */
+body.proxy-menu-action .menu-card,
+body.proxy-menu-action .menu-overlay,
+body.proxy-menu-action .modal-layer:has(.menu-card) {
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+/* The existing list is the primary start-screen action. */
+.entry-screen:not(.role-pending) .entry-secondary {
+  color: #fff !important;
+  background: #1c777b !important;
+  border-color: #1c777b !important;
+  font-weight: 680 !important;
+}
+.entry-screen:not(.role-pending) .entry-secondary:hover,
+.entry-screen:not(.role-pending) .entry-secondary:focus {
+  color: #fff !important;
+  background: #17696d !important;
+  border-color: #17696d !important;
+}
+
 .modal input,
 .modal select,
 .modal textarea,
@@ -396,14 +418,14 @@ body[data-app-role="service"] .entry-screen:not(.role-pending) .load-actions {
 
 @media (max-width: 560px) {
   .topbar {
-    grid-template-columns: 80px minmax(0, 1fr) 84px !important;
+    grid-template-columns: 92px minmax(0, 1fr) 84px !important;
     gap: 8px !important;
     padding-left: 14px !important;
     padding-right: 14px !important;
   }
   .header-logo {
-    width: 80px !important;
-    max-width: 80px !important;
+    width: 92px !important;
+    max-width: 92px !important;
     justify-self: start !important;
   }
   .page-title {
@@ -495,7 +517,7 @@ body[data-app-role="service"] .entry-screen:not(.role-pending) .load-actions {
   body[data-app-role="reception"] .hero {
     display: block !important;
     margin: 8px 15px 4px !important;
-    padding: 14px !important;
+    padding: 11px 12px !important;
     min-height: 0 !important;
     border: 1px solid #dce3e1 !important;
     border-radius: 14px !important;
@@ -509,8 +531,18 @@ body[data-app-role="service"] .entry-screen:not(.role-pending) .load-actions {
   body[data-app-role="reception"] .reception-toolbar {
     display: grid !important;
     grid-template-columns: 1fr !important;
-    gap: 12px !important;
+    gap: 9px !important;
   }
+
+  body[data-app-role="reception"] .reception-summary { gap: 9px !important; }
+  body[data-app-role="reception"] .reception-summary-icon {
+    width: 38px !important;
+    height: 38px !important;
+    border-radius: 9px !important;
+  }
+  body[data-app-role="reception"] .reception-summary-icon svg { width: 21px !important; height: 21px !important; }
+  body[data-app-role="reception"] .reception-summary strong { font-size: 15px !important; }
+  body[data-app-role="reception"] .reception-summary small { margin-top: 1px !important; font-size: 11px !important; }
 
   body[data-app-role="reception"] .reception-actions {
     display: grid !important;
@@ -519,7 +551,7 @@ body[data-app-role="service"] .entry-screen:not(.role-pending) .load-actions {
   }
 
   body[data-app-role="reception"] .reception-actions button {
-    min-height: 48px !important;
+    min-height: 44px !important;
     padding: 7px 9px !important;
     font-size: 12px !important;
     line-height: 1.15 !important;
@@ -533,11 +565,21 @@ body[data-app-role="service"] .entry-screen:not(.role-pending) .load-actions {
   }
 
   body[data-app-role="reception"] .content {
+    display: flex !important;
+    flex-direction: column !important;
     padding-top: 4px !important;
   }
 
+  body[data-app-role="reception"] .content > .section,
+  body[data-app-role="reception"] .content > .section > .room-grid {
+    display: contents !important;
+  }
+
+  body[data-app-role="reception"] .section-head { order: 0 !important; }
+
   body[data-app-role="reception"] .section-head { margin: 12px 0 7px !important; }
   body[data-app-role="reception"] .room-row {
+    order: var(--reception-room-order, 9999) !important;
     min-height: 68px !important;
     grid-template-columns: 58px minmax(0, 1fr) auto !important;
     padding: 9px 11px !important;
@@ -548,6 +590,16 @@ body[data-app-role="service"] .entry-screen:not(.role-pending) .load-actions {
   body[data-app-role="reception"] .room-number { font-size: 24px !important; }
   body[data-app-role="reception"] .guest-names strong { font-size: 15px !important; }
   body[data-app-role="reception"] .room-state { font-size: 10px !important; }
+  body[data-app-role="reception"] .people {
+    color: #717b77 !important;
+    font-size: 12px !important;
+    gap: 4px !important;
+  }
+  body[data-app-role="reception"] .people svg {
+    width: 17px !important;
+    height: 17px !important;
+    stroke-width: 1.8 !important;
+  }
   body[data-app-role="reception"] .room-tail .room-state { display: none !important; }
   body[data-app-role="reception"] .room-row:not(.reception-occupied) { display: none !important; }
   body[data-app-role="reception"] .reception-breakfast,
@@ -559,12 +611,19 @@ body[data-app-role="service"] .entry-screen:not(.role-pending) .load-actions {
   body[data-app-role="reception"] .room-edit-icon::after {
     content: "›" !important;
     color: #1c777b !important;
-    font-size: 28px !important;
+    font-size: 23px !important;
     font-weight: 400 !important;
     line-height: 1 !important;
   }
 
   body[data-app-role="reception"] .reception-actions .reception-add { color: #fff !important; }
+
+  body[data-app-role="reception"] .section-dot { background: #1c777b !important; }
+  body[data-app-role="reception"] .section-count {
+    color: #1c777b !important;
+    background: #fff !important;
+    border-color: #91bab7 !important;
+  }
 
   body[data-app-role="reception"] .modal-layer:has(.guest-edit-modal) {
     display: flex !important;
