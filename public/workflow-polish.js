@@ -214,7 +214,7 @@
     if (!choice) {
       choice = document.createElement("div");
       choice.className = "reception-breakfast-choice";
-      choice.innerHTML = '<span>Frühstück</span><div><button type="button" data-included="true">✓ inklusive</button><button type="button" data-included="false">nicht inklusive</button></div>';
+      choice.innerHTML = '<span>Frühstück</span><div><button type="button" data-included="true">inklusive</button><button type="button" data-included="false">nicht inklusive</button></div>';
       field.after(choice);
       choice.querySelectorAll("button").forEach((button) => {
         button.addEventListener("click", () => {
@@ -225,8 +225,12 @@
       });
     }
     field.classList.add("reception-original-included");
-    choice.querySelector('[data-included="true"]')?.classList.toggle("selected", checkbox.checked);
-    choice.querySelector('[data-included="false"]')?.classList.toggle("selected", !checkbox.checked);
+    const includedButton = choice.querySelector('[data-included="true"]');
+    const excludedButton = choice.querySelector('[data-included="false"]');
+    includedButton?.classList.toggle("selected", checkbox.checked);
+    excludedButton?.classList.toggle("selected", !checkbox.checked);
+    if (includedButton) includedButton.textContent = checkbox.checked ? "✓ inklusive" : "inklusive";
+    if (excludedButton) excludedButton.textContent = checkbox.checked ? "nicht inklusive" : "✓ nicht inklusive";
   }
 
   function applyRoleView(shell) {
@@ -275,7 +279,7 @@
     root.querySelectorAll(".menu-card").forEach((menu) => {
       menu.querySelectorAll("*").forEach((node) => {
         if (node.children.length === 0 && normalize(node.textContent || "").includes("Ambassador Liste · 8.27.0")) {
-          node.textContent = "Ambassador Liste · 8.34.0";
+          node.textContent = "Ambassador Liste · 8.34.1";
         }
       });
     });
@@ -428,6 +432,32 @@
       schedule();
     }
   });
+
+  document.addEventListener("click", (event) => {
+    const tableButton = event.target instanceof Element ? event.target.closest(".checkin-choice-modal .table-picker button") : null;
+    if (tableButton) {
+      const table = normalize(tableButton.textContent || "");
+      [0, 40, 120].forEach((delay) => window.setTimeout(() => {
+        const modal = document.querySelector(".checkin-choice-modal");
+        const primary = modal?.querySelector(".modal-actions .primary");
+        if (!modal || !primary) return;
+        modal.dataset.selectedTable = table;
+        primary.disabled = false;
+        primary.textContent = `An Tisch ${table} erfassen`;
+      }, delay));
+    }
+    const roomServiceButton = event.target instanceof Element ? event.target.closest(".checkin-choice-modal .room-service-option") : null;
+    if (roomServiceButton) {
+      [0, 40, 120].forEach((delay) => window.setTimeout(() => {
+        const modal = document.querySelector(".checkin-choice-modal");
+        const primary = modal?.querySelector(".modal-actions .primary");
+        if (!modal || !primary) return;
+        modal.dataset.selectedTable = "";
+        primary.disabled = false;
+        primary.textContent = "Roomservice erfassen";
+      }, delay));
+    }
+  }, true);
 
   window.addEventListener("resize", schedule, { passive: true });
 
