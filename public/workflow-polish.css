@@ -1852,3 +1852,15 @@ body[data-app-role="service"] .entry-screen:not(.role-pending) .load-actions {
     overflow: hidden !important;
   }
 }
+
+/* Keep the iPad reception panel actions in view while its form scrolls. */
+@media (min-width: 700px) {
+  body[data-app-role="reception"] .guest-edit-modal .modal-actions {
+    position: sticky !important;
+    bottom: 0 !important;
+    z-index: 1 !important;
+    margin: 8px 0 0 !important;
+    padding: 12px 0 0 !important;
+    background: #fff !important;
+  }
+}
