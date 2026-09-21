@@ -1569,3 +1569,191 @@ body[data-app-role="service"] .entry-screen:not(.role-pending) .load-actions {
     box-sizing: border-box !important;
   }
 }
+/* 8.35.0 — common Ambassador controls and dialog geometry. */
+:root {
+  --amb-space-1: 4px;
+  --amb-space-2: 8px;
+  --amb-space-3: 16px;
+  --amb-space-4: 24px;
+  --amb-petrol: #1c777b;
+  --amb-yellow: #f3cf24;
+  --amb-yellow-soft: #fff9df;
+  --amb-ink: #141918;
+  --amb-muted: #747d7a;
+  --amb-border: #dce3e1;
+  --amb-control-radius: 10px;
+  --amb-card-radius: 12px;
+  --amb-dialog-radius: 16px;
+  --amb-control-height: 44px;
+  --amb-dialog-shadow: 0 14px 40px rgba(22, 39, 35, .13);
+}
+
+.modal,
+.checkin-choice-modal,
+.guest-edit-modal,
+.guest-info-picker-modal,
+.remark-popup-modal,
+.group-room-popup,
+.menu-card {
+  border: 1px solid var(--amb-border) !important;
+  border-radius: var(--amb-dialog-radius) !important;
+  background: #fff !important;
+  box-shadow: var(--amb-dialog-shadow) !important;
+  overflow: hidden !important;
+}
+.modal-head {
+  padding: var(--amb-space-3) !important;
+  border-bottom: 1px solid #edf0ee !important;
+}
+.modal-head h2,
+.group-room-popup-head h3 { color: var(--amb-ink) !important; font-size: 22px !important; line-height: 1.12 !important; }
+.modal-head p,
+.group-room-popup-head p { color: var(--amb-muted) !important; font-size: 13px !important; line-height: 1.35 !important; }
+.close-button {
+  flex: 0 0 40px !important;
+  width: 40px !important;
+  height: 40px !important;
+  min-height: 40px !important;
+  padding: 0 !important;
+  border: 1px solid var(--amb-border) !important;
+  border-radius: var(--amb-control-radius) !important;
+  color: var(--amb-petrol) !important;
+  background: #fff !important;
+  box-shadow: none !important;
+}
+.close-button svg { width: 20px !important; height: 20px !important; stroke-width: 1.8 !important; }
+.modal-action,
+.modal-actions button,
+.primary-button,
+.secondary-button {
+  min-height: var(--amb-control-height) !important;
+  border-radius: var(--amb-control-radius) !important;
+  font-size: 14px !important;
+  font-weight: 650 !important;
+}
+.modal-action.primary,
+.modal-actions .primary,
+.primary-button { color: #fff !important; background: var(--amb-petrol) !important; border-color: var(--amb-petrol) !important; }
+.modal-action:not(.primary):not(.danger),
+.modal-actions button:not(.primary):not(.danger),
+.secondary-button { color: var(--amb-ink) !important; background: #fff !important; border-color: var(--amb-border) !important; }
+.guest-edit-modal .reception-breakfast-choice button {
+  min-height: var(--amb-control-height) !important;
+  border-radius: var(--amb-control-radius) !important;
+  font-size: 14px !important;
+  font-weight: 650 !important;
+}
+.guest-edit-modal .reception-breakfast-choice button.selected {
+  color: #715500 !important;
+  background: var(--amb-yellow-soft) !important;
+  border-color: #e1b900 !important;
+}
+.search-box input { border-color: var(--amb-border) !important; border-radius: var(--amb-card-radius) !important; box-shadow: none !important; }
+
+/* The grouping button is inside .group-link. Only the button draws a card. */
+.checkin-choice-modal .group-link.group-link-button {
+  display: block !important;
+  width: 100% !important;
+  min-height: 0 !important;
+  height: auto !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  outline: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  overflow: visible !important;
+}
+.checkin-choice-modal .group-link-trigger {
+  display: flex !important;
+  align-items: center !important;
+  width: 100% !important;
+  min-height: 48px !important;
+  margin: 0 !important;
+  padding: 6px 12px !important;
+  border: 1px solid var(--amb-border) !important;
+  border-radius: var(--amb-card-radius) !important;
+  background: #fff !important;
+  box-shadow: none !important;
+  box-sizing: border-box !important;
+}
+
+@media (max-width: 560px) {
+  .topbar { grid-template-columns: 116px minmax(0, 1fr) 84px !important; gap: 8px !important; }
+  .header-logo { width: 116px !important; max-width: 116px !important; max-height: 44px !important; }
+  body[data-app-role="service"] .hero h2 { font-size: clamp(20px, 5.25vw, 24px) !important; }
+  body[data-app-role="service"] .hero .open-filter-button {
+    flex: 0 0 auto !important;
+    padding-left: 8px !important;
+    font-size: 12px !important;
+    white-space: nowrap !important;
+  }
+  body[data-app-role="service"] .room-row { border-color: var(--amb-border) !important; }
+  body[data-app-role="service"] .guest-names { min-width: 0 !important; overflow: hidden !important; }
+  body[data-app-role="service"] .guest-names strong { max-width: 100% !important; overflow: hidden !important; text-overflow: ellipsis !important; white-space: nowrap !important; }
+  body[data-app-role="service"] .room-tail { flex: 0 0 auto !important; margin-left: 8px !important; }
+
+  .checkin-choice-modal {
+    width: calc(100vw - 20px) !important;
+    max-height: calc(100dvh - 20px) !important;
+    border-radius: var(--amb-dialog-radius) !important;
+    clip-path: inset(0 round var(--amb-dialog-radius)) !important;
+  }
+  .checkin-choice-modal .modal-head { padding: 10px 16px 8px !important; }
+  .checkin-choice-modal .modal-body.checkin-choice-body {
+    gap: 8px !important;
+    padding: 8px 16px 10px !important;
+    overflow: visible !important;
+  }
+  .checkin-choice-modal .checkin-count-block { margin: 0 !important; padding: 8px 10px !important; border-radius: var(--amb-card-radius) !important; }
+  .checkin-choice-modal .checkin-count-block button { min-height: 36px !important; height: 36px !important; border-radius: var(--amb-control-radius) !important; }
+  .checkin-choice-modal .room-service-option,
+  .checkin-choice-modal .group-link-trigger { height: 48px !important; min-height: 48px !important; border-radius: var(--amb-card-radius) !important; }
+  .checkin-choice-modal .choice-separator { margin: 0 !important; }
+  .checkin-choice-modal .table-picker {
+    display: grid !important;
+    grid-template-columns: repeat(10, minmax(0, 1fr)) !important;
+    grid-template-rows: repeat(5, 32px) !important;
+    grid-auto-rows: 32px !important;
+    gap: 4px !important;
+    height: 176px !important;
+    margin: 0 !important;
+    overflow: visible !important;
+  }
+  .checkin-choice-modal .table-picker button { min-height: 32px !important; height: 32px !important; border-radius: 8px !important; }
+  .checkin-choice-modal .modal-actions {
+    position: static !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.22fr) !important;
+    gap: 8px !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 8px 0 0 !important;
+    border-top: 1px solid #edf0ee !important;
+    background: #fff !important;
+    box-shadow: none !important;
+  }
+  .checkin-choice-modal .modal-actions button { width: 100% !important; min-width: 0 !important; height: 44px !important; margin: 0 !important; font-size: 12px !important; white-space: nowrap !important; }
+
+  .guest-edit-modal {
+    width: calc(100vw - 20px) !important;
+    max-width: calc(100vw - 20px) !important;
+    max-height: calc(100dvh - 24px) !important;
+    border-radius: var(--amb-dialog-radius) !important;
+  }
+  .guest-edit-modal .modal-body { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 16px 8px !important; padding: 12px 16px 16px !important; }
+  .guest-edit-modal label:has(input[type="date"]) { grid-column: auto !important; width: 100% !important; min-width: 0 !important; margin: 0 !important; }
+  .guest-edit-modal .reception-breakfast-choice button { height: 44px !important; }
+  .group-room-popup,
+  .guest-info-picker-modal,
+  .remark-popup-modal,
+  .menu-card { width: calc(100vw - 20px) !important; max-width: calc(100vw - 20px) !important; border-radius: var(--amb-dialog-radius) !important; }
+}
+
+@media (min-width: 700px) and (max-width: 1400px) and (orientation: landscape) {
+  body[data-app-role="reception"] .guest-edit-modal { border-radius: var(--amb-dialog-radius) !important; }
+  body[data-app-role="reception"] .ipad-room-grid .guest-names { min-width: 0 !important; overflow: hidden !important; }
+  body[data-app-role="reception"] .ipad-room-grid .guest-names strong { display: block !important; max-width: 100% !important; overflow: hidden !important; text-overflow: ellipsis !important; white-space: nowrap !important; }
+  body[data-app-role="reception"] .ipad-room-grid .guest-names strong:not(:first-child) { display: none !important; }
+}
