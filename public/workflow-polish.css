@@ -1853,6 +1853,179 @@ body[data-app-role="service"] .entry-screen:not(.role-pending) .load-actions {
   }
 }
 
+/* 8.38.0 — Package C: targeted service/reception responsive polish. */
+.room-row .guest-names {
+  min-width: 0 !important;
+  overflow: hidden !important;
+}
+.room-row .guest-names strong {
+  display: block !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+.search-row { gap: 8px !important; }
+.search-box input,
+.search-sync,
+.open-filter-button {
+  min-height: 42px !important;
+  height: 42px !important;
+  border: 1px solid var(--amb-border, #dce3e1) !important;
+  border-radius: var(--amb-control-radius, 10px) !important;
+  box-shadow: none !important;
+}
+.search-box input { padding-inline: 13px !important; }
+
+.menu-card {
+  border: 1px solid var(--amb-border, #dce3e1) !important;
+  border-radius: var(--amb-dialog-radius, 16px) !important;
+  box-shadow: var(--amb-dialog-shadow, 0 18px 52px rgba(16, 30, 27, .18)) !important;
+  overflow: hidden !important;
+}
+.menu-head {
+  min-height: 54px !important;
+  padding: 11px 14px !important;
+  border-bottom: 1px solid var(--amb-border, #dce3e1) !important;
+}
+.menu-scroll { padding: 10px 12px !important; }
+.menu-section { margin: 0 0 10px !important; }
+.menu-label { margin: 0 2px 6px !important; }
+.menu-footer {
+  padding: 10px 12px max(10px, env(safe-area-inset-bottom)) !important;
+  border-top: 1px solid var(--amb-border, #dce3e1) !important;
+}
+
+.entry-screen .load-card,
+.import-modal {
+  border: 1px solid var(--amb-border, #dce3e1) !important;
+  border-radius: var(--amb-dialog-radius, 16px) !important;
+  box-shadow: var(--amb-card-shadow, 0 8px 24px rgba(16, 30, 27, .10)) !important;
+}
+.entry-screen .load-choice,
+.entry-screen .entry-secondary {
+  min-height: 44px !important;
+  border-radius: var(--amb-control-radius, 10px) !important;
+}
+.import-modal .modal-head { padding: 12px 14px !important; }
+.import-modal .modal-body { padding: 12px 14px !important; }
+.import-summary,
+.import-list {
+  border-color: var(--amb-border, #dce3e1) !important;
+  border-radius: var(--amb-control-radius, 10px) !important;
+}
+
+@media (max-width: 560px) {
+  body[data-app-role="service"] .topbar {
+    grid-template-columns: 118px minmax(0, 1fr) 80px !important;
+    gap: 6px !important;
+  }
+  body[data-app-role="service"] .header-logo {
+    width: 118px !important;
+    max-width: 118px !important;
+    max-height: 44px !important;
+  }
+  body[data-app-role="service"] .room-row {
+    grid-template-columns: 54px minmax(0, 1fr) auto !important;
+    min-height: 68px !important;
+    height: auto !important;
+    padding: 8px 10px !important;
+    align-items: center !important;
+  }
+  body[data-app-role="service"] .room-tail {
+    max-width: 92px !important;
+    justify-self: end !important;
+  }
+  body[data-app-role="service"] .guest-names strong:not(:first-child),
+  body[data-app-role="reception"] .guest-names strong:not(:first-child) {
+    display: none !important;
+  }
+  body[data-app-role="reception"] .room-row {
+    min-height: 68px !important;
+    padding-block: 8px !important;
+    align-items: center !important;
+  }
+  .search-row { padding-inline: 12px !important; }
+  .search-box input,
+  .search-sync,
+  .open-filter-button {
+    min-height: 44px !important;
+    height: 44px !important;
+  }
+  .menu-card {
+    width: calc(100vw - 20px) !important;
+    max-width: calc(100vw - 20px) !important;
+    max-height: calc(100dvh - max(20px, env(safe-area-inset-top) + env(safe-area-inset-bottom))) !important;
+  }
+  .entry-screen .load-card { padding: 16px !important; }
+}
+
+@media (min-width: 700px) and (max-width: 1180px) and (orientation: portrait) {
+  body[data-app-role="service"] .ipad-room-grid {
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    grid-auto-flow: row !important;
+    gap: 7px 9px !important;
+    height: auto !important;
+    align-content: start !important;
+  }
+  body[data-app-role="service"] .ipad-room-column { display: contents !important; }
+  body[data-app-role="service"] .ipad-room-grid .room-row {
+    min-width: 0 !important;
+    min-height: 54px !important;
+    height: 54px !important;
+    padding: 6px 8px !important;
+    border-radius: 10px !important;
+  }
+  body[data-app-role="service"] .ipad-room-grid .guest-names strong:not(:first-child) { display: none !important; }
+  body[data-app-role="reception"] .room-row { min-height: 60px !important; }
+}
+
+@media (min-width: 700px) and (max-width: 1400px) and (orientation: landscape) {
+  body[data-app-role="service"] .ipad-room-grid {
+    display: grid !important;
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+    gap: 6px 10px !important;
+    align-content: start !important;
+  }
+  body[data-app-role="service"] .ipad-room-column {
+    display: grid !important;
+    grid-template-rows: repeat(9, minmax(48px, 1fr)) !important;
+    gap: 6px !important;
+    min-width: 0 !important;
+  }
+  body[data-app-role="service"] .ipad-room-grid .room-row {
+    min-width: 0 !important;
+    min-height: 48px !important;
+    height: auto !important;
+    padding: 5px 8px !important;
+    border-radius: 10px !important;
+  }
+  body[data-app-role="service"] .ipad-room-grid .guest-names strong:not(:first-child) { display: none !important; }
+
+  body[data-app-role="reception"]:has(.guest-edit-modal) .modal-layer {
+    inset: max(188px, calc(env(safe-area-inset-top) + 166px)) 18px max(14px, env(safe-area-inset-bottom)) 65% !important;
+    padding: 0 !important;
+    align-items: stretch !important;
+    justify-content: stretch !important;
+  }
+  body[data-app-role="reception"] .guest-edit-modal {
+    width: 100% !important;
+    max-width: none !important;
+    max-height: 100% !important;
+    height: 100% !important;
+  }
+  body[data-app-role="reception"] .guest-edit-modal .modal-body {
+    min-height: 0 !important;
+    overflow-y: auto !important;
+  }
+  body[data-app-role="reception"] .guest-edit-modal .modal-actions {
+    flex: 0 0 auto !important;
+    padding-bottom: max(10px, env(safe-area-inset-bottom)) !important;
+  }
+}
+
 /* 8.37.0 — Package B: one compact, safe-area-aware dialog system. */
 .modal-layer,
 .guest-info-picker-layer,

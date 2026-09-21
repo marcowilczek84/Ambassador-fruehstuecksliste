@@ -2,7 +2,7 @@
   let openOnly = false;
   let scheduled = false;
   const roleKey = "ambassador-work-area";
-  const previewVersion = "8.37.0";
+  const previewVersion = "8.38.0";
 
   const normalize = (value) => value.replace(/\s+/g, " ").trim();
 
