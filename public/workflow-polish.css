@@ -1853,6 +1853,24 @@ body[data-app-role="service"] .entry-screen:not(.role-pending) .load-actions {
   }
 }
 
+/* 8.36.0 — Package A: keep the one-guest person area visible without adding a control. */
+.checkin-choice-modal .single-guest-count {
+  display: grid !important;
+  gap: 8px !important;
+}
+.checkin-choice-modal .single-guest-value {
+  min-height: 44px !important;
+  display: flex !important;
+  align-items: center !important;
+  padding: 0 14px !important;
+  color: var(--amb-ink, #141918) !important;
+  background: #f7f9f8 !important;
+  border: 1px solid var(--amb-border, #dce3e1) !important;
+  border-radius: var(--amb-control-radius, 10px) !important;
+  font-size: 14px !important;
+  font-weight: 680 !important;
+}
+
 /* Keep the iPad reception panel actions in view while its form scrolls. */
 @media (min-width: 700px) {
   body[data-app-role="reception"] .guest-edit-modal .modal-actions {
