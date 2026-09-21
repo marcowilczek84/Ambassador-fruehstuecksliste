@@ -82,8 +82,8 @@ body.proxy-menu-action .modal-layer:has(.menu-card) {
 .entry-screen:not(.role-pending) .entry-secondary:hover,
 .entry-screen:not(.role-pending) .entry-secondary:focus {
   color: #fff !important;
-  background: #17696d !important;
-  border-color: #17696d !important;
+  background: var(--amb-petrol-strong, #17696d) !important;
+  border-color: var(--amb-petrol-strong, #17696d) !important;
 }
 
 .modal input,
@@ -175,7 +175,7 @@ body.proxy-menu-action .modal-layer:has(.menu-card) {
 .role-eyebrow {
   display: block;
   color: #7b8481;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 700;
   line-height: 1.2;
   letter-spacing: .12em;
@@ -249,7 +249,7 @@ body.proxy-menu-action .modal-layer:has(.menu-card) {
   background: #1c777b;
   border: 0;
   border-radius: 99px;
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 700;
   letter-spacing: .06em;
   text-transform: uppercase;
@@ -442,7 +442,7 @@ body[data-app-role="service"] .entry-screen:not(.role-pending) .load-actions {
     text-overflow: ellipsis !important;
     white-space: nowrap !important;
   }
-  .page-title p { font-size: 10px !important; white-space: nowrap !important; }
+  .page-title p { font-size: 11px !important; white-space: nowrap !important; }
   .active-role-badge {
     display: none !important;
   }
@@ -589,7 +589,7 @@ body[data-app-role="service"] .entry-screen:not(.role-pending) .load-actions {
   }
   body[data-app-role="reception"] .room-number { font-size: 24px !important; }
   body[data-app-role="reception"] .guest-names strong { font-size: 15px !important; }
-  body[data-app-role="reception"] .room-state { font-size: 10px !important; }
+  body[data-app-role="reception"] .room-state { font-size: 11px !important; }
   body[data-app-role="reception"] .people {
     color: #717b77 !important;
     font-size: 12px !important;
@@ -665,9 +665,9 @@ body[data-app-role="service"] .entry-screen:not(.role-pending) .load-actions {
     font-weight: 600 !important;
   }
   body[data-app-role="reception"] .reception-breakfast-choice button.selected {
-    color: #715500 !important;
+    color: var(--amb-selected-ink, #715500) !important;
     background: #fff9df !important;
-    border-color: #e1b900 !important;
+    border-color: var(--amb-selected-border, #e1b900) !important;
   }
 
   /* Explicit breakfast entitlement choice in both work areas. */
@@ -697,9 +697,9 @@ body[data-app-role="service"] .entry-screen:not(.role-pending) .load-actions {
     font-weight: 650 !important;
   }
   .guest-edit-modal .reception-breakfast-choice button.selected {
-    color: #715500 !important;
+    color: var(--amb-selected-ink, #715500) !important;
     background: #fff9df !important;
-    border-color: #e1b900 !important;
+    border-color: var(--amb-selected-border, #e1b900) !important;
   }
 
   /* Compact check-in sheet with a contained table scroller. */
@@ -840,7 +840,7 @@ body[data-app-role="service"] .entry-screen:not(.role-pending) .load-actions {
     color: #7b8481 !important;
     background: #fff !important;
     border-bottom: 1px solid #dfe5e2 !important;
-    font-size: 10px !important;
+    font-size: 11px !important;
     font-weight: 700 !important;
     letter-spacing: .04em !important;
     text-transform: uppercase !important;
@@ -917,7 +917,7 @@ body[data-app-role="service"] .entry-screen:not(.role-pending) .load-actions {
 
   body[data-app-role="reception"] .ipad-room-grid .room-number { font-size: 17px !important; }
   body[data-app-role="reception"] .ipad-room-grid .guest-names strong { font-size: 13px !important; }
-  body[data-app-role="reception"] .ipad-room-grid .people { font-size: 10px !important; }
+  body[data-app-role="reception"] .ipad-room-grid .people { font-size: 11px !important; }
 
   body[data-app-role="reception"] .modal-layer:has(.guest-edit-modal) {
     align-items: stretch !important;
@@ -950,7 +950,7 @@ body[data-app-role="service"] .entry-screen:not(.role-pending) .load-actions {
   body[data-app-role="reception"] .reception-breakfast-choice > span { font-size: 12px !important; font-weight: 650 !important; }
   body[data-app-role="reception"] .reception-breakfast-choice > div { display: grid !important; grid-template-columns: repeat(2, minmax(0,1fr)) !important; gap: 8px !important; }
   body[data-app-role="reception"] .reception-breakfast-choice button { min-height: 44px !important; color: #3e4744 !important; background: #fff !important; border: 1px solid #dce3e1 !important; border-radius: 9px !important; font-size: 12px !important; }
-  body[data-app-role="reception"] .reception-breakfast-choice button.selected { color: #715500 !important; background: #fff9df !important; border-color: #e1b900 !important; }
+  body[data-app-role="reception"] .reception-breakfast-choice button.selected { color: var(--amb-selected-ink, #715500) !important; background: var(--amb-yellow-soft, #fff9df) !important; border-color: var(--amb-selected-border, #e1b900) !important; }
 
   /* Start screen: compact, modern two-card layout that uses the iPad width. */
   .entry-screen .load-card {
@@ -1264,7 +1264,7 @@ body[data-app-role="service"] .entry-screen:not(.role-pending) .load-actions {
     min-width: 0 !important;
     margin: 0 !important;
     padding: 7px 0 0 !important;
-    border-top: 1px solid #edf0ee !important;
+    border-top: 1px solid var(--amb-divider, #edf0ee) !important;
     background: transparent !important;
     box-shadow: none !important;
     box-sizing: border-box !important;
@@ -1511,7 +1511,7 @@ body[data-app-role="service"] .entry-screen:not(.role-pending) .load-actions {
     margin: 0 !important;
     padding: 7px 0 0 !important;
     border: 0 !important;
-    border-top: 1px solid #edf0ee !important;
+    border-top: 1px solid var(--amb-divider, #edf0ee) !important;
     background: transparent !important;
     box-shadow: none !important;
     box-sizing: border-box !important;
@@ -1567,5 +1567,767 @@ body[data-app-role="service"] .entry-screen:not(.role-pending) .load-actions {
     border-bottom-right-radius: 18px !important;
     overflow: hidden !important;
     box-sizing: border-box !important;
+  }
+}
+/* 8.39.0 — Package D: consolidated Ambassador tokens and control geometry. */
+:root {
+  --amb-space-1: 4px;
+  --amb-space-2: 8px;
+  --amb-space-3: 16px;
+  --amb-space-4: 24px;
+  --amb-petrol: #1c777b;
+  --amb-petrol-strong: #17696d;
+  --amb-yellow: #f3cf24;
+  --amb-yellow-soft: #fff9df;
+  --amb-white: #fff;
+  --amb-ink: #141918;
+  --amb-muted: #747d7a;
+  --amb-border: #dce3e1;
+  --amb-divider: #edf0ee;
+  --amb-selected-ink: #715500;
+  --amb-selected-border: #e1b900;
+  --amb-control-radius: 10px;
+  --amb-card-radius: 12px;
+  --amb-dialog-radius: 16px;
+  --amb-control-height: 44px;
+  --amb-dialog-shadow: 0 14px 40px rgba(22, 39, 35, .13);
+}
+
+.modal,
+.checkin-choice-modal,
+.guest-edit-modal,
+.guest-info-picker-modal,
+.remark-popup-modal,
+.group-room-popup,
+.menu-card {
+  border: 1px solid var(--amb-border) !important;
+  border-radius: var(--amb-dialog-radius) !important;
+  background: #fff !important;
+  box-shadow: var(--amb-dialog-shadow) !important;
+  overflow: hidden !important;
+}
+.modal-head {
+  padding: var(--amb-space-3) !important;
+  border-bottom: 1px solid var(--amb-divider) !important;
+}
+.modal-head h2,
+.group-room-popup-head h3 { color: var(--amb-ink) !important; font-size: 22px !important; line-height: 1.12 !important; }
+.modal-head p,
+.group-room-popup-head p { color: var(--amb-muted) !important; font-size: 13px !important; line-height: 1.35 !important; }
+.close-button {
+  flex: 0 0 40px !important;
+  width: 40px !important;
+  height: 40px !important;
+  min-height: 40px !important;
+  padding: 0 !important;
+  border: 1px solid var(--amb-border) !important;
+  border-radius: var(--amb-control-radius) !important;
+  color: var(--amb-petrol) !important;
+  background: #fff !important;
+  box-shadow: none !important;
+}
+.close-button svg { width: 20px !important; height: 20px !important; stroke-width: 1.8 !important; }
+.modal-action,
+.modal-actions button,
+.primary-button,
+.secondary-button {
+  min-height: var(--amb-control-height) !important;
+  border-radius: var(--amb-control-radius) !important;
+  font-size: 14px !important;
+  font-weight: 650 !important;
+}
+.modal-action.primary,
+.modal-actions .primary,
+.primary-button { color: #fff !important; background: var(--amb-petrol) !important; border-color: var(--amb-petrol) !important; }
+.modal-action:not(.primary):not(.danger),
+.modal-actions button:not(.primary):not(.danger),
+.secondary-button { color: var(--amb-ink) !important; background: #fff !important; border-color: var(--amb-border) !important; }
+.guest-edit-modal .reception-breakfast-choice button {
+  min-height: var(--amb-control-height) !important;
+  border-radius: var(--amb-control-radius) !important;
+  font-size: 14px !important;
+  font-weight: 650 !important;
+}
+.guest-edit-modal .reception-breakfast-choice button.selected {
+  color: var(--amb-selected-ink) !important;
+  background: var(--amb-yellow-soft) !important;
+  border-color: var(--amb-selected-border) !important;
+}
+.search-box input { border-color: var(--amb-border) !important; border-radius: var(--amb-card-radius) !important; box-shadow: none !important; }
+
+/* The grouping button is inside .group-link. Only the button draws a card. */
+.checkin-choice-modal .group-link.group-link-button {
+  display: block !important;
+  width: 100% !important;
+  min-height: 0 !important;
+  height: auto !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  outline: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  overflow: visible !important;
+}
+.checkin-choice-modal .group-link-trigger {
+  display: flex !important;
+  align-items: center !important;
+  width: 100% !important;
+  min-height: 48px !important;
+  margin: 0 !important;
+  padding: 6px 12px !important;
+  border: 1px solid var(--amb-border) !important;
+  border-radius: var(--amb-card-radius) !important;
+  background: #fff !important;
+  box-shadow: none !important;
+  box-sizing: border-box !important;
+}
+
+@media (max-width: 560px) {
+  .topbar { grid-template-columns: 116px minmax(0, 1fr) 84px !important; gap: 8px !important; }
+  .header-logo { width: 116px !important; max-width: 116px !important; max-height: 44px !important; }
+  body[data-app-role="service"] .hero h2 { font-size: clamp(20px, 5.25vw, 24px) !important; }
+  body[data-app-role="service"] .hero .open-filter-button {
+    flex: 0 0 auto !important;
+    padding-left: 8px !important;
+    font-size: 12px !important;
+    white-space: nowrap !important;
+  }
+  body[data-app-role="service"] .room-row { border-color: var(--amb-border) !important; }
+  body[data-app-role="service"] .guest-names { min-width: 0 !important; overflow: hidden !important; }
+  body[data-app-role="service"] .guest-names strong { max-width: 100% !important; overflow: hidden !important; text-overflow: ellipsis !important; white-space: nowrap !important; }
+  body[data-app-role="service"] .room-tail { flex: 0 0 auto !important; margin-left: 8px !important; }
+
+  .checkin-choice-modal {
+    width: calc(100vw - 20px) !important;
+    max-height: calc(100dvh - 20px) !important;
+    border-radius: var(--amb-dialog-radius) !important;
+    clip-path: inset(0 round var(--amb-dialog-radius)) !important;
+  }
+  .checkin-choice-modal .modal-head { padding: 10px 16px 8px !important; }
+  .checkin-choice-modal .modal-body.checkin-choice-body {
+    gap: 8px !important;
+    padding: 8px 16px 10px !important;
+    overflow: visible !important;
+  }
+  .checkin-choice-modal .checkin-count-block { margin: 0 !important; padding: 8px 10px !important; border-radius: var(--amb-card-radius) !important; }
+  .checkin-choice-modal .checkin-count-block button { min-height: 36px !important; height: 36px !important; border-radius: var(--amb-control-radius) !important; }
+  .checkin-choice-modal .room-service-option,
+  .checkin-choice-modal .group-link-trigger { height: 48px !important; min-height: 48px !important; border-radius: var(--amb-card-radius) !important; }
+  .checkin-choice-modal .table-picker {
+    display: grid !important;
+    grid-template-columns: repeat(10, minmax(0, 1fr)) !important;
+    grid-template-rows: repeat(5, 32px) !important;
+    grid-auto-rows: 32px !important;
+    gap: 4px !important;
+    height: 176px !important;
+    margin: 0 !important;
+    overflow: visible !important;
+  }
+  .checkin-choice-modal .table-picker button { min-height: 32px !important; height: 32px !important; border-radius: 8px !important; }
+  .checkin-choice-modal .modal-actions {
+    position: static !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.22fr) !important;
+    gap: 8px !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 8px 0 0 !important;
+    border-top: 1px solid var(--amb-divider) !important;
+    background: #fff !important;
+    box-shadow: none !important;
+  }
+  .checkin-choice-modal .modal-actions button { width: 100% !important; min-width: 0 !important; height: 44px !important; margin: 0 !important; font-size: 12px !important; white-space: nowrap !important; }
+
+  .guest-edit-modal {
+    width: calc(100vw - 20px) !important;
+    max-width: calc(100vw - 20px) !important;
+    max-height: calc(100dvh - 24px) !important;
+    border-radius: var(--amb-dialog-radius) !important;
+  }
+  .guest-edit-modal .modal-body { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 16px 8px !important; padding: 12px 16px 16px !important; }
+  .guest-edit-modal .reception-breakfast-choice button { height: 44px !important; }
+  .group-room-popup,
+  .guest-info-picker-modal,
+  .remark-popup-modal,
+  .menu-card { width: calc(100vw - 20px) !important; max-width: calc(100vw - 20px) !important; border-radius: var(--amb-dialog-radius) !important; }
+}
+
+@media (min-width: 700px) and (max-width: 1400px) and (orientation: landscape) {
+  body[data-app-role="reception"] .guest-edit-modal { border-radius: var(--amb-dialog-radius) !important; }
+  body[data-app-role="reception"] .ipad-room-grid .guest-names { min-width: 0 !important; overflow: hidden !important; }
+  body[data-app-role="reception"] .ipad-room-grid .guest-names strong { display: block !important; max-width: 100% !important; overflow: hidden !important; text-overflow: ellipsis !important; white-space: nowrap !important; }
+  body[data-app-role="reception"] .ipad-room-grid .guest-names strong:not(:first-child) { display: none !important; }
+}
+
+/* 8.35.1 — the shared guest form uses one entitlement control and a stable grid. */
+.guest-edit-modal { height: auto !important; }
+.guest-edit-modal .modal-body {
+  padding: 16px !important;
+  overflow-y: auto !important;
+}
+.guest-edit-modal .guest-edit-grid {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 16px 8px !important;
+}
+.guest-edit-modal .reception-original-included { display: none !important; }
+.guest-edit-modal .guest-edit-grid > .reception-breakfast-choice {
+  grid-column: 1 / -1 !important;
+  min-width: 0 !important;
+  width: 100% !important;
+  display: grid !important;
+  gap: 8px !important;
+}
+.guest-edit-modal .reception-breakfast-choice > div {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 8px !important;
+}
+.guest-edit-modal .reception-breakfast-choice button {
+  width: 100% !important;
+  height: 44px !important;
+  color: var(--amb-ink) !important;
+  background: #fff !important;
+  border: 1px solid var(--amb-border) !important;
+}
+.guest-edit-modal .guest-edit-grid > label:has(input[type="date"]) {
+  grid-column: auto !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+}
+.guest-edit-modal .guest-edit-grid > .guest-info-edit-summary,
+.guest-edit-modal .guest-edit-grid > .remark-edit-summary { grid-column: auto !important; }
+.guest-edit-modal .modal-actions {
+  position: static !important;
+  inset: auto !important;
+  margin: 16px 0 0 !important;
+  padding: 12px 0 0 !important;
+  border-top: 1px solid var(--amb-divider) !important;
+  background: #fff !important;
+  box-shadow: none !important;
+}
+.group-room-popup-head button[aria-label="Schließen"] {
+  flex: 0 0 40px !important;
+  width: 40px !important;
+  height: 40px !important;
+  padding: 0 !important;
+  color: var(--amb-petrol) !important;
+  background: #fff !important;
+  border: 1px solid var(--amb-border) !important;
+  border-radius: var(--amb-control-radius) !important;
+  box-shadow: none !important;
+}
+.group-room-popup-head button[aria-label="Schließen"] svg { width: 20px !important; height: 20px !important; stroke-width: 1.8 !important; }
+@media (max-width: 560px) {
+  .guest-edit-modal .guest-edit-grid > .guest-info-edit-summary,
+  .guest-edit-modal .guest-edit-grid > .remark-edit-summary { grid-column: 1 / -1 !important; }
+  .guest-edit-modal .modal-body { padding: 12px 16px 16px !important; }
+}
+
+/* 8.35.2 — reception cells share one explicit grid row on iPad. */
+@media (min-width: 700px) {
+  body[data-app-role="reception"] .ipad-room-grid .room-row .room-number,
+  body[data-app-role="reception"] .ipad-room-grid .room-row .people,
+  body[data-app-role="reception"] .ipad-room-grid .room-row .guest-names,
+  body[data-app-role="reception"] .ipad-room-grid .room-row .room-tail,
+  body[data-app-role="reception"] .ipad-room-grid .room-row .reception-breakfast,
+  body[data-app-role="reception"] .ipad-room-grid .room-row .reception-remark {
+    grid-row: 1 !important;
+    align-self: center !important;
+  }
+  body[data-app-role="reception"] .ipad-room-grid .room-row .room-tail {
+    width: 20px !important;
+    min-width: 20px !important;
+    justify-content: center !important;
+    margin: 0 !important;
+  }
+  body[data-app-role="reception"] .ipad-room-grid .room-row .guest-names {
+    white-space: nowrap !important;
+    text-overflow: ellipsis !important;
+    overflow: hidden !important;
+  }
+}
+
+/* 8.38.0 — Package C: targeted service/reception responsive polish. */
+.room-row .guest-names {
+  min-width: 0 !important;
+  overflow: hidden !important;
+}
+.room-row .guest-names strong {
+  display: block !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+.search-row { gap: 8px !important; }
+.search-box input,
+.search-sync,
+.open-filter-button {
+  min-height: 42px !important;
+  height: 42px !important;
+  border: 1px solid var(--amb-border, #dce3e1) !important;
+  border-radius: var(--amb-control-radius, 10px) !important;
+  box-shadow: none !important;
+}
+.search-box input { padding-inline: 13px !important; }
+
+.menu-card {
+  border: 1px solid var(--amb-border, #dce3e1) !important;
+  border-radius: var(--amb-dialog-radius, 16px) !important;
+  box-shadow: var(--amb-dialog-shadow, 0 18px 52px rgba(16, 30, 27, .18)) !important;
+  overflow: hidden !important;
+}
+.menu-head {
+  min-height: 54px !important;
+  padding: 11px 14px !important;
+  border-bottom: 1px solid var(--amb-border, #dce3e1) !important;
+}
+.menu-scroll { padding: 10px 12px !important; }
+.menu-section { margin: 0 0 10px !important; }
+.menu-label { margin: 0 2px 6px !important; }
+.menu-footer {
+  padding: 10px 12px max(10px, env(safe-area-inset-bottom)) !important;
+  border-top: 1px solid var(--amb-border, #dce3e1) !important;
+}
+
+.entry-screen .load-card,
+.import-modal {
+  border: 1px solid var(--amb-border, #dce3e1) !important;
+  border-radius: var(--amb-dialog-radius, 16px) !important;
+  box-shadow: var(--amb-card-shadow, 0 8px 24px rgba(16, 30, 27, .10)) !important;
+}
+.entry-screen .load-choice,
+.entry-screen .entry-secondary {
+  min-height: 44px !important;
+  border-radius: var(--amb-control-radius, 10px) !important;
+}
+.import-modal .modal-head { padding: 12px 14px !important; }
+.import-modal .modal-body { padding: 12px 14px !important; }
+.import-summary,
+.import-list {
+  border-color: var(--amb-border, #dce3e1) !important;
+  border-radius: var(--amb-control-radius, 10px) !important;
+}
+
+@media (max-width: 560px) {
+  body[data-app-role="service"] .topbar {
+    grid-template-columns: 118px minmax(0, 1fr) 80px !important;
+    gap: 6px !important;
+  }
+  body[data-app-role="service"] .header-logo {
+    width: 118px !important;
+    max-width: 118px !important;
+    max-height: 44px !important;
+  }
+  body[data-app-role="service"] .room-row {
+    grid-template-columns: 54px minmax(0, 1fr) auto !important;
+    min-height: 68px !important;
+    height: auto !important;
+    padding: 8px 10px !important;
+    align-items: center !important;
+  }
+  body[data-app-role="service"] .room-tail {
+    max-width: 92px !important;
+    justify-self: end !important;
+  }
+  body[data-app-role="service"] .guest-names strong:not(:first-child),
+  body[data-app-role="reception"] .guest-names strong:not(:first-child) {
+    display: none !important;
+  }
+  body[data-app-role="reception"] .room-row {
+    min-height: 68px !important;
+    padding-block: 8px !important;
+    align-items: center !important;
+  }
+  .search-row { padding-inline: 12px !important; }
+  .search-box input,
+  .search-sync,
+  .open-filter-button {
+    min-height: 44px !important;
+    height: 44px !important;
+  }
+  .menu-card {
+    width: calc(100vw - 20px) !important;
+    max-width: calc(100vw - 20px) !important;
+    max-height: calc(100dvh - max(20px, env(safe-area-inset-top) + env(safe-area-inset-bottom))) !important;
+  }
+  .entry-screen .load-card { padding: 16px !important; }
+}
+
+@media (min-width: 700px) and (max-width: 1180px) and (orientation: portrait) {
+  body[data-app-role="service"] .ipad-room-grid {
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    grid-auto-flow: row !important;
+    gap: 7px 9px !important;
+    height: auto !important;
+    align-content: start !important;
+  }
+  body[data-app-role="service"] .ipad-room-column { display: contents !important; }
+  body[data-app-role="service"] .ipad-room-grid .room-row {
+    min-width: 0 !important;
+    min-height: 54px !important;
+    height: 54px !important;
+    padding: 6px 8px !important;
+    border-radius: 10px !important;
+  }
+  body[data-app-role="service"] .ipad-room-grid .guest-names strong:not(:first-child) { display: none !important; }
+  body[data-app-role="reception"] .room-row { min-height: 60px !important; }
+}
+
+@media (min-width: 700px) and (max-width: 1400px) and (orientation: landscape) {
+  body[data-app-role="service"] .ipad-room-grid {
+    display: grid !important;
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+    gap: 6px 10px !important;
+    align-content: start !important;
+  }
+  body[data-app-role="service"] .ipad-room-column {
+    display: grid !important;
+    grid-template-rows: repeat(9, minmax(48px, 1fr)) !important;
+    gap: 6px !important;
+    min-width: 0 !important;
+  }
+  body[data-app-role="service"] .ipad-room-grid .room-row {
+    min-width: 0 !important;
+    min-height: 48px !important;
+    height: auto !important;
+    padding: 5px 8px !important;
+    border-radius: 10px !important;
+  }
+  body[data-app-role="service"] .ipad-room-grid .guest-names strong:not(:first-child) { display: none !important; }
+
+  body[data-app-role="reception"]:has(.guest-edit-modal) .modal-layer {
+    inset: max(188px, calc(env(safe-area-inset-top) + 166px)) 18px max(14px, env(safe-area-inset-bottom)) 65% !important;
+    padding: 0 !important;
+    align-items: stretch !important;
+    justify-content: stretch !important;
+  }
+  body[data-app-role="reception"] .guest-edit-modal {
+    width: 100% !important;
+    max-width: none !important;
+    max-height: 100% !important;
+    height: 100% !important;
+  }
+  body[data-app-role="reception"] .guest-edit-modal .modal-body {
+    min-height: 0 !important;
+    overflow-y: auto !important;
+  }
+  body[data-app-role="reception"] .guest-edit-modal .modal-actions {
+    flex: 0 0 auto !important;
+    padding-bottom: max(10px, env(safe-area-inset-bottom)) !important;
+  }
+}
+
+/* 8.37.0 — Package B: one compact, safe-area-aware dialog system. */
+.modal-layer,
+.guest-info-picker-layer,
+.remark-popup-layer,
+.group-room-popup-layer {
+  box-sizing: border-box !important;
+  padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)) !important;
+  overflow: auto !important;
+  overscroll-behavior: contain !important;
+}
+
+.modal,
+.checkin-choice-modal,
+.guest-edit-modal,
+.guest-info-picker-modal,
+.remark-popup-modal,
+.group-room-popup {
+  display: flex !important;
+  flex-direction: column !important;
+  width: min(680px, calc(100vw - 32px)) !important;
+  max-width: calc(100vw - 32px) !important;
+  max-height: calc(100dvh - max(32px, env(safe-area-inset-top) + env(safe-area-inset-bottom))) !important;
+  border: 1px solid var(--amb-border, #dce3e1) !important;
+  border-radius: var(--amb-dialog-radius, 16px) !important;
+  background: #fff !important;
+  box-shadow: var(--amb-dialog-shadow, 0 14px 40px rgba(22, 39, 35, .13)) !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+}
+
+.modal-head,
+.guest-info-picker-head,
+.remark-popup-head,
+.group-room-popup-head {
+  flex: 0 0 auto !important;
+  min-height: 0 !important;
+  padding: 16px !important;
+  border-bottom: 1px solid var(--amb-divider, #edf0ee) !important;
+  background: #fff !important;
+  box-sizing: border-box !important;
+}
+
+.guest-info-picker-head,
+.remark-popup-head,
+.group-room-popup-head {
+  display: flex !important;
+  align-items: flex-start !important;
+  justify-content: space-between !important;
+  gap: 16px !important;
+}
+
+.guest-info-picker-head h3,
+.remark-popup-head h3,
+.group-room-popup-head h3 {
+  margin: 2px 0 0 !important;
+  color: var(--amb-ink, #141918) !important;
+  font-size: 22px !important;
+  line-height: 1.12 !important;
+}
+
+.guest-info-picker-head p,
+.remark-popup-head p,
+.group-room-popup-head p {
+  margin: 5px 0 0 !important;
+  color: var(--amb-muted, #747d7a) !important;
+  font-size: 13px !important;
+  line-height: 1.35 !important;
+}
+
+.guest-info-picker-head > button,
+.remark-popup-head > button,
+.group-room-popup-head > button[aria-label="Schließen"] {
+  flex: 0 0 40px !important;
+  width: 40px !important;
+  height: 40px !important;
+  min-height: 40px !important;
+  padding: 0 !important;
+  border: 1px solid var(--amb-border, #dce3e1) !important;
+  border-radius: var(--amb-control-radius, 10px) !important;
+  color: var(--amb-petrol, #1c777b) !important;
+  background: #fff !important;
+  box-shadow: none !important;
+}
+
+.modal-body,
+.guest-info-picker-body,
+.remark-popup-body,
+.group-room-popup-list {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  overscroll-behavior: contain !important;
+  -webkit-overflow-scrolling: touch !important;
+}
+
+.guest-info-picker-actions,
+.remark-popup-actions,
+.group-room-popup-actions {
+  position: static !important;
+  flex: 0 0 auto !important;
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 8px !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 12px 16px max(12px, env(safe-area-inset-bottom)) !important;
+  border-top: 1px solid var(--amb-divider, #edf0ee) !important;
+  background: #fff !important;
+  box-shadow: none !important;
+  box-sizing: border-box !important;
+}
+
+.guest-info-picker-actions button,
+.remark-popup-actions button,
+.group-room-popup-actions button {
+  width: 100% !important;
+  min-width: 0 !important;
+  min-height: var(--amb-control-height, 44px) !important;
+  border-radius: var(--amb-control-radius, 10px) !important;
+}
+
+.dialog-add-room { width: min(620px, calc(100vw - 32px)) !important; }
+.dialog-add-room .modal-body { padding: 16px !important; }
+.dialog-add-room .form-grid { gap: 12px 10px !important; }
+.dialog-add-room textarea { min-height: 76px !important; resize: vertical !important; }
+.dialog-add-room .modal-action.full { margin-top: 14px !important; }
+
+.dialog-finish-breakfast { width: min(620px, calc(100vw - 32px)) !important; }
+.dialog-finish-breakfast .modal-body { padding: 16px !important; }
+.dialog-finish-breakfast .modal-actions {
+  position: static !important;
+  margin: 16px 0 0 !important;
+  padding: 12px 0 0 !important;
+  border-top: 1px solid var(--amb-divider, #edf0ee) !important;
+  background: #fff !important;
+  box-shadow: none !important;
+}
+
+.group-room-popup { width: min(720px, calc(100vw - 32px)) !important; }
+.group-room-popup-list { padding: 12px 16px !important; }
+
+.guest-info-picker-modal { width: min(720px, calc(100vw - 32px)) !important; }
+.guest-info-picker-selected { flex: 0 0 auto !important; margin: 12px 16px 0 !important; }
+.guest-info-picker-body { padding: 12px 16px !important; }
+.remark-popup-modal { width: min(600px, calc(100vw - 32px)) !important; }
+.remark-popup-body { padding: 16px !important; }
+.remark-popup-body textarea { min-height: 120px !important; resize: vertical !important; }
+
+.checkin-choice-modal { width: min(820px, calc(100vw - 32px)) !important; }
+.checkin-choice-modal .modal-body.checkin-choice-body {
+  min-height: 0 !important;
+  overflow-y: auto !important;
+  padding-bottom: 0 !important;
+}
+.checkin-choice-modal .modal-actions {
+  position: sticky !important;
+  inset: auto !important;
+  bottom: 0 !important;
+  z-index: 2 !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  padding: 10px 0 max(10px, env(safe-area-inset-bottom)) !important;
+  border-top: 1px solid var(--amb-divider, #edf0ee) !important;
+  background: #fff !important;
+  box-shadow: none !important;
+}
+
+@media (max-width: 560px) {
+  .modal-layer,
+  .guest-info-picker-layer,
+  .remark-popup-layer,
+  .group-room-popup-layer,
+  .modal-layer:has(.checkin-choice-modal) {
+    align-items: center !important;
+    justify-content: center !important;
+    padding: max(8px, env(safe-area-inset-top)) max(10px, env(safe-area-inset-right)) max(8px, env(safe-area-inset-bottom)) max(10px, env(safe-area-inset-left)) !important;
+    overflow: auto !important;
+  }
+
+  .modal,
+  .checkin-choice-modal,
+  .guest-edit-modal,
+  .guest-info-picker-modal,
+  .remark-popup-modal,
+  .group-room-popup,
+  .dialog-add-room,
+  .dialog-finish-breakfast {
+    width: calc(100vw - 20px) !important;
+    max-width: calc(100vw - 20px) !important;
+    max-height: calc(100dvh - max(16px, env(safe-area-inset-top) + env(safe-area-inset-bottom))) !important;
+    margin: auto !important;
+    border-radius: var(--amb-dialog-radius, 16px) !important;
+    clip-path: inset(0 round var(--amb-dialog-radius, 16px)) !important;
+  }
+
+  .modal-head,
+  .guest-info-picker-head,
+  .remark-popup-head,
+  .group-room-popup-head {
+    padding: 10px 14px 9px !important;
+  }
+  .modal-head h2,
+  .guest-info-picker-head h3,
+  .remark-popup-head h3,
+  .group-room-popup-head h3 { font-size: 20px !important; }
+  .modal-head p,
+  .guest-info-picker-head p,
+  .remark-popup-head p,
+  .group-room-popup-head p { margin-top: 3px !important; font-size: 11px !important; line-height: 1.2 !important; }
+  .close-button,
+  .guest-info-picker-head > button,
+  .remark-popup-head > button,
+  .group-room-popup-head > button[aria-label="Schließen"] {
+    flex-basis: 36px !important;
+    width: 36px !important;
+    height: 36px !important;
+    min-height: 36px !important;
+  }
+
+  .checkin-choice-modal .modal-body.checkin-choice-body {
+    gap: 6px !important;
+    padding: 6px 12px 0 !important;
+    overflow-y: auto !important;
+  }
+  .checkin-choice-modal .checkin-count-block { padding: 6px 9px !important; }
+  .checkin-choice-modal .single-guest-value { min-height: 36px !important; }
+  .checkin-choice-modal .room-service-option,
+  .checkin-choice-modal .group-link-trigger { min-height: 44px !important; height: 44px !important; }
+  .checkin-choice-modal .table-picker {
+    grid-template-rows: repeat(5, 29px) !important;
+    grid-auto-rows: 29px !important;
+    height: 161px !important;
+    gap: 4px !important;
+    overflow: visible !important;
+  }
+  .checkin-choice-modal .table-picker button { min-height: 29px !important; height: 29px !important; }
+  .checkin-choice-modal .modal-actions {
+    padding: 7px 0 max(8px, env(safe-area-inset-bottom)) !important;
+  }
+  .checkin-choice-modal .modal-actions button { height: 42px !important; min-height: 42px !important; }
+
+  .dialog-add-room .modal-body { padding: 10px 14px 12px !important; }
+  .dialog-add-room .form-grid { gap: 9px 8px !important; }
+  .dialog-add-room input,
+  .dialog-add-room select { min-height: 42px !important; height: 42px !important; }
+  .dialog-add-room textarea { min-height: 62px !important; height: 62px !important; resize: none !important; }
+  .dialog-add-room .modal-action.full { min-height: 44px !important; margin-top: 10px !important; }
+
+  .dialog-finish-breakfast .modal-body { padding: 12px 14px 14px !important; }
+  .dialog-finish-breakfast .summary-lead { padding: 10px !important; }
+  .dialog-finish-breakfast .summary-lines { gap: 6px !important; }
+  .dialog-finish-breakfast .modal-actions { margin-top: 12px !important; padding-top: 9px !important; }
+
+  .group-room-popup-list,
+  .guest-info-picker-body,
+  .remark-popup-body { padding: 10px 14px !important; }
+  .guest-info-picker-selected { margin: 9px 14px 0 !important; }
+  .remark-popup-body textarea { min-height: 100px !important; height: 100px !important; resize: none !important; }
+  .guest-info-picker-actions,
+  .remark-popup-actions,
+  .group-room-popup-actions {
+    padding: 9px 14px max(9px, env(safe-area-inset-bottom)) !important;
+  }
+}
+
+@media (min-width: 700px) and (max-width: 1400px) {
+  .modal,
+  .checkin-choice-modal,
+  .guest-edit-modal,
+  .guest-info-picker-modal,
+  .remark-popup-modal,
+  .group-room-popup {
+    max-height: calc(100dvh - max(48px, env(safe-area-inset-top) + env(safe-area-inset-bottom))) !important;
+  }
+  .checkin-choice-modal .modal-body.checkin-choice-body { overflow-y: auto !important; }
+}
+
+/* 8.36.0 — Package A: keep the one-guest person area visible without adding a control. */
+.checkin-choice-modal .single-guest-count {
+  display: grid !important;
+  gap: 8px !important;
+}
+.checkin-choice-modal .single-guest-value {
+  min-height: 44px !important;
+  display: flex !important;
+  align-items: center !important;
+  padding: 0 14px !important;
+  color: var(--amb-ink, #141918) !important;
+  background: #f7f9f8 !important;
+  border: 1px solid var(--amb-border, #dce3e1) !important;
+  border-radius: var(--amb-control-radius, 10px) !important;
+  font-size: 14px !important;
+  font-weight: 680 !important;
+}
+
+/* Keep the iPad reception panel actions in view while its form scrolls. */
+@media (min-width: 700px) {
+  body[data-app-role="reception"] .guest-edit-modal .modal-actions {
+    position: sticky !important;
+    bottom: 0 !important;
+    z-index: 1 !important;
+    margin: 8px 0 0 !important;
+    padding: 12px 0 0 !important;
+    background: #fff !important;
   }
 }

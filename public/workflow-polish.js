@@ -2,6 +2,7 @@
   let openOnly = false;
   let scheduled = false;
   const roleKey = "ambassador-work-area";
+  const previewVersion = "8.39.0";
 
   const normalize = (value) => value.replace(/\s+/g, " ").trim();
 
@@ -278,11 +279,39 @@
 
     root.querySelectorAll(".menu-card").forEach((menu) => {
       menu.querySelectorAll("*").forEach((node) => {
-        if (node.children.length === 0 && normalize(node.textContent || "").includes("Ambassador Liste · 8.27.0")) {
-          node.textContent = "Ambassador Liste · 8.34.2";
+        if (node.children.length === 0 && /Ambassador Liste · 8\.\d+\.\d+/.test(normalize(node.textContent || ""))) {
+          node.textContent = `Ambassador Liste · ${previewVersion}`;
         }
       });
     });
+  }
+
+  function getCheckinRoomPeople(modal) {
+    const room = normalize(modal.querySelector(".modal-kicker")?.textContent || "").match(/\d+/)?.[0];
+    if (!room) return null;
+    const row = [...document.querySelectorAll(".room-row")].find((candidate) =>
+      normalize(candidate.querySelector(".room-number")?.textContent || "") === room
+    );
+    const people = normalize(row?.querySelector(".people")?.textContent || "").match(/\d+/)?.[0];
+    return people ? Number(people) : null;
+  }
+
+  function ensureSingleGuestDisplay(modal) {
+    const people = getCheckinRoomPeople(modal);
+    const existing = modal.querySelector(".single-guest-count");
+    if (people !== 1) {
+      existing?.remove();
+      return;
+    }
+    if (existing || modal.querySelector(".checkin-count-block")) return;
+
+    const block = document.createElement("div");
+    block.className = "checkin-count-block single-guest-count";
+    block.setAttribute("aria-label", "Personen");
+    block.innerHTML = '<span class="choice-label">Personen</span><div class="single-guest-value">1 Gast</div>';
+    const anchor = modal.querySelector(".room-service-option");
+    if (anchor) anchor.before(block);
+    else modal.querySelector(".modal-body")?.prepend(block);
   }
 
   function updateEntryForRole(entry) {
@@ -371,6 +400,7 @@
 
   function updateCheckinDialog(root) {
     root.querySelectorAll(".checkin-choice-modal").forEach((modal) => {
+      ensureSingleGuestDisplay(modal);
       const primary = modal.querySelector(".modal-actions .primary");
       if (!primary) return;
 
@@ -410,14 +440,24 @@
     });
   }
 
+  function classifyDialogs(root) {
+    root.querySelectorAll(".modal").forEach((modal) => {
+      const title = normalize(modal.querySelector(".modal-head h2")?.textContent || "").toLowerCase();
+      modal.classList.toggle("dialog-add-room", title === "zimmer hinzufügen" || title === "add room" || title === "thêm phòng");
+      modal.classList.toggle("dialog-finish-breakfast", title === "frühstück beenden" || title === "finish breakfast" || title === "kết thúc bữa sáng");
+    });
+  }
+
   function apply() {
     scheduled = false;
     const entry = document.querySelector(".entry-screen");
     if (entry) renderRoleSelection(entry);
     if (entry) updateEntryForRole(entry);
     const shell = document.querySelector(".app-shell");
+    document.querySelectorAll('meta[name="app-version"]').forEach((meta) => meta.setAttribute("content", previewVersion));
     enforceRoleFunctions(document);
     removeDepartureControls(document);
+    classifyDialogs(document);
     updateCheckinDialog(document);
     if (shell) updateFilter(shell);
     if (shell) applyRoleView(shell);
