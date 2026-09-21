@@ -279,7 +279,7 @@
     root.querySelectorAll(".menu-card").forEach((menu) => {
       menu.querySelectorAll("*").forEach((node) => {
         if (node.children.length === 0 && /Ambassador Liste · 8\.\d+\.\d+/.test(normalize(node.textContent || ""))) {
-          node.textContent = "Ambassador Liste · 8.35.1";
+          node.textContent = "Ambassador Liste · 8.35.2";
         }
       });
     });
