@@ -82,8 +82,8 @@ body.proxy-menu-action .modal-layer:has(.menu-card) {
 .entry-screen:not(.role-pending) .entry-secondary:hover,
 .entry-screen:not(.role-pending) .entry-secondary:focus {
   color: #fff !important;
-  background: #17696d !important;
-  border-color: #17696d !important;
+  background: var(--amb-petrol-strong, #17696d) !important;
+  border-color: var(--amb-petrol-strong, #17696d) !important;
 }
 
 .modal input,
@@ -175,7 +175,7 @@ body.proxy-menu-action .modal-layer:has(.menu-card) {
 .role-eyebrow {
   display: block;
   color: #7b8481;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 700;
   line-height: 1.2;
   letter-spacing: .12em;
@@ -249,7 +249,7 @@ body.proxy-menu-action .modal-layer:has(.menu-card) {
   background: #1c777b;
   border: 0;
   border-radius: 99px;
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 700;
   letter-spacing: .06em;
   text-transform: uppercase;
@@ -442,7 +442,7 @@ body[data-app-role="service"] .entry-screen:not(.role-pending) .load-actions {
     text-overflow: ellipsis !important;
     white-space: nowrap !important;
   }
-  .page-title p { font-size: 10px !important; white-space: nowrap !important; }
+  .page-title p { font-size: 11px !important; white-space: nowrap !important; }
   .active-role-badge {
     display: none !important;
   }
@@ -589,7 +589,7 @@ body[data-app-role="service"] .entry-screen:not(.role-pending) .load-actions {
   }
   body[data-app-role="reception"] .room-number { font-size: 24px !important; }
   body[data-app-role="reception"] .guest-names strong { font-size: 15px !important; }
-  body[data-app-role="reception"] .room-state { font-size: 10px !important; }
+  body[data-app-role="reception"] .room-state { font-size: 11px !important; }
   body[data-app-role="reception"] .people {
     color: #717b77 !important;
     font-size: 12px !important;
@@ -665,9 +665,9 @@ body[data-app-role="service"] .entry-screen:not(.role-pending) .load-actions {
     font-weight: 600 !important;
   }
   body[data-app-role="reception"] .reception-breakfast-choice button.selected {
-    color: #715500 !important;
+    color: var(--amb-selected-ink, #715500) !important;
     background: #fff9df !important;
-    border-color: #e1b900 !important;
+    border-color: var(--amb-selected-border, #e1b900) !important;
   }
 
   /* Explicit breakfast entitlement choice in both work areas. */
@@ -697,9 +697,9 @@ body[data-app-role="service"] .entry-screen:not(.role-pending) .load-actions {
     font-weight: 650 !important;
   }
   .guest-edit-modal .reception-breakfast-choice button.selected {
-    color: #715500 !important;
+    color: var(--amb-selected-ink, #715500) !important;
     background: #fff9df !important;
-    border-color: #e1b900 !important;
+    border-color: var(--amb-selected-border, #e1b900) !important;
   }
 
   /* Compact check-in sheet with a contained table scroller. */
@@ -840,7 +840,7 @@ body[data-app-role="service"] .entry-screen:not(.role-pending) .load-actions {
     color: #7b8481 !important;
     background: #fff !important;
     border-bottom: 1px solid #dfe5e2 !important;
-    font-size: 10px !important;
+    font-size: 11px !important;
     font-weight: 700 !important;
     letter-spacing: .04em !important;
     text-transform: uppercase !important;
@@ -917,7 +917,7 @@ body[data-app-role="service"] .entry-screen:not(.role-pending) .load-actions {
 
   body[data-app-role="reception"] .ipad-room-grid .room-number { font-size: 17px !important; }
   body[data-app-role="reception"] .ipad-room-grid .guest-names strong { font-size: 13px !important; }
-  body[data-app-role="reception"] .ipad-room-grid .people { font-size: 10px !important; }
+  body[data-app-role="reception"] .ipad-room-grid .people { font-size: 11px !important; }
 
   body[data-app-role="reception"] .modal-layer:has(.guest-edit-modal) {
     align-items: stretch !important;
@@ -950,7 +950,7 @@ body[data-app-role="service"] .entry-screen:not(.role-pending) .load-actions {
   body[data-app-role="reception"] .reception-breakfast-choice > span { font-size: 12px !important; font-weight: 650 !important; }
   body[data-app-role="reception"] .reception-breakfast-choice > div { display: grid !important; grid-template-columns: repeat(2, minmax(0,1fr)) !important; gap: 8px !important; }
   body[data-app-role="reception"] .reception-breakfast-choice button { min-height: 44px !important; color: #3e4744 !important; background: #fff !important; border: 1px solid #dce3e1 !important; border-radius: 9px !important; font-size: 12px !important; }
-  body[data-app-role="reception"] .reception-breakfast-choice button.selected { color: #715500 !important; background: #fff9df !important; border-color: #e1b900 !important; }
+  body[data-app-role="reception"] .reception-breakfast-choice button.selected { color: var(--amb-selected-ink, #715500) !important; background: var(--amb-yellow-soft, #fff9df) !important; border-color: var(--amb-selected-border, #e1b900) !important; }
 
   /* Start screen: compact, modern two-card layout that uses the iPad width. */
   .entry-screen .load-card {
@@ -1264,7 +1264,7 @@ body[data-app-role="service"] .entry-screen:not(.role-pending) .load-actions {
     min-width: 0 !important;
     margin: 0 !important;
     padding: 7px 0 0 !important;
-    border-top: 1px solid #edf0ee !important;
+    border-top: 1px solid var(--amb-divider, #edf0ee) !important;
     background: transparent !important;
     box-shadow: none !important;
     box-sizing: border-box !important;
@@ -1511,7 +1511,7 @@ body[data-app-role="service"] .entry-screen:not(.role-pending) .load-actions {
     margin: 0 !important;
     padding: 7px 0 0 !important;
     border: 0 !important;
-    border-top: 1px solid #edf0ee !important;
+    border-top: 1px solid var(--amb-divider, #edf0ee) !important;
     background: transparent !important;
     box-shadow: none !important;
     box-sizing: border-box !important;
@@ -1569,18 +1569,23 @@ body[data-app-role="service"] .entry-screen:not(.role-pending) .load-actions {
     box-sizing: border-box !important;
   }
 }
-/* 8.35.0 — common Ambassador controls and dialog geometry. */
+/* 8.39.0 — Package D: consolidated Ambassador tokens and control geometry. */
 :root {
   --amb-space-1: 4px;
   --amb-space-2: 8px;
   --amb-space-3: 16px;
   --amb-space-4: 24px;
   --amb-petrol: #1c777b;
+  --amb-petrol-strong: #17696d;
   --amb-yellow: #f3cf24;
   --amb-yellow-soft: #fff9df;
+  --amb-white: #fff;
   --amb-ink: #141918;
   --amb-muted: #747d7a;
   --amb-border: #dce3e1;
+  --amb-divider: #edf0ee;
+  --amb-selected-ink: #715500;
+  --amb-selected-border: #e1b900;
   --amb-control-radius: 10px;
   --amb-card-radius: 12px;
   --amb-dialog-radius: 16px;
@@ -1603,7 +1608,7 @@ body[data-app-role="service"] .entry-screen:not(.role-pending) .load-actions {
 }
 .modal-head {
   padding: var(--amb-space-3) !important;
-  border-bottom: 1px solid #edf0ee !important;
+  border-bottom: 1px solid var(--amb-divider) !important;
 }
 .modal-head h2,
 .group-room-popup-head h3 { color: var(--amb-ink) !important; font-size: 22px !important; line-height: 1.12 !important; }
@@ -1644,9 +1649,9 @@ body[data-app-role="service"] .entry-screen:not(.role-pending) .load-actions {
   font-weight: 650 !important;
 }
 .guest-edit-modal .reception-breakfast-choice button.selected {
-  color: #715500 !important;
+  color: var(--amb-selected-ink) !important;
   background: var(--amb-yellow-soft) !important;
-  border-color: #e1b900 !important;
+  border-color: var(--amb-selected-border) !important;
 }
 .search-box input { border-color: var(--amb-border) !important; border-radius: var(--amb-card-radius) !important; box-shadow: none !important; }
 
@@ -1710,7 +1715,6 @@ body[data-app-role="service"] .entry-screen:not(.role-pending) .load-actions {
   .checkin-choice-modal .checkin-count-block button { min-height: 36px !important; height: 36px !important; border-radius: var(--amb-control-radius) !important; }
   .checkin-choice-modal .room-service-option,
   .checkin-choice-modal .group-link-trigger { height: 48px !important; min-height: 48px !important; border-radius: var(--amb-card-radius) !important; }
-  .checkin-choice-modal .choice-separator { margin: 0 !important; }
   .checkin-choice-modal .table-picker {
     display: grid !important;
     grid-template-columns: repeat(10, minmax(0, 1fr)) !important;
@@ -1730,7 +1734,7 @@ body[data-app-role="service"] .entry-screen:not(.role-pending) .load-actions {
     width: 100% !important;
     margin: 0 !important;
     padding: 8px 0 0 !important;
-    border-top: 1px solid #edf0ee !important;
+    border-top: 1px solid var(--amb-divider) !important;
     background: #fff !important;
     box-shadow: none !important;
   }
@@ -1743,7 +1747,6 @@ body[data-app-role="service"] .entry-screen:not(.role-pending) .load-actions {
     border-radius: var(--amb-dialog-radius) !important;
   }
   .guest-edit-modal .modal-body { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 16px 8px !important; padding: 12px 16px 16px !important; }
-  .guest-edit-modal label:has(input[type="date"]) { grid-column: auto !important; width: 100% !important; min-width: 0 !important; margin: 0 !important; }
   .guest-edit-modal .reception-breakfast-choice button { height: 44px !important; }
   .group-room-popup,
   .guest-info-picker-modal,
@@ -1789,11 +1792,6 @@ body[data-app-role="service"] .entry-screen:not(.role-pending) .load-actions {
   background: #fff !important;
   border: 1px solid var(--amb-border) !important;
 }
-.guest-edit-modal .reception-breakfast-choice button.selected {
-  color: #715500 !important;
-  background: var(--amb-yellow-soft) !important;
-  border-color: #e1b900 !important;
-}
 .guest-edit-modal .guest-edit-grid > label:has(input[type="date"]) {
   grid-column: auto !important;
   width: 100% !important;
@@ -1807,7 +1805,7 @@ body[data-app-role="service"] .entry-screen:not(.role-pending) .load-actions {
   inset: auto !important;
   margin: 16px 0 0 !important;
   padding: 12px 0 0 !important;
-  border-top: 1px solid #edf0ee !important;
+  border-top: 1px solid var(--amb-divider) !important;
   background: #fff !important;
   box-shadow: none !important;
 }
@@ -2063,7 +2061,7 @@ body[data-app-role="service"] .entry-screen:not(.role-pending) .load-actions {
   flex: 0 0 auto !important;
   min-height: 0 !important;
   padding: 16px !important;
-  border-bottom: 1px solid #edf0ee !important;
+  border-bottom: 1px solid var(--amb-divider, #edf0ee) !important;
   background: #fff !important;
   box-sizing: border-box !important;
 }
@@ -2133,7 +2131,7 @@ body[data-app-role="service"] .entry-screen:not(.role-pending) .load-actions {
   width: 100% !important;
   margin: 0 !important;
   padding: 12px 16px max(12px, env(safe-area-inset-bottom)) !important;
-  border-top: 1px solid #edf0ee !important;
+  border-top: 1px solid var(--amb-divider, #edf0ee) !important;
   background: #fff !important;
   box-shadow: none !important;
   box-sizing: border-box !important;
@@ -2160,7 +2158,7 @@ body[data-app-role="service"] .entry-screen:not(.role-pending) .load-actions {
   position: static !important;
   margin: 16px 0 0 !important;
   padding: 12px 0 0 !important;
-  border-top: 1px solid #edf0ee !important;
+  border-top: 1px solid var(--amb-divider, #edf0ee) !important;
   background: #fff !important;
   box-shadow: none !important;
 }
@@ -2189,7 +2187,7 @@ body[data-app-role="service"] .entry-screen:not(.role-pending) .load-actions {
   flex: 0 0 auto !important;
   margin: 0 !important;
   padding: 10px 0 max(10px, env(safe-area-inset-bottom)) !important;
-  border-top: 1px solid #edf0ee !important;
+  border-top: 1px solid var(--amb-divider, #edf0ee) !important;
   background: #fff !important;
   box-shadow: none !important;
 }
