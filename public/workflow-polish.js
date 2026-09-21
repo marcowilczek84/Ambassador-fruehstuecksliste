@@ -2,7 +2,7 @@
   let openOnly = false;
   let scheduled = false;
   const roleKey = "ambassador-work-area";
-  const previewVersion = "8.36.0";
+  const previewVersion = "8.37.0";
 
   const normalize = (value) => value.replace(/\s+/g, " ").trim();
 
@@ -440,6 +440,14 @@
     });
   }
 
+  function classifyDialogs(root) {
+    root.querySelectorAll(".modal").forEach((modal) => {
+      const title = normalize(modal.querySelector(".modal-head h2")?.textContent || "").toLowerCase();
+      modal.classList.toggle("dialog-add-room", title === "zimmer hinzufügen" || title === "add room" || title === "thêm phòng");
+      modal.classList.toggle("dialog-finish-breakfast", title === "frühstück beenden" || title === "finish breakfast" || title === "kết thúc bữa sáng");
+    });
+  }
+
   function apply() {
     scheduled = false;
     const entry = document.querySelector(".entry-screen");
@@ -449,6 +457,7 @@
     document.querySelectorAll('meta[name="app-version"]').forEach((meta) => meta.setAttribute("content", previewVersion));
     enforceRoleFunctions(document);
     removeDepartureControls(document);
+    classifyDialogs(document);
     updateCheckinDialog(document);
     if (shell) updateFilter(shell);
     if (shell) applyRoleView(shell);
