@@ -279,7 +279,7 @@
     root.querySelectorAll(".menu-card").forEach((menu) => {
       menu.querySelectorAll("*").forEach((node) => {
         if (node.children.length === 0 && normalize(node.textContent || "").includes("Ambassador Liste · 8.27.0")) {
-          node.textContent = "Ambassador Liste · 8.34.1";
+          node.textContent = "Ambassador Liste · 8.34.2";
         }
       });
     });
@@ -353,8 +353,20 @@
     const searchActive = Boolean(searchInput && normalize(searchInput.value || ""));
     shell.classList.toggle("compact-results", openOnly || searchActive);
     button.setAttribute("aria-pressed", String(openOnly));
-    button.textContent = openOnly ? "Alle anzeigen ×" : "Offene anzeigen ›";
+    button.textContent = openOnly ? "Offene anzeigen ×" : "Alle anzeigen ›";
     markOpenRooms(shell);
+  }
+
+  function updateServiceOpenHeading(shell) {
+    if (document.body.dataset.appRole !== "service") return;
+    const section = shell.querySelector(".section");
+    const heading = section?.querySelector(".section-head h3");
+    const count = section?.querySelector(".section-count");
+    if (!heading || !count) return;
+    const number = normalize(count.textContent || "").match(/\d+/)?.[0];
+    if (!number) return;
+    heading.textContent = `${number} Zimmer offen`;
+    count.style.display = "none";
   }
 
   function updateCheckinDialog(root) {
@@ -409,6 +421,7 @@
     updateCheckinDialog(document);
     if (shell) updateFilter(shell);
     if (shell) applyRoleView(shell);
+    if (shell) updateServiceOpenHeading(shell);
     enhanceReceptionModal(document);
     if (shell) {
       const finished = Boolean(shell.querySelector(".bottom-button.finish.finished"));
