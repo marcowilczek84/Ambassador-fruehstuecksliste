@@ -1757,3 +1757,74 @@ body[data-app-role="service"] .entry-screen:not(.role-pending) .load-actions {
   body[data-app-role="reception"] .ipad-room-grid .guest-names strong { display: block !important; max-width: 100% !important; overflow: hidden !important; text-overflow: ellipsis !important; white-space: nowrap !important; }
   body[data-app-role="reception"] .ipad-room-grid .guest-names strong:not(:first-child) { display: none !important; }
 }
+
+/* 8.35.1 — the shared guest form uses one entitlement control and a stable grid. */
+.guest-edit-modal { height: auto !important; }
+.guest-edit-modal .modal-body {
+  padding: 16px !important;
+  overflow-y: auto !important;
+}
+.guest-edit-modal .guest-edit-grid {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 16px 8px !important;
+}
+.guest-edit-modal .reception-original-included { display: none !important; }
+.guest-edit-modal .guest-edit-grid > .reception-breakfast-choice {
+  grid-column: 1 / -1 !important;
+  min-width: 0 !important;
+  width: 100% !important;
+  display: grid !important;
+  gap: 8px !important;
+}
+.guest-edit-modal .reception-breakfast-choice > div {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 8px !important;
+}
+.guest-edit-modal .reception-breakfast-choice button {
+  width: 100% !important;
+  height: 44px !important;
+  color: var(--amb-ink) !important;
+  background: #fff !important;
+  border: 1px solid var(--amb-border) !important;
+}
+.guest-edit-modal .reception-breakfast-choice button.selected {
+  color: #715500 !important;
+  background: var(--amb-yellow-soft) !important;
+  border-color: #e1b900 !important;
+}
+.guest-edit-modal .guest-edit-grid > label:has(input[type="date"]) {
+  grid-column: auto !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+}
+.guest-edit-modal .guest-edit-grid > .guest-info-edit-summary,
+.guest-edit-modal .guest-edit-grid > .remark-edit-summary { grid-column: auto !important; }
+.guest-edit-modal .modal-actions {
+  position: static !important;
+  inset: auto !important;
+  margin: 16px 0 0 !important;
+  padding: 12px 0 0 !important;
+  border-top: 1px solid #edf0ee !important;
+  background: #fff !important;
+  box-shadow: none !important;
+}
+.group-room-popup-head button[aria-label="Schließen"] {
+  flex: 0 0 40px !important;
+  width: 40px !important;
+  height: 40px !important;
+  padding: 0 !important;
+  color: var(--amb-petrol) !important;
+  background: #fff !important;
+  border: 1px solid var(--amb-border) !important;
+  border-radius: var(--amb-control-radius) !important;
+  box-shadow: none !important;
+}
+.group-room-popup-head button[aria-label="Schließen"] svg { width: 20px !important; height: 20px !important; stroke-width: 1.8 !important; }
+@media (max-width: 560px) {
+  .guest-edit-modal .guest-edit-grid > .guest-info-edit-summary,
+  .guest-edit-modal .guest-edit-grid > .remark-edit-summary { grid-column: 1 / -1 !important; }
+  .guest-edit-modal .modal-body { padding: 12px 16px 16px !important; }
+}
