@@ -1525,3 +1525,47 @@ body[data-app-role="service"] .entry-screen:not(.role-pending) .load-actions {
     box-sizing: border-box !important;
   }
 }
+
+/* 8.34.3: remove the actual outer group wrapper and hard-clip the phone dialog. */
+@media (max-width: 560px) {
+  .checkin-choice-modal {
+    border-radius: 18px !important;
+    overflow: hidden !important;
+    clip-path: inset(0 round 18px) !important;
+    -webkit-mask-image: -webkit-radial-gradient(white, black) !important;
+  }
+
+  .checkin-choice-modal *:has(> .group-link),
+  .checkin-choice-modal *:has(> .group-room-trigger) {
+    border: 0 !important;
+    outline: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+
+  .checkin-choice-modal .group-link,
+  .checkin-choice-modal .group-room-trigger {
+    display: grid !important;
+    width: 100% !important;
+    min-height: 46px !important;
+    height: 46px !important;
+    margin: 0 !important;
+    padding: 6px 11px !important;
+    border: 1px solid #dce3e1 !important;
+    border-radius: 11px !important;
+    outline: 0 !important;
+    background: #fff !important;
+    box-shadow: none !important;
+    box-sizing: border-box !important;
+  }
+
+  .checkin-choice-modal .modal-actions,
+  .checkin-choice-modal [class*="footer"] {
+    max-width: 100% !important;
+    margin-inline: 0 !important;
+    border-bottom-left-radius: 18px !important;
+    border-bottom-right-radius: 18px !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+  }
+}
