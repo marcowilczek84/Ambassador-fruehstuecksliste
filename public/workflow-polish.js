@@ -2,7 +2,7 @@
   let openOnly = false;
   let scheduled = false;
   const roleKey = "ambassador-work-area";
-  const previewVersion = "8.39.2";
+  const previewVersion = "8.40.0";
 
   const normalize = (value) => value.replace(/\s+/g, " ").trim();
 
@@ -234,6 +234,60 @@
     if (excludedButton) excludedButton.textContent = checkbox.checked ? "nicht inklusive" : "✓ nicht inklusive";
   }
 
+  function addSpecialGuestChoices(root) {
+    root.querySelectorAll(".checkin-choice-modal").forEach((modal) => {
+      if (modal.querySelector(".special-guest-choices")) return;
+      const body = modal.querySelector(".checkin-choice-body, .modal-body");
+      if (!body) return;
+      const choices = document.createElement("div");
+      choices.className = "special-guest-choices";
+      choices.setAttribute("aria-label", "Weitere Gastarten");
+      choices.innerHTML = `
+        <button type="button" data-guest-type="opera">
+          <span class="special-guest-icon">${icon("reception")}</span>
+          <span><strong>Opera Gäste</strong><small>Gäste aus dem Hotel Opera</small></span>
+        </button>
+        <button type="button" data-guest-type="external">
+          <span class="special-guest-icon">${icon("service")}</span>
+          <span><strong>Externe Gäste</strong><small>Frühstück ohne Übernachtung</small></span>
+        </button>`;
+      const tablePicker = body.querySelector(".table-picker");
+      const roomService = body.querySelector(".room-service-option");
+      (tablePicker || roomService)?.before(choices);
+      choices.querySelectorAll("button").forEach((button) => {
+        button.addEventListener("click", () => {
+          const guestType = button.dataset.guestType;
+          const shell = document.querySelector(".app-shell");
+          if (!guestType || !shell) return;
+          document.body.dataset.pendingGuestType = guestType;
+          modal.querySelector(".close-button")?.click();
+          window.setTimeout(() => clickMenuAction(shell, "Zimmer hinzufügen"), 80);
+        });
+      });
+    });
+  }
+
+  function labelSpecialGuestForm(root) {
+    const type = document.body.dataset.pendingGuestType;
+    if (!type) return;
+    const modal = [...root.querySelectorAll(".modal")].find((candidate) => {
+      const title = normalize(candidate.querySelector(".modal-head h2")?.textContent || "").toLowerCase();
+      return candidate.classList.contains("dialog-add-room") || title === "zimmer hinzufügen";
+    });
+    if (!modal) return;
+    modal.classList.add("dialog-add-room", "special-guest-form");
+    modal.dataset.guestType = type;
+    const title = modal.querySelector(".modal-head h2");
+    const subtitle = modal.querySelector(".modal-head p");
+    if (title) title.textContent = type === "opera" ? "Opera Gäste" : "Externe Gäste";
+    if (subtitle) subtitle.textContent = type === "opera" ? "Gäste aus dem Hotel Opera" : "Frühstück ohne Übernachtung";
+    const close = modal.querySelector(".close-button");
+    if (close && !close.dataset.guestTypeCleanup) {
+      close.dataset.guestTypeCleanup = "true";
+      close.addEventListener("click", () => delete document.body.dataset.pendingGuestType, { once: true });
+    }
+  }
+
   function applyRoleView(shell) {
     const role = sessionStorage.getItem(roleKey);
     if (!role) return;
@@ -458,7 +512,7 @@
   function classifyDialogs(root) {
     root.querySelectorAll(".modal").forEach((modal) => {
       const title = normalize(modal.querySelector(".modal-head h2")?.textContent || "").toLowerCase();
-      modal.classList.toggle("dialog-add-room", title === "zimmer hinzufügen" || title === "add room" || title === "thêm phòng");
+      modal.classList.toggle("dialog-add-room", Boolean(modal.dataset.guestType) || title === "zimmer hinzufügen" || title === "add room" || title === "thêm phòng");
       modal.classList.toggle("dialog-finish-breakfast", title === "frühstück beenden" || title === "finish breakfast" || title === "kết thúc bữa sáng");
     });
   }
@@ -474,6 +528,8 @@
     removeDepartureControls(document);
     classifyDialogs(document);
     updateCheckinDialog(document);
+    addSpecialGuestChoices(document);
+    labelSpecialGuestForm(document);
     if (shell) updateFilter(shell);
     if (shell) applyRoleView(shell);
     if (shell) updateServiceOpenHeading(shell);
