@@ -875,6 +875,11 @@
   function updateCheckinDialog(root) {
     root.querySelectorAll(".checkin-choice-modal").forEach((modal) => {
       standardizeCheckinGuestDisplay(modal);
+      modal.querySelectorAll("span, div, p, small").forEach((node) => {
+        if (node.children.length === 0 && ["oder tisch wählen", "or select table", "hoặc chọn bàn"].includes(normalize(node.textContent || "").toLocaleLowerCase("de-CH"))) {
+          node.textContent = tr("Tisch auswählen");
+        }
+      });
       modal.querySelectorAll(".choice-label").forEach((label) => {
         if (normalize(label.textContent || "").toLocaleUpperCase("de-CH") === "TISCH AUSWÄHLEN") {
           label.textContent = tr("Tisch auswählen");
