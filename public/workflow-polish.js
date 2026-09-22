@@ -459,7 +459,6 @@
     const modal = root.querySelector(".guest-edit-modal");
     if (!modal) return;
     removeManualGuestInfo(modal);
-    compactRemarkEditor(modal);
     const checkbox = modal.querySelector('input[type="checkbox"]');
     const field = checkbox?.closest("label");
     if (!checkbox || !field) return;
@@ -499,33 +498,6 @@
       const block = node.closest(".guest-info-block, .guest-info-edit-summary, section, fieldset, .form-section, .edit-section") || node;
       block.remove();
     });
-  }
-
-  function compactRemarkEditor(modal) {
-    const candidates = [...modal.querySelectorAll("textarea")];
-    const textarea = candidates.find((field) => {
-      const context = normalize(field.closest("section, fieldset, div")?.textContent || "").toLocaleLowerCase("de-CH");
-      return context.includes("bemerkung") || context.includes("note") || context.includes("ghi chú");
-    });
-    if (!textarea) return;
-    const block = textarea.closest(".remark-block, section, fieldset, .form-section, .edit-section") || textarea.parentElement;
-    if (!block || block.dataset.compactRemark === "true") return;
-    block.dataset.compactRemark = "true";
-    const value = normalize(textarea.value || "");
-    textarea.hidden = !value;
-    const action = document.createElement("button");
-    action.type = "button";
-    action.className = "compact-remark-action";
-    action.textContent = value ? tr("Bemerkung") + " bearbeiten" : "＋ " + tr("Bemerkung hinzufügen");
-    action.addEventListener("click", () => {
-      textarea.hidden = false;
-      textarea.focus();
-      action.hidden = true;
-    });
-    textarea.addEventListener("input", () => {
-      action.textContent = normalize(textarea.value || "") ? tr("Bemerkung") + " bearbeiten" : "＋ " + tr("Bemerkung hinzufügen");
-    });
-    textarea.after(action);
   }
 
   function standardizeModalChrome(root) {
