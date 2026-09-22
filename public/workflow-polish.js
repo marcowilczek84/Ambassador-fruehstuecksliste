@@ -2,7 +2,7 @@
   let openOnly = false;
   let scheduled = false;
   const roleKey = "ambassador-work-area";
-  const previewVersion = "8.39.0";
+  const previewVersion = "8.39.1";
 
   const normalize = (value) => value.replace(/\s+/g, " ").trim();
 
@@ -296,19 +296,34 @@
     return people ? Number(people) : null;
   }
 
-  function ensureSingleGuestDisplay(modal) {
+  function standardizeCheckinGuestDisplay(modal) {
     const people = getCheckinRoomPeople(modal);
     const existing = modal.querySelector(".single-guest-count");
     if (people !== 1) {
       existing?.remove();
+      const countBlock = modal.querySelector(".checkin-count-block");
+      const label = countBlock?.querySelector(".choice-label");
+      const heading = "WIE VIELE GÄSTE KOMMEN JETZT ZUM FRÜHSTÜCK?";
+      if (label && label.textContent !== heading) label.textContent = heading;
+      countBlock?.querySelectorAll(".checkin-quantity-grid button").forEach((button) => {
+        const count = Number(normalize(button.textContent || "").match(/\d+/)?.[0]);
+        const text = count ? `${count} ${count === 1 ? "Gast" : "Gäste"}` : "";
+        if (text && normalize(button.textContent || "") !== text) button.textContent = text;
+      });
       return;
     }
-    if (existing || modal.querySelector(".checkin-count-block")) return;
+    if (existing) {
+      const label = existing.querySelector(".choice-label");
+      const heading = "WIE VIELE GÄSTE KOMMEN JETZT ZUM FRÜHSTÜCK?";
+      if (label && label.textContent !== heading) label.textContent = heading;
+      return;
+    }
+    if (modal.querySelector(".checkin-count-block")) return;
 
     const block = document.createElement("div");
     block.className = "checkin-count-block single-guest-count";
-    block.setAttribute("aria-label", "Personen");
-    block.innerHTML = '<span class="choice-label">Personen</span><div class="single-guest-value">1 Gast</div>';
+    block.setAttribute("aria-label", "Wie viele Gäste kommen jetzt zum Frühstück?");
+    block.innerHTML = '<span class="choice-label">WIE VIELE GÄSTE KOMMEN JETZT ZUM FRÜHSTÜCK?</span><div class="single-guest-value">1 Gast</div>';
     const anchor = modal.querySelector(".room-service-option");
     if (anchor) anchor.before(block);
     else modal.querySelector(".modal-body")?.prepend(block);
@@ -400,7 +415,7 @@
 
   function updateCheckinDialog(root) {
     root.querySelectorAll(".checkin-choice-modal").forEach((modal) => {
-      ensureSingleGuestDisplay(modal);
+      standardizeCheckinGuestDisplay(modal);
       const primary = modal.querySelector(".modal-actions .primary");
       if (!primary) return;
 
