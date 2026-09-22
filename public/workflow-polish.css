@@ -1895,11 +1895,16 @@ body[data-app-role="service"] .entry-screen:not(.role-pending) .load-actions {
   border-top: 1px solid var(--amb-border, #dce3e1) !important;
 }
 
-.entry-screen .load-card,
 .import-modal {
   border: 1px solid var(--amb-border, #dce3e1) !important;
   border-radius: var(--amb-dialog-radius, 16px) !important;
   box-shadow: var(--amb-card-shadow, 0 8px 24px rgba(16, 30, 27, .10)) !important;
+}
+.entry-screen .load-card {
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  background: transparent !important;
 }
 .entry-screen .load-choice,
 .entry-screen .entry-secondary {
