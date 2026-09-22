@@ -2,7 +2,7 @@
   let openOnly = false;
   let scheduled = false;
   const roleKey = "ambassador-work-area";
-  const previewVersion = "8.47.0";
+  const previewVersion = "8.48.0";
   const languageKey = "ambassador-ui-language";
   const supportedLanguages = ["DE", "EN", "VI"];
   let activeLanguage = (() => {
@@ -56,7 +56,7 @@
     "Gastart, Anzahl und Tisch auswählen": ["Select guest type, number and table", "Chọn loại khách, số lượng và bàn"],
     "Opera Gäste": ["Opera guests", "Khách Opera"], "Gäste aus dem Hotel Opera": ["Guests from Hotel Opera", "Khách từ Hotel Opera"],
     "Externe Gäste": ["External guests", "Khách bên ngoài"], "Frühstück ohne Übernachtung": ["Breakfast without overnight stay", "Ăn sáng không lưu trú"],
-    "Gästeanzahl": ["Number of guests", "Số lượng khách"], "Wie viele Gäste kommen zum Frühstück?": ["How many guests are coming for breakfast?", "Có bao nhiêu khách dùng bữa sáng?"],
+    "Gästeanzahl": ["Number of guests", "Số lượng khách"], "Wie viele Gäste kommen zum Frühstück?": ["How many guests are coming for breakfast?", "Có bao nhiêu khách dùng bữa sáng?"], "Tisch auswählen": ["Select table", "Chọn bàn"],
     "TISCH AUSWÄHLEN": ["SELECT TABLE", "CHỌN BÀN"], "Ohne Tisch erfassen": ["Check in without table", "Ghi nhận không có bàn"],
     "Erfasst ✓": ["Checked in ✓", "Đã ghi nhận ✓"], "Schließen": ["Close", "Đóng"],
     "Heute erfasst": ["Checked in today", "Đã ghi nhận hôm nay"], "Rückgängig": ["Undo", "Hoàn tác"],
@@ -762,7 +762,7 @@
       existing?.remove();
       const countBlock = modal.querySelector(".checkin-count-block");
       const label = countBlock?.querySelector(".choice-label");
-      const heading = tr("WIE VIELE GÄSTE KOMMEN JETZT ZUM FRÜHSTÜCK?");
+      const heading = tr("Wie viele Gäste kommen zum Frühstück?");
       if (label && label.textContent !== heading) label.textContent = heading;
       countBlock?.querySelectorAll(".checkin-quantity-grid button").forEach((button) => {
         const count = Number(normalize(button.textContent || "").match(/\d+/)?.[0]);
@@ -773,7 +773,7 @@
     }
     if (existing) {
       const label = existing.querySelector(".choice-label");
-      const heading = tr("WIE VIELE GÄSTE KOMMEN JETZT ZUM FRÜHSTÜCK?");
+      const heading = tr("Wie viele Gäste kommen zum Frühstück?");
       if (label && label.textContent !== heading) label.textContent = heading;
       return;
     }
@@ -782,7 +782,7 @@
     const block = document.createElement("div");
     block.className = "checkin-count-block single-guest-count";
     block.setAttribute("aria-label", tr("Wie viele Gäste kommen jetzt zum Frühstück?"));
-    block.innerHTML = `<span class="choice-label">${tr("WIE VIELE GÄSTE KOMMEN JETZT ZUM FRÜHSTÜCK?")}</span><div class="single-guest-value">${tr("1 Gast")}</div>`;
+    block.innerHTML = `<span class="choice-label">${tr("Wie viele Gäste kommen zum Frühstück?")}</span><div class="single-guest-value">${tr("1 Gast")}</div>`;
     const anchor = modal.querySelector(".room-service-option");
     if (anchor) anchor.before(block);
     else modal.querySelector(".modal-body")?.prepend(block);
@@ -875,6 +875,11 @@
   function updateCheckinDialog(root) {
     root.querySelectorAll(".checkin-choice-modal").forEach((modal) => {
       standardizeCheckinGuestDisplay(modal);
+      modal.querySelectorAll(".choice-label").forEach((label) => {
+        if (normalize(label.textContent || "").toLocaleUpperCase("de-CH") === "TISCH AUSWÄHLEN") {
+          label.textContent = tr("Tisch auswählen");
+        }
+      });
       const primary = modal.querySelector(".modal-actions .primary");
       if (!primary) return;
 
@@ -933,6 +938,10 @@
     removeDepartureControls(document);
     classifyDialogs(document);
     updateCheckinDialog(document);
+    document.querySelectorAll(".room-state").forEach((state) => {
+      const label = normalize(state.textContent || "").toLocaleLowerCase("de-CH");
+      state.classList.toggle("redundant-open-status", ["noch offen", "still open", "chưa phục vụ"].includes(label));
+    });
     if (shell) updateFilter(shell);
     if (shell) applyRoleView(shell);
     if (shell) alignMobileInfoBadges(shell);

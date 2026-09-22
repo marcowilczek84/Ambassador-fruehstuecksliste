@@ -3375,4 +3375,126 @@ body[data-app-role="reception"] .guest-edit-modal .reception-breakfast-choice bu
 .modal-head{background:var(--surface)!important;border-bottom:1px solid var(--border-subtle)!important}.modal-actions{background:var(--surface)!important;border-top:1px solid var(--border-subtle)!important;padding-bottom:max(12px,env(safe-area-inset-bottom))!important}
 .import-list>div>strong{color:var(--text-primary)!important}.import-list>div.included{border-left:4px solid var(--ambassador-yellow)!important}
 @media(max-width:560px){.filter-row{overflow-x:auto!important;flex-wrap:nowrap!important}.modal-body{overscroll-behavior:contain}.guest-edit-modal{height:96dvh!important}.guest-edit-modal .modal-actions{padding-bottom:max(12px,env(safe-area-inset-bottom))!important}}
+
+/* 8.48.0 — UI/UX acceptance corrections, round 2. */
+body[data-app-role="service"] .room-state.redundant-open-status { display:none !important; }
+body[data-app-role="service"] .room-row {
+  border-width:0 0 1px 4px !important;
+  border-style:solid !important;
+  border-radius:0 !important;
+  box-shadow:none !important;
+}
+body[data-app-role="service"] .room-row::before { width:4px !important; border-radius:0 !important; }
+body[data-app-role="service"] .room-number,
+body[data-app-role="service"] .room-row.included.present .room-number { color:var(--text-primary) !important; }
+body[data-app-role="service"] .people { color:var(--text-secondary) !important; font-weight:500 !important; }
+body[data-app-role="service"] .room-tail { gap:6px !important; }
+body[data-app-role="service"] .table-pill,
+body[data-app-role="service"] .room-state:not(.redundant-open-status) {
+  color:var(--text-secondary) !important;
+  background:var(--surface-muted) !important;
+  border-color:var(--border-subtle) !important;
+  box-shadow:none !important;
+}
+
+body[data-app-role="reception"] .room-row .room-number,
+body[data-app-role="reception"] .room-row.included .room-number,
+body[data-app-role="reception"] .ipad-room-grid .room-row.included .room-number { color:var(--text-primary) !important; }
+body[data-app-role="reception"] .room-row.included .meta-line { color:var(--text-secondary) !important; }
+body[data-app-role="reception"] .reception-breakfast.included {
+  color:#715500 !important;
+  background:#fff9df !important;
+  border-color:#f0cf00 !important;
+}
+
+.checkin-choice-modal .choice-label {
+  color:var(--text-primary) !important;
+  font-size:14px !important;
+  line-height:20px !important;
+  font-weight:650 !important;
+  letter-spacing:0 !important;
+  text-transform:none !important;
+}
+.checkin-choice-modal .table-picker { margin-top:8px !important; }
+
+.guest-edit-modal .guest-info-block,
+.guest-edit-modal .remark-block {
+  padding:0 !important;
+  background:transparent !important;
+  border:0 !important;
+  border-radius:0 !important;
+  box-shadow:none !important;
+}
+.guest-edit-modal .guest-info-block input,
+.guest-edit-modal .remark-block textarea { border:1px solid var(--border-subtle) !important; border-radius:var(--radius-small) !important; }
+
+@media(max-width:560px){
+  body[data-app-role="service"] .hero {
+    margin:6px 16px 2px !important;
+    width:auto !important;
+    max-width:none !important;
+    padding:10px 0 8px !important;
+    border:0 !important;
+    border-bottom:1px solid var(--border-subtle) !important;
+    border-radius:0 !important;
+    background:#fff !important;
+  }
+  body[data-app-role="service"] .hero h2 { font-size:23px !important; letter-spacing:-.025em !important; }
+  body[data-app-role="service"] .progress-track { margin-top:9px !important; height:4px !important; }
+  body[data-app-role="service"] .hero-facts {
+    margin-top:9px !important;
+    padding:0 !important;
+    border:0 !important;
+    background:transparent !important;
+    box-shadow:none !important;
+  }
+  body[data-app-role="service"] .hero-fact { padding:4px 7px !important; }
+  body[data-app-role="service"] .hero-fact strong { font-size:15px !important; }
+  body[data-app-role="service"] .search-wrap { padding:8px 16px 6px !important; background:#fff !important; }
+  .search-box { position:relative !important; }
+  .search-box > svg { left:15px !important; top:50% !important; transform:translateY(-50%) !important; }
+  .search-box > input { padding-left:48px !important; }
+  .modal-actions { gap:8px !important; }
+  .modal-actions .modal-action { min-height:48px !important; height:48px !important; border-radius:12px !important; }
+}
+
+@media(min-width:700px) and (max-width:1400px) and (orientation:landscape){
+  body[data-app-role="service"] .app-shell { grid-template-rows:72px 88px 56px minmax(0,1fr) 64px !important; }
+  body[data-app-role="service"] .hero {
+    grid-template-columns:minmax(300px,1.15fr) minmax(0,1fr) !important;
+    grid-template-rows:32px 4px 30px !important;
+    height:82px !important;
+    min-height:82px !important;
+    margin:2px 24px 4px !important;
+    padding:8px 0 8px !important;
+    border:0 !important;
+    border-bottom:1px solid var(--border-subtle) !important;
+    border-radius:0 !important;
+    background:#fff !important;
+  }
+  body[data-app-role="service"] .hero::after { display:none !important; }
+  body[data-app-role="service"] .hero h2 { font-size:23px !important; padding-right:18px !important; }
+  body[data-app-role="service"] .progress-track { width:calc(100% - 24px) !important; }
+  body[data-app-role="service"] .hero-facts { padding:0 !important; }
+  body[data-app-role="service"] .hero-fact { padding:3px 12px !important; }
+  body[data-app-role="service"] .search-wrap {
+    position:static !important;
+    width:auto !important;
+    height:56px !important;
+    padding:6px 24px 8px !important;
+    background:#fff !important;
+  }
+  body[data-app-role="service"] .content { padding-top:2px !important; }
+  body[data-app-role="reception"] .search-wrap { width:min(620px,58vw) !important; margin:0 !important; padding-left:24px !important; }
+  body[data-app-role="reception"] .app-shell:has(.guest-edit-modal) .content {
+    width:100% !important;
+    padding-right:24px !important;
+  }
+  body[data-app-role="reception"] .guest-edit-modal .modal-body { padding:14px 16px !important; }
+  body[data-app-role="reception"] .guest-edit-modal .reception-breakfast-choice button.selected {
+    color:#fff !important;
+    background:var(--ambassador-petrol) !important;
+    border-color:var(--ambassador-petrol) !important;
+  }
+}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important;animation-iteration-count:1!important}}
