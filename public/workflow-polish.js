@@ -32,9 +32,10 @@
     "Trinkgeld": ["Tips", "Tiền boa"], "Zusatz-App öffnen": ["Open additional app", "Mở ứng dụng bổ sung"],
     "Abmelden": ["Log out", "Đăng xuất"], "Arbeitsbereich auswählen": ["Select work area", "Chọn khu vực làm việc"],
     "Arbeitsbereich wechseln": ["Change work area", "Đổi khu vực làm việc"], "Zur Startseite": ["Go to home", "Về trang chủ"],
-    "Guten Morgen": ["Good morning", "Chào buổi sáng"], "Bereich auswählen": ["Select work area", "Chọn khu vực"],
+    "Guten Morgen": ["Good morning", "Chào buổi sáng"], "Bereich auswählen": ["Select work area", "Chọn khu vực"], "Bereich wählen": ["Choose work area", "Chọn khu vực"],
     "Rezeption": ["Reception", "Lễ tân"], "Liste laden und Gäste bearbeiten": ["Load list and edit guests", "Tải danh sách và chỉnh sửa khách"],
-    "Frühstücksservice": ["Breakfast service", "Phục vụ bữa sáng"],
+    "Frühstücksservice": ["Breakfast service", "Phục vụ bữa sáng"], "Frühstück & Check-in": ["Breakfast & check-in", "Bữa sáng & check-in"],
+    "Gästeliste & Verwaltung": ["Guest list & management", "Danh sách khách & quản lý"], "Heutige Liste öffnen": ["Open today's list", "Mở danh sách hôm nay"],
     "Gäste erfassen und Tische verwalten": ["Check in guests and manage tables", "Ghi nhận khách và quản lý bàn"],
     "Heutige Liste": ["Today's list", "Danh sách hôm nay"], "Zimmer": ["Room", "Phòng"], "Gast": ["Guest", "Khách"],
     "Gäste": ["Guests", "Khách"], "Frühstück": ["Breakfast", "Bữa sáng"], "Bemerkung": ["Note", "Ghi chú"],
@@ -190,16 +191,16 @@
     chooser.innerHTML = `
       <img class="role-logo" src="/ambassador-logo.svg?v=confirmed-20260816-0517" alt="Ambassador Hotel Zürich">
       <span class="role-eyebrow">Frühstücksliste</span>
-      <h1>Bereich wählen</h1>
+      <h1>${tr("Bereich wählen")}</h1>
       <p class="role-date">${currentDate}</p>
       <div class="role-options">
         <button type="button" data-role="service">
           <span class="role-icon">${icon("service")}</span>
-          <span><strong>Service</strong><small>Frühstück &amp; Check-in</small></span><b>›</b>
+          <span><strong>${tr("Service")}</strong><small>${tr("Frühstück & Check-in")}</small></span><b>›</b>
         </button>
         <button type="button" data-role="reception">
           <span class="role-icon">${icon("reception")}</span>
-          <span><strong>Rezeption</strong><small>Gästeliste &amp; Verwaltung</small></span><b>›</b>
+          <span><strong>${tr("Rezeption")}</strong><small>${tr("Gästeliste & Verwaltung")}</small></span><b>›</b>
         </button>
       </div>`;
     chooser.querySelectorAll("[data-role]").forEach((button) => {
