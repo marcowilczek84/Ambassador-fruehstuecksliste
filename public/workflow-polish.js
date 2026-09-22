@@ -2,7 +2,7 @@
   let openOnly = false;
   let scheduled = false;
   const roleKey = "ambassador-work-area";
-  const previewVersion = "8.48.0";
+  const previewVersion = "8.49.0";
   const languageKey = "ambassador-ui-language";
   const supportedLanguages = ["DE", "EN", "VI"];
   let activeLanguage = (() => {
@@ -162,21 +162,17 @@
     chooser.setAttribute("aria-label", "Arbeitsbereich auswählen");
     chooser.innerHTML = `
       <img class="role-logo" src="/ambassador-logo.svg?v=confirmed-20260816-0517" alt="Ambassador Hotel Zürich">
-      <span class="role-app-mark">${icon("service")}</span>
       <span class="role-eyebrow">Frühstücksliste</span>
-      <h1>Guten Morgen</h1>
+      <h1>Bereich wählen</h1>
       <p class="role-date">${currentDate}</p>
-      <p class="role-prompt">Bereich auswählen</p>
       <div class="role-options">
-        <button type="button" data-role="reception">
-          <span class="role-icon">${icon("reception")}</span>
-          <strong>Rezeption</strong>
-          <small>Liste laden und Gäste bearbeiten</small>
-        </button>
         <button type="button" data-role="service">
           <span class="role-icon">${icon("service")}</span>
-          <strong>Frühstücksservice</strong>
-          <small>Gäste erfassen und Tische verwalten</small>
+          <span><strong>Service</strong><small>Frühstück &amp; Check-in</small></span><b>›</b>
+        </button>
+        <button type="button" data-role="reception">
+          <span class="role-icon">${icon("reception")}</span>
+          <span><strong>Rezeption</strong><small>Gästeliste &amp; Verwaltung</small></span><b>›</b>
         </button>
       </div>`;
     chooser.querySelectorAll("[data-role]").forEach((button) => {
@@ -294,7 +290,6 @@
             </div></div>
           </section>
           ${tipEntry ? `<section><h3>${tr("ZUSATZ-APP")}</h3>${tipEntry}</section>` : ""}
-          <section>${menuItem("Abmelden", "logout", "Abmelden")}</section>
         </div>
         <footer>Ambassador Liste · ${previewVersion}</footer>
       </section>`;
@@ -420,8 +415,8 @@
       const inlineInfo = source.cloneNode(true);
       inlineInfo.classList.add("mobile-inline-info-badge");
       inlineInfo.removeAttribute("aria-hidden");
-      inlineInfo.textContent = tr("Info");
-      inlineInfo.setAttribute("aria-label", tr("Gastinfo"));
+      inlineInfo.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14v11H9l-4 4zM8 9h8M8 12h6"/></svg>';
+      inlineInfo.setAttribute("aria-label", tr("Bemerkung"));
       inlineInfo.addEventListener("click", (event) => {
         event.preventDefault();
         event.stopPropagation();
@@ -458,6 +453,7 @@
     const excludedButton = choice.querySelector('[data-included="false"]');
     includedButton?.classList.toggle("selected", checkbox.checked);
     excludedButton?.classList.toggle("selected", !checkbox.checked);
+    modal.querySelectorAll(".guest-info-block, [data-field='guest-info']").forEach((block) => block.remove());
     if (includedButton) includedButton.textContent = checkbox.checked ? tr("✓ inklusive") : tr("inklusive");
     if (excludedButton) excludedButton.textContent = checkbox.checked ? tr("nicht inklusive") : tr("✓ nicht inklusive");
   }
@@ -619,11 +615,11 @@
       .filter((event) => event.guestType && event.actionId)
       .sort((a, b) => Number(b.at || 0) - Number(a.at || 0));
     if (!entries.length) return "";
-    return `<section class="special-guest-today"><div class="special-guest-today-head"><span>${tr("Heute erfasst")}</span><strong>${entries.reduce((sum, entry) => sum + Number(entry.people || 0), 0)} ${tr("Gäste")}</strong></div><div class="special-guest-entry-list">${entries.map((entry) => {
+    return `<details class="special-guest-today"><summary>${tr("Heute erfasst")} · ${entries.reduce((sum, entry) => sum + Number(entry.people || 0), 0)} ›</summary><div class="special-guest-entry-list">${entries.map((entry) => {
       const label = entry.guestType === "opera" ? tr("Opera Gäste") : tr("Externe Gäste");
       const time = new Intl.DateTimeFormat(activeLanguage === "EN" ? "en-GB" : activeLanguage === "VI" ? "vi-VN" : "de-CH", { hour: "2-digit", minute: "2-digit" }).format(new Date(Number(entry.at || Date.now())));
       return `<div class="special-guest-entry"><span><strong>${label}</strong><small>${Number(entry.people || 0)} ${Number(entry.people || 0) === 1 ? tr("Gast") : tr("Gäste")} · ${entry.table || tr("Kein Tisch")} · ${time}</small></span><button type="button" data-special-undo="${entry.actionId}">${tr("Rückgängig")}</button></div>`;
-    }).join("")}</div></section>`;
+    }).join("")}</div></details>`;
   }
 
   function openSpecialGuestDialog() {
@@ -635,7 +631,7 @@
       <div class="modal-body">
         <span class="choice-label">GASTART</span>
         <div class="special-type-picker">
-          <button type="button" data-special-type="opera"><span class="special-guest-icon">${icon("reception")}</span><span><strong>Opera Gäste</strong><small>Gäste aus dem Hotel Opera</small></span></button>
+          <button type="button" data-special-type="opera"><span class="special-guest-icon opera-logo"><img src="/opera-hotel-logo.webp" alt="Opera Hotel"></span><span><strong>Opera Gäste</strong><small>Gäste aus dem Hotel Opera</small></span></button>
           <button type="button" data-special-type="external"><span class="special-guest-icon">${icon("service")}</span><span><strong>Externe Gäste</strong><small>Frühstück ohne Übernachtung</small></span></button>
         </div>
         <div data-special-guest-history>${specialGuestEntriesMarkup()}</div>
@@ -652,6 +648,7 @@
     const update = () => {
       layer.querySelector("[data-special-count]").textContent = String(count);
       save.disabled = !type;
+      save.classList.toggle("is-ready", Boolean(type));
       save.textContent = table ? (activeLanguage === "EN" ? `Check in at table ${table}` : activeLanguage === "VI" ? `Ghi nhận tại bàn ${table}` : `An Tisch ${table} erfassen`) : tr("Ohne Tisch erfassen");
     };
     const close = () => layer.remove();
@@ -792,6 +789,15 @@
     const role = sessionStorage.getItem(roleKey);
     if (!role || entry.classList.contains("role-pending")) return;
     entry.dataset.role = role;
+    const heading = entry.querySelector("h1");
+    if (heading) heading.textContent = tr(role === "service" ? "Service" : "Rezeption");
+    let subtitle = entry.querySelector(".entry-role-subtitle");
+    if (!subtitle && heading) {
+      subtitle = document.createElement("p");
+      subtitle.className = "entry-role-subtitle";
+      heading.after(subtitle);
+    }
+    if (subtitle) subtitle.textContent = role === "service" ? tr("Frühstücksservice") : (activeLanguage === "DE" ? "Gästeliste & Verwaltung" : activeLanguage === "EN" ? "Guest list & management" : "Danh sách khách & quản lý");
 
     const importButton = entry.querySelector(".load-choice");
     const openButton = entry.querySelector(".entry-secondary");
@@ -856,7 +862,7 @@
     const searchActive = Boolean(searchInput && normalize(searchInput.value || ""));
     shell.classList.toggle("compact-results", openOnly || searchActive);
     button.setAttribute("aria-pressed", String(openOnly));
-    button.textContent = tr(openOnly ? "Offene anzeigen ×" : "Alle anzeigen ›");
+    button.textContent = openOnly ? (activeLanguage === "EN" ? "Open only ›" : activeLanguage === "VI" ? "Chỉ còn mở ›" : "Nur offene anzeigen ›") : tr("Alle anzeigen ›");
     markOpenRooms(shell);
   }
 
@@ -870,6 +876,18 @@
     if (!number) return;
     heading.textContent = activeLanguage === "EN" ? `${number} rooms open` : activeLanguage === "VI" ? `${number} phòng chưa phục vụ` : `${number} Zimmer offen`;
     count.style.display = "none";
+  }
+
+  function addIPadSpecialGuestShortcut(shell) {
+    if (document.body.dataset.appRole !== "service") return;
+    const wrap = shell.querySelector(".search-wrap");
+    if (!wrap || wrap.querySelector(".ipad-special-guest-shortcut")) return;
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "ipad-special-guest-shortcut";
+    button.innerHTML = `<span>＋</span> ${tr("Gäste ohne Zimmer erfassen").replace(" erfassen", "")}`;
+    button.addEventListener("click", openSpecialGuestDialog);
+    wrap.append(button);
   }
 
   function updateCheckinDialog(root) {
@@ -952,6 +970,7 @@
     if (shell) alignMobileInfoBadges(shell);
     if (shell) ensureReliableMenu(shell, sessionStorage.getItem(roleKey) || "service");
     if (shell) updateServiceOpenHeading(shell);
+    if (shell) addIPadSpecialGuestShortcut(shell);
     enhanceReceptionModal(document);
     enhanceRoomUndo(document);
     if (shell) {
