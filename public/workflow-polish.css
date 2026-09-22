@@ -3636,6 +3636,9 @@ body[data-app-role="service"] .content { overflow-x:hidden !important; clip-path
   font:650 13px/1.2 inherit !important;
 }
 .guest-edit-modal textarea[hidden] { display:none !important; }
+.guest-edit-modal .guest-info-block,
+.guest-edit-modal .guest-info-edit-summary,
+.guest-edit-modal [data-field="guest-info"] { display:none !important; }
 
 .shared-list-ready-animation {
   position:fixed !important;
