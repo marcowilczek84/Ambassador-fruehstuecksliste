@@ -2,7 +2,7 @@
   let openOnly = false;
   let scheduled = false;
   const roleKey = "ambassador-work-area";
-  const previewVersion = "8.49.0";
+  const previewVersion = "8.50.0";
   const languageKey = "ambassador-ui-language";
   const supportedLanguages = ["DE", "EN", "VI"];
   let activeLanguage = (() => {
@@ -71,7 +71,7 @@
     "1 Gast": ["1 guest", "1 khách"], "Roomservice": ["Room service", "Phục vụ tại phòng"],
     "Frühstück wird auf das Zimmer gebracht": ["Breakfast is delivered to the room", "Bữa sáng được mang đến phòng"],
     "Weitere Zimmer hinzufügen": ["Add more rooms", "Thêm phòng khác"], "Mehrere Zimmer gemeinsam erfassen": ["Check in several rooms together", "Ghi nhận nhiều phòng cùng lúc"],
-    "Alle anzeigen ›": ["Show all ›", "Hiển thị tất cả ›"], "Offene anzeigen ×": ["Show open ×", "Hiển thị chưa phục vụ ×"],
+    "Alle anzeigen": ["Show all", "Hiển thị tất cả"], "Nur offene anzeigen": ["Show open only", "Chỉ hiển thị phòng còn mở"],
     "Noch offen": ["Still open", "Chưa phục vụ"], "Roomservice erfassen": ["Record room service", "Ghi nhận phục vụ tại phòng"],
     "Kein Tisch": ["No table", "Không có bàn"], "Tisch / Service": ["Table / service", "Bàn / phục vụ"],
     "Die Rezeption hat noch keine heutige Liste bereitgestellt.": ["Reception has not provided today's list yet.", "Lễ tân chưa cung cấp danh sách hôm nay."],
@@ -133,7 +133,6 @@
     <button type="button" class="structured-menu-item" role="menuitem" data-menu-action="${action}">
       <span class="structured-menu-icon">${icon(iconName)}</span>
       <span><strong>${tr(title)}</strong>${subtitle ? `<small>${tr(subtitle)}</small>` : ""}</span>
-      <span class="structured-menu-chevron" aria-hidden="true">›</span>
     </button>`;
 
   function selectRole(role) {
@@ -142,6 +141,34 @@
     document.querySelector(".role-selection")?.remove();
     document.querySelector(".entry-screen")?.classList.remove("role-pending");
     schedule();
+  }
+
+  function showSharedListReadyAnimation() {
+    document.querySelector(".shared-list-ready-animation")?.remove();
+    const rooms = readDailyState("ambassador-breakfast-rooms", "rooms", []);
+    const occupied = rooms.filter((room) => room && !room.vacant && Number(room.people || room.guests || 0) > 0);
+    const included = occupied.filter((room) => Boolean(room.included || room.breakfastIncluded)).length;
+    const occupancy = Math.min(100, Math.round((occupied.length / Math.max(1, rooms.length)) * 100));
+    const layer = document.createElement("div");
+    layer.className = "shared-list-ready-animation";
+    layer.setAttribute("role", "status");
+    layer.innerHTML = `<section><span>${activeLanguage === "EN" ? "List ready" : activeLanguage === "VI" ? "Danh sách đã sẵn sàng" : "Liste bereit"}</span><h2>${activeLanguage === "EN" ? "Today's breakfast list" : activeLanguage === "VI" ? "Danh sách bữa sáng hôm nay" : "Heutige Frühstücksliste"}</h2><div><figure><b data-ready-value="${included}">0</b><small>${tr("inklusive")}</small></figure><figure><b data-ready-value="${occupancy}" data-ready-percent>0%</b><small>${activeLanguage === "EN" ? "Occupancy" : activeLanguage === "VI" ? "Công suất phòng" : "Hotelauslastung"}</small></figure></div></section>`;
+    document.body.append(layer);
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const duration = reduced ? 1 : 900;
+    const started = performance.now();
+    const tick = (now) => {
+      const progress = Math.min(1, (now - started) / duration);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      layer.querySelectorAll("[data-ready-value]").forEach((node) => {
+        const value = Math.round(Number(node.dataset.readyValue || 0) * eased);
+        node.textContent = node.hasAttribute("data-ready-percent") ? `${value}%` : String(value);
+      });
+      if (progress < 1) requestAnimationFrame(tick);
+      else window.setTimeout(() => layer.classList.add("is-leaving"), reduced ? 1 : 500);
+    };
+    requestAnimationFrame(tick);
+    window.setTimeout(() => layer.remove(), reduced ? 80 : 1750);
   }
 
   function renderRoleSelection(entry) {
@@ -279,7 +306,7 @@
            ${menuItem("Frühstück beenden", "finish", "Frühstück beenden", "Tagesabschluss vorbereiten")}
            ${menuItem("Statistik", "stats", "Statistik", "Tages- und Wochenübersicht")}`;
       const tipEntry = currentRole === "service" ? `<a class="structured-menu-item" role="menuitem" href="https://silk-trinkgeld-uiux-polish.vercel.app">
-        <span class="structured-menu-icon">${icon("tip")}</span><span><strong>${tr("Trinkgeld")}</strong><small>${tr("Zusatz-App öffnen")}</small></span><span class="structured-menu-chevron">›</span></a>` : "";
+        <span class="structured-menu-icon">${icon("tip")}</span><span><strong>${tr("Trinkgeld")}</strong><small>${tr("Zusatz-App öffnen")}</small></span></a>` : "";
       layer.innerHTML = `<section class="reliable-app-menu structured-app-menu" role="menu" aria-label="${tr("Hauptmenü")}">
         <header><span><small>${tr("MENÜ")}</small><strong>${tr("Frühstücksliste")}</strong></span><button type="button" aria-label="${tr("Menü schließen")}">×</button></header>
         <div class="structured-menu-scroll">
@@ -431,6 +458,8 @@
   function enhanceReceptionModal(root) {
     const modal = root.querySelector(".guest-edit-modal");
     if (!modal) return;
+    removeManualGuestInfo(modal);
+    compactRemarkEditor(modal);
     const checkbox = modal.querySelector('input[type="checkbox"]');
     const field = checkbox?.closest("label");
     if (!checkbox || !field) return;
@@ -453,9 +482,57 @@
     const excludedButton = choice.querySelector('[data-included="false"]');
     includedButton?.classList.toggle("selected", checkbox.checked);
     excludedButton?.classList.toggle("selected", !checkbox.checked);
-    modal.querySelectorAll(".guest-info-block, [data-field='guest-info']").forEach((block) => block.remove());
     if (includedButton) includedButton.textContent = checkbox.checked ? tr("✓ inklusive") : tr("inklusive");
     if (excludedButton) excludedButton.textContent = checkbox.checked ? tr("nicht inklusive") : tr("✓ nicht inklusive");
+  }
+
+  function removeManualGuestInfo(modal) {
+    modal.querySelectorAll(".guest-info-block, [data-field='guest-info'], .guest-info-edit-summary").forEach((block) => block.remove());
+    const guestInfoLabels = new Set([
+      "gastinfo", "guest information", "thông tin khách",
+      "noch keine gastinfos gespeichert", "no guest information saved yet", "chưa lưu thông tin khách",
+      "+ gastinfo bearbeiten", "gastinfo bearbeiten", "edit guest information", "chỉnh sửa thông tin khách"
+    ]);
+    modal.querySelectorAll("h3, h4, label, p, span, button").forEach((node) => {
+      const label = normalize(node.textContent || "").toLocaleLowerCase("de-CH");
+      if (!guestInfoLabels.has(label)) return;
+      const block = node.closest(".guest-info-block, .guest-info-edit-summary, section, fieldset, .form-section, .edit-section") || node;
+      block.remove();
+    });
+  }
+
+  function compactRemarkEditor(modal) {
+    const candidates = [...modal.querySelectorAll("textarea")];
+    const textarea = candidates.find((field) => {
+      const context = normalize(field.closest("section, fieldset, div")?.textContent || "").toLocaleLowerCase("de-CH");
+      return context.includes("bemerkung") || context.includes("note") || context.includes("ghi chú");
+    });
+    if (!textarea) return;
+    const block = textarea.closest(".remark-block, section, fieldset, .form-section, .edit-section") || textarea.parentElement;
+    if (!block || block.dataset.compactRemark === "true") return;
+    block.dataset.compactRemark = "true";
+    const value = normalize(textarea.value || "");
+    textarea.hidden = !value;
+    const action = document.createElement("button");
+    action.type = "button";
+    action.className = "compact-remark-action";
+    action.textContent = value ? tr("Bemerkung") + " bearbeiten" : "＋ " + tr("Bemerkung hinzufügen");
+    action.addEventListener("click", () => {
+      textarea.hidden = false;
+      textarea.focus();
+      action.hidden = true;
+    });
+    textarea.addEventListener("input", () => {
+      action.textContent = normalize(textarea.value || "") ? tr("Bemerkung") + " bearbeiten" : "＋ " + tr("Bemerkung hinzufügen");
+    });
+    textarea.after(action);
+  }
+
+  function standardizeModalChrome(root) {
+    root.querySelectorAll(".modal-head button, .guest-info-picker-head > button").forEach((button) => {
+      const label = normalize(button.getAttribute("aria-label") || button.textContent || "").toLocaleLowerCase("de-CH");
+      if (label === "×" || /schließ|close|đóng/.test(label)) button.classList.add("ambassador-modal-close");
+    });
   }
 
   function specialGuestDate() {
@@ -862,7 +939,7 @@
     const searchActive = Boolean(searchInput && normalize(searchInput.value || ""));
     shell.classList.toggle("compact-results", openOnly || searchActive);
     button.setAttribute("aria-pressed", String(openOnly));
-    button.textContent = openOnly ? (activeLanguage === "EN" ? "Open only ›" : activeLanguage === "VI" ? "Chỉ còn mở ›" : "Nur offene anzeigen ›") : tr("Alle anzeigen ›");
+    button.textContent = openOnly ? tr("Nur offene anzeigen") : tr("Alle anzeigen");
     markOpenRooms(shell);
   }
 
@@ -960,6 +1037,7 @@
     enforceRoleFunctions(document);
     removeDepartureControls(document);
     classifyDialogs(document);
+    standardizeModalChrome(document);
     updateCheckinDialog(document);
     document.querySelectorAll(".room-state").forEach((state) => {
       const label = normalize(state.textContent || "").toLocaleLowerCase("de-CH");
@@ -998,6 +1076,11 @@
   });
 
   document.addEventListener("click", (event) => {
+    const entryOpen = event.target instanceof Element ? event.target.closest(".entry-screen[data-role='service'] .entry-secondary") : null;
+    if (entryOpen && !entryOpen.dataset.sharedAnimationTriggered) {
+      entryOpen.dataset.sharedAnimationTriggered = "true";
+      showSharedListReadyAnimation();
+    }
     const tableButton = event.target instanceof Element ? event.target.closest(".checkin-choice-modal .table-picker button") : null;
     if (tableButton) {
       const table = normalize(tableButton.textContent || "");
