@@ -4064,6 +4064,7 @@ body[data-app-role="service"] .bottom-bar .bottom-button[aria-label="Bemerkungen
 body[data-app-role="service"] .bottom-bar .bottom-button[aria-label="Bemerkungen"]::after { content:attr(aria-label) !important; font-size:15px !important; }
 body[data-app-role="reception"] .reception-summary small { white-space:nowrap !important; font-size:11px !important; }
 body[data-app-role="reception"] .reception-summary small b { font-weight:750 !important; }
+body[data-app-role="reception"] .content > .reception-table-head { display:none !important; }
 
 /* Guest details and dialog action alignment. */
 .important-note.info-note.neutral-remark { background:#fff !important; border:1px solid #dce3e1 !important; color:#141918 !important; box-shadow:none !important; }
