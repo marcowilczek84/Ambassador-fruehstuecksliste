@@ -491,6 +491,8 @@
     shell.querySelectorAll(".ipad-room-column").forEach((column) => {
       const base = Number.parseInt(column.getAttribute("aria-label") || "", 10);
       if (![20, 30, 40, 50, 60].includes(base)) return;
+      const rangeLabel = `${base}–${base + 8}`;
+      if (column.getAttribute("aria-label") !== rangeLabel) column.setAttribute("aria-label", rangeLabel);
       column.querySelectorAll(".room-row").forEach((row) => {
         const room = Number.parseInt(row.querySelector(".room-number")?.textContent || "", 10);
         if (room >= base && room <= base + 8) row.style.setProperty("--room-slot", String(room - base + 1));
