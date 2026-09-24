@@ -447,6 +447,18 @@
         if (count) count.textContent = String(occupiedRooms.size);
       }
     });
+    const ipadGrid = shell.querySelector(".content .ipad-room-grid");
+    if (ipadGrid) {
+      let heading = shell.querySelector(".reception-room-heading");
+      if (!heading) {
+        heading = document.createElement("div");
+        heading.className = "reception-room-heading section-head";
+        heading.innerHTML = '<span class="section-dot"></span><h3></h3><span class="section-count"></span>';
+        ipadGrid.before(heading);
+      }
+      heading.querySelector("h3").textContent = tr("Belegte Zimmer");
+      heading.querySelector(".section-count").textContent = String(occupiedRooms.size);
+    }
   }
 
   function alignMobileInfoBadges(shell) {

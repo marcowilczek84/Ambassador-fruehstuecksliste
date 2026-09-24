@@ -4150,6 +4150,13 @@ body[data-app-role="reception"] .content .section:not(.reception-continuation) .
 body[data-app-role="reception"] .content .section:not(.reception-continuation) .section-head { display:flex !important; }
 
 /* Keep each hotel decade in its own iPad column. */
+body[data-app-role="reception"] .reception-room-heading { display:none !important; }
+@media(min-width:700px){
+  body[data-app-role="reception"] .reception-room-heading { display:flex !important; align-items:center !important; gap:8px !important; min-height:30px !important; margin:8px 0 5px !important; }
+  body[data-app-role="reception"] .reception-room-heading h3 { margin:0 !important; color:#141918 !important; font-size:14px !important; font-weight:700 !important; line-height:20px !important; }
+  body[data-app-role="reception"] .reception-room-heading .section-dot { background:#1c777b !important; }
+  body[data-app-role="reception"] .reception-room-heading .section-count { display:inline-flex !important; align-items:center !important; justify-content:center !important; min-width:27px !important; height:23px !important; margin:0 !important; padding:0 5px !important; border:1px solid #dce3e1 !important; border-radius:8px !important; background:#fff !important; color:#141918 !important; box-sizing:border-box !important; font-size:12px !important; font-weight:650 !important; }
+}
 @media(min-width:700px){
   body[data-app-role="service"] .ipad-room-grid { display:grid !important; grid-template-columns:repeat(5,minmax(0,1fr)) !important; grid-auto-flow:row !important; gap:10px !important; align-content:start !important; }
   body[data-app-role="service"] .ipad-room-column { display:grid !important; grid-template-rows:repeat(9,64px) !important; gap:0 !important; min-width:0 !important; }
