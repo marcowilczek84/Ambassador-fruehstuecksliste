@@ -4041,6 +4041,7 @@ body[data-app-role] .room-row .room-number,
 body[data-app-role] .ipad-room-grid .room-row .room-number { color:#141918 !important; }
 body[data-app-role] .room-row .room-key { min-width:0 !important; }
 body[data-app-role] .room-row .guest-names { min-width:0 !important; }
+body[data-app-role] .room-row .guest-names .meta-line { display:none !important; }
 body[data-app-role] .room-row .room-tail { min-width:0 !important; display:flex !important; align-items:center !important; gap:5px !important; }
 body[data-app-role] .room-row .breakfast-included,
 body[data-app-role] .room-row .reception-breakfast,
@@ -4062,7 +4063,8 @@ body[data-app-role="reception"] .reception-summary small b { font-weight:750 !im
 
 /* Guest details and dialog action alignment. */
 .important-note.info-note.neutral-remark { background:#fff !important; border:1px solid #dce3e1 !important; color:#141918 !important; box-shadow:none !important; }
-.important-note.info-note.neutral-remark svg { color:#1c777b !important; fill:none !important; stroke:#1c777b !important; stroke-width:1.8 !important; stroke-linejoin:round !important; stroke-linecap:round !important; }
+.important-note.neutral-remark { background:#fff !important; border:1px solid #dce3e1 !important; color:#141918 !important; box-shadow:none !important; }
+.important-note.neutral-remark svg { width:20px !important; height:20px !important; flex:0 0 auto !important; color:#1c777b !important; fill:none !important; stroke:#1c777b !important; stroke-width:1.8 !important; stroke-linejoin:round !important; stroke-linecap:round !important; }
 .modal-actions:has(> .modal-action:nth-child(2):last-child) {
   display:grid !important; grid-template-columns:repeat(2,minmax(0,1fr)) !important;
   align-items:stretch !important; justify-content:stretch !important; gap:10px !important;
@@ -4090,4 +4092,16 @@ body[data-app-role="service"] .service-guest-readonly > div:nth-child(5) { grid-
   body[data-app-role="service"] .guest-edit-modal.service-note-only .service-guest-readonly { grid-template-columns:repeat(2,minmax(0,1fr)) !important; }
   .special-type-picker > button[data-special-type="external"] { grid-template-columns:96px minmax(0,1fr) !important; }
   .special-type-picker > button[data-special-type="external"] .special-guest-icon { width:96px !important; min-width:96px !important; }
+}
+@media(min-width:700px){
+  body[data-app-role="reception"] .ipad-room-grid { grid-auto-rows:64px !important; border:0 !important; border-radius:0 !important; }
+  body[data-app-role="reception"] .ipad-room-grid .room-row { grid-template-columns:64px minmax(0,1fr) auto !important; gap:8px !important; }
+  body[data-app-role="reception"] .ipad-room-grid .room-key { grid-column:1 !important; grid-row:1 !important; display:flex !important; flex-direction:column !important; align-items:flex-start !important; }
+  body[data-app-role="reception"] .ipad-room-grid .room-number { grid-column:auto !important; grid-row:auto !important; font-size:20px !important; }
+  body[data-app-role="reception"] .ipad-room-grid .people { grid-column:auto !important; grid-row:auto !important; font-size:11px !important; }
+  body[data-app-role="reception"] .ipad-room-grid .guest-names { grid-column:2 !important; grid-row:1 !important; }
+  body[data-app-role="reception"] .ipad-room-grid .room-tail { grid-column:3 !important; grid-row:1 !important; display:flex !important; width:auto !important; min-width:0 !important; }
+  body[data-app-role="reception"] .ipad-room-grid .room-tail > .room-included-badge { display:inline-flex !important; }
+  body[data-app-role="reception"] .ipad-room-grid .reception-breakfast,
+  body[data-app-role="reception"] .ipad-room-grid .reception-remark { display:none !important; }
 }

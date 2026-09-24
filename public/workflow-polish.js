@@ -1009,7 +1009,7 @@
   }
 
   function polishGuestNote(root) {
-    root.querySelectorAll(".important-note.info-note").forEach((note) => {
+    root.querySelectorAll(".important-note:has(p)").forEach((note) => {
       const heading = note.querySelector("strong");
       if (heading && heading.textContent !== tr("Bemerkung")) heading.textContent = tr("Bemerkung");
       note.classList.add("neutral-remark");
@@ -1018,6 +1018,18 @@
         icon.classList.add("neutral-remark-icon");
         icon.innerHTML = '<path d="M5 5h14v11H9l-4 4zM8 9h8M8 12h6"/>';
       }
+      if (!icon) {
+        const bubble = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        bubble.setAttribute("viewBox", "0 0 24 24");
+        bubble.setAttribute("aria-hidden", "true");
+        bubble.classList.add("neutral-remark-icon");
+        bubble.innerHTML = '<path d="M5 5h14v11H9l-4 4zM8 9h8M8 12h6"/>';
+        note.prepend(bubble);
+      }
+    });
+    root.querySelectorAll(".guest-modal .detail-item").forEach((item) => {
+      const title = item.querySelector("span");
+      if (title && ["Frühstück", "Breakfast", "Bữa sáng", "Frühstück:", "Breakfast:", "Bữa sáng:"].includes(normalize(title.textContent || ""))) title.textContent = `${tr("Frühstück")}:`;
     });
   }
 
