@@ -1031,6 +1031,30 @@
       const title = item.querySelector("span");
       if (title && ["Frühstück", "Breakfast", "Bữa sáng", "Frühstück:", "Breakfast:", "Bữa sáng:"].includes(normalize(title.textContent || ""))) title.textContent = `${tr("Frühstück")}:`;
     });
+    root.querySelectorAll(".guest-modal").forEach((modal) => {
+      const grid = modal.querySelector(".detail-grid");
+      const room = normalize(modal.querySelector(".modal-kicker")?.textContent || "").match(/\d+/)?.[0];
+      if (!grid || !room) return;
+      let departure = "–";
+      try {
+        const stored = JSON.parse(localStorage.getItem("ambassador-breakfast-rooms") || "null");
+        departure = stored?.rooms?.find((item) => String(item.room) === room)?.departure || "–";
+      } catch (_) { /* Keep the existing detail view if local data is unavailable. */ }
+      const row = [...document.querySelectorAll(".room-row")].find((item) => normalize(item.querySelector(".room-number")?.textContent || "") === room);
+      const status = row?.querySelector(".room-state")?.textContent?.trim() || (row?.classList.contains("present") ? tr("Erfasst ✓") : tr("Noch offen"));
+      [["departure", tr("Abreise"), departure], ["breakfast-status", tr("Frühstücks-Check-in"), status]].forEach(([key, label, value]) => {
+        let item = grid.querySelector(`[data-detail-extra="${key}"]`);
+        if (!item) {
+          item = document.createElement("div");
+          item.className = "detail-item";
+          item.dataset.detailExtra = key;
+          item.innerHTML = "<span></span><strong></strong>";
+          grid.append(item);
+        }
+        item.querySelector("span").textContent = label;
+        item.querySelector("strong").textContent = value;
+      });
+    });
   }
 
   function addIPadSpecialGuestShortcut(shell) {
