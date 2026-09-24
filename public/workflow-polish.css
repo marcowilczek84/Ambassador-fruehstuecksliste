@@ -4389,3 +4389,47 @@ body[data-app-role="service"] .service-guest-readonly strong {
   line-height:23px !important;
   font-weight:650 !important;
 }
+
+/* Shared guest detail: text in view mode, existing controls in Reception edit mode. */
+.guest-edit-modal .guest-detail-readonly {
+  grid-column:1 / -1 !important;
+  display:grid !important;
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  gap:18px 16px !important;
+  width:100% !important;
+  min-width:0 !important;
+  padding:6px 0 22px !important;
+  margin:0 0 20px !important;
+  border-bottom:1px solid #dce3e1 !important;
+}
+.guest-edit-modal .guest-detail-readonly > div { min-width:0 !important; padding:0 !important; }
+.guest-edit-modal .guest-detail-readonly > div:first-child { grid-column:1 / -1 !important; }
+.guest-edit-modal .guest-detail-readonly > div:nth-child(2) { grid-column:1 !important; }
+.guest-edit-modal .guest-detail-readonly > div:nth-child(3) { grid-column:2 !important; }
+.guest-edit-modal .guest-detail-readonly > div:nth-child(4) { grid-column:1 !important; }
+.guest-edit-modal .guest-detail-readonly > div:nth-child(5) { grid-column:2 !important; }
+.guest-edit-modal .guest-detail-readonly span {
+  display:block !important; color:#747d7a !important; font-size:14px !important; line-height:19px !important;
+}
+.guest-edit-modal .guest-detail-readonly strong {
+  display:block !important; margin-top:5px !important; color:#141918 !important;
+  font-size:16px !important; line-height:23px !important; font-weight:650 !important;
+  white-space:pre-line !important; overflow-wrap:anywhere !important;
+}
+body[data-app-role="reception"] .guest-edit-modal[data-guest-detail-mode="view"] .guest-edit-grid > label,
+body[data-app-role="reception"] .guest-edit-modal[data-guest-detail-mode="view"] .reception-breakfast-choice,
+body[data-app-role="reception"] .guest-edit-modal[data-guest-detail-mode="view"] .modal-actions:not(.guest-view-actions),
+body[data-app-role="reception"] .guest-edit-modal[data-guest-detail-mode="view"] .remark-edit-open { display:none !important; }
+body[data-app-role="reception"] .guest-edit-modal[data-guest-detail-mode="edit"] .guest-detail-readonly,
+body[data-app-role="reception"] .guest-edit-modal[data-guest-detail-mode="edit"] .guest-view-actions { display:none !important; }
+body[data-app-role="service"] .guest-edit-modal .guest-view-actions { display:none !important; }
+.guest-edit-modal .guest-view-actions { flex:0 0 auto !important; }
+.guest-edit-modal .guest-view-actions > button { min-height:48px !important; }
+@media(min-width:700px) {
+  body[data-app-role="reception"] .guest-edit-modal .guest-detail-readonly { max-width:760px !important; }
+}
+/* Keep the Reception form grid stable after adding its view-only summary. */
+body[data-app-role="reception"] .guest-edit-modal[data-guest-detail-mode="edit"] .guest-edit-grid > label:has(textarea),
+body[data-app-role="reception"] .guest-edit-modal[data-guest-detail-mode="edit"] .guest-edit-grid > label:has(input[type="number"]),
+body[data-app-role="reception"] .guest-edit-modal[data-guest-detail-mode="edit"] .guest-edit-grid > .reception-breakfast-choice { grid-column:1 / -1 !important; }
+body[data-app-role="reception"] .guest-edit-modal[data-guest-detail-mode="edit"] .guest-edit-grid > label:has(input[type="date"]) { grid-column:auto !important; min-width:0 !important; }
