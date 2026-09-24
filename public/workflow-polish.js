@@ -974,7 +974,9 @@
   function updateServiceOpenHeading(shell) {
     if (document.body.dataset.appRole !== "service") return;
     const section = shell.querySelector(".section");
+    const heading = section?.querySelector(".section-head h3");
     const count = section?.querySelector(".section-count");
+    if (heading) heading.dataset.openPrefix = activeLanguage === "EN" ? "Rooms " : activeLanguage === "VI" ? "Phòng " : "Zimmer ";
     if (count) count.style.removeProperty("display");
   }
 

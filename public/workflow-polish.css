@@ -4059,6 +4059,7 @@ body[data-app-role] .room-row .meta-line .breakfast-included { display:none !imp
 .room-included-badge svg { width:15px !important; height:15px !important; flex:0 0 auto !important; fill:none !important; stroke:#f3cf24 !important; stroke-width:1.8 !important; stroke-linecap:round !important; stroke-linejoin:round !important; }
 body[data-app-role] .app-header, body[data-app-role] .topbar { border-bottom:1px solid #dce3e1 !important; box-shadow:none !important; }
 body[data-app-role="service"] .section-head:has(.section-dot.yellow) .section-count { display:inline-flex !important; align-items:center !important; justify-content:center !important; min-width:27px !important; height:23px !important; margin:0 !important; padding:0 5px !important; border:1px solid #dce3e1 !important; border-radius:8px !important; color:#141918 !important; background:#fff !important; font-size:12px !important; line-height:1 !important; }
+body[data-app-role="service"] .section-head:has(.section-dot.yellow) h3::before { content:attr(data-open-prefix) !important; }
 body[data-app-role="service"] .bottom-bar .bottom-button[aria-label="Bemerkungen"] { font-size:0 !important; }
 body[data-app-role="service"] .bottom-bar .bottom-button[aria-label="Bemerkungen"]::after { content:attr(aria-label) !important; font-size:15px !important; }
 body[data-app-role="reception"] .reception-summary small { white-space:nowrap !important; font-size:11px !important; }
@@ -4085,6 +4086,7 @@ body[data-app-role="service"] .guest-edit-modal.service-note-only > .modal-body 
 body[data-app-role="service"] .guest-edit-modal.service-note-only .modal-actions { margin-top:auto !important; flex:0 0 auto !important; }
 body[data-app-role="service"] .service-guest-readonly > div:nth-child(4),
 body[data-app-role="service"] .service-guest-readonly > div:nth-child(5) { grid-column:auto !important; }
+body[data-app-role="service"] .service-guest-readonly > div:nth-child(3) { grid-column:1 / -1 !important; }
 
 @media(max-width:560px){
   body[data-app-role] .room-row, body[data-app-role] .ipad-room-grid .room-row { grid-template-columns:54px minmax(0,1fr) auto !important; }
