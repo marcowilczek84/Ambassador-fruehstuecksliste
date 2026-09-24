@@ -4303,6 +4303,11 @@ body[data-app-role] svg.lucide-circle-check, body[data-app-role] svg.lucide-circ
 body[data-app-role] .bottom-button.finish svg.lucide-circle-check,
 body[data-app-role] .modal-action.primary svg.lucide-circle-check { filter:brightness(0) invert(1) !important; }
 body[data-app-role] svg.lucide-x { background:center / contain no-repeat url("/ambassador-close.svg") !important; }
+body[data-app-role] .ambassador-modal-close:has(svg.lucide-x) svg { display:none !important; }
+body[data-app-role] .ambassador-modal-close:has(svg.lucide-x)::before {
+  content:"" !important; display:block !important; width:20px !important; height:20px !important;
+  background:center / contain no-repeat url("/ambassador-close.svg") !important;
+}
 body[data-app-role] svg:is(.lucide-menu,.lucide-home,.lucide-house,.lucide-search,.lucide-users,.lucide-coffee,.lucide-calendar,.lucide-calendar-days,.lucide-chart-column,.lucide-chart-no-axes-column,.lucide-circle-check,.lucide-circle-check-big,.lucide-x) > * { opacity:0 !important; }
 @media(max-width:560px){
   body[data-app-role="reception"] .guest-edit-modal .guest-edit-grid > label:has(input[type="date"]) {
