@@ -4433,3 +4433,21 @@ body[data-app-role="reception"] .guest-edit-modal[data-guest-detail-mode="edit"]
 body[data-app-role="reception"] .guest-edit-modal[data-guest-detail-mode="edit"] .guest-edit-grid > label:has(input[type="number"]),
 body[data-app-role="reception"] .guest-edit-modal[data-guest-detail-mode="edit"] .guest-edit-grid > .reception-breakfast-choice { grid-column:1 / -1 !important; }
 body[data-app-role="reception"] .guest-edit-modal[data-guest-detail-mode="edit"] .guest-edit-grid > label:has(input[type="date"]) { grid-column:auto !important; min-width:0 !important; }
+/* Full-width note section and anchored edit actions in the Reception side panel. */
+.guest-edit-modal .guest-edit-grid > .remark-edit-summary {
+  grid-column:1 / -1 !important;
+  box-sizing:border-box !important;
+  width:100% !important;
+  min-width:0 !important;
+}
+body[data-app-role="reception"] .guest-edit-modal .modal-body {
+  display:flex !important;
+  flex:1 1 auto !important;
+  flex-direction:column !important;
+  min-height:0 !important;
+  overflow-y:auto !important;
+}
+body[data-app-role="reception"] .guest-edit-modal .modal-body > .modal-actions {
+  flex:0 0 auto !important;
+  margin-top:auto !important;
+}
