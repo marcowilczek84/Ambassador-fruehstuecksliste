@@ -4356,3 +4356,36 @@ body[data-app-role="service"] .hero-facts .hero-fact:nth-child(1) > svg { backgr
 body[data-app-role="service"] .hero-facts .hero-fact:nth-child(2) > svg { background:center / contain no-repeat url("/ambassador-hotel.svg") !important; }
 body[data-app-role="service"] .hero-facts .hero-fact:nth-child(3) > svg { background:center / contain no-repeat url("/ambassador-guests.svg") !important; }
 body[data-app-role="service"] .hero-facts .hero-fact > svg > * { opacity:0 !important; }
+
+/* The Service note page follows the Reception field rhythm without edit controls. */
+body[data-app-role="service"] .guest-edit-modal.service-note-only .service-guest-readonly {
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  gap:16px 10px !important;
+  padding:0 !important;
+  margin-bottom:16px !important;
+}
+body[data-app-role="service"] .service-guest-readonly > div {
+  box-sizing:border-box !important;
+  min-width:0 !important;
+  padding:14px 16px !important;
+  border:1px solid #dce3e1 !important;
+  border-radius:16px !important;
+  background:#fff !important;
+}
+body[data-app-role="service"] .service-guest-readonly > div:nth-child(-n+3) {
+  grid-column:1 / -1 !important;
+}
+body[data-app-role="service"] .service-guest-readonly > div:nth-child(4) { grid-column:1 !important; }
+body[data-app-role="service"] .service-guest-readonly > div:nth-child(5) { grid-column:2 !important; }
+body[data-app-role="service"] .service-guest-readonly span {
+  color:#747d7a !important;
+  font-size:14px !important;
+  line-height:19px !important;
+}
+body[data-app-role="service"] .service-guest-readonly strong {
+  margin-top:5px !important;
+  color:#141918 !important;
+  font-size:16px !important;
+  line-height:23px !important;
+  font-weight:650 !important;
+}

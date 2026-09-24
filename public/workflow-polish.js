@@ -597,8 +597,8 @@
     const fields = [
       [tr("Gastname(n)"), name], [tr("Personen"), people],
       [tr("Frühstück"), tr(included ? "inklusive" : "nicht inklusive")],
-      [tr("Anreise"), dates[0]?.value || "–"],
-      [tr("Abreise"), dates[1]?.value || "–"]
+      [tr("Anreise"), dates[0]?.value?.replace(/^(\d{4})-(\d{2})-(\d{2})$/, "$3.$2.$1") || "–"],
+      [tr("Abreise"), dates[1]?.value?.replace(/^(\d{4})-(\d{2})-(\d{2})$/, "$3.$2.$1") || "–"]
     ];
     const signature = JSON.stringify(fields);
     if (summary.dataset.signature !== signature) summary.replaceChildren(...fields.map(([label, value]) => {
