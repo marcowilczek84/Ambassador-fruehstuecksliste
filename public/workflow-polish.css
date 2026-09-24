@@ -4126,17 +4126,12 @@ body[data-app-role="service"] .bottom-bar .bottom-button:not(.finish):not(.activ
 body[data-app-role="service"] .bottom-bar .bottom-button:not(.finish):not(.active)::before { content:"" !important; display:inline-block !important; width:19px !important; height:19px !important; margin-right:7px !important; vertical-align:-4px !important; background:center / contain no-repeat url("/ambassador-note.svg") !important; }
 body[data-app-role="service"] .bottom-bar .bottom-button[aria-label="Bemerkungen"] { font-size:15px !important; }
 body[data-app-role="service"] .bottom-bar .bottom-button[aria-label="Bemerkungen"]::after { content:none !important; }
-body[data-app-role="reception"] .room-edit-icon svg { display:none !important; }
-body[data-app-role="reception"] .room-edit-icon::after { content:none !important; display:none !important; }
-body[data-app-role="reception"] .room-edit-icon::before { content:"" !important; display:block !important; width:19px !important; height:19px !important; background:center / contain no-repeat url("/ambassador-guest-edit.svg") !important; }
 .important-note.neutral-remark::before { background-image:url("/ambassador-note.svg") !important; }
 body[data-app-role="service"] .service-guest-readonly > div:nth-child(4) > span,
 body[data-app-role="service"] .service-guest-readonly > div:nth-child(5) > span { display:flex !important; align-items:center !important; gap:5px !important; }
 body[data-app-role="service"] .service-guest-readonly > div:nth-child(4) svg,
 body[data-app-role="service"] .service-guest-readonly > div:nth-child(5) svg { width:16px !important; height:16px !important; flex:0 0 16px !important; fill:none !important; stroke:#1c777b !important; stroke-width:1.8 !important; stroke-linecap:round !important; stroke-linejoin:round !important; }
 .guest-edit-modal label:has(input[type="date"]) > span { display:inline-flex !important; align-items:center !important; gap:5px !important; }
-.guest-edit-modal label:has(input[type="date"]) > span::before { content:"" !important; display:block !important; width:16px !important; height:16px !important; background:center / contain no-repeat url("/ambassador-arrival.svg") !important; }
-.guest-edit-modal label:has(input[type="date"]):last-of-type > span::before { background-image:url("/ambassador-departure.svg") !important; }
 body[data-app-role="service"] .section-head:has(.section-dot.yellow) h3 { font-size:0 !important; }
 body[data-app-role="service"] .section-head:has(.section-dot.yellow) h3::before { content:attr(data-open-title) !important; font-size:14px !important; font-weight:700 !important; }
 body[data-app-role="service"] .section-head:has(.section-dot.yellow),
@@ -4219,4 +4214,42 @@ body[data-app-role="reception"] .reception-room-heading { display:none !importan
 @media(max-width:699px){
   body[data-app-role="reception"] .reception-arrival,
   body[data-app-role="reception"] .reception-departure { display:none !important; }
+}
+
+/* One action-bar geometry for every existing one- and two-action footer. */
+.modal-actions.ambassador-action-footer,
+body[data-app-role="service"] .bottom-bar.ambassador-action-footer {
+  display:grid !important;
+  grid-template-columns:minmax(0,1fr) !important;
+  align-items:stretch !important;
+  justify-content:stretch !important;
+  box-sizing:border-box !important;
+  width:100% !important;
+  gap:10px !important;
+  padding-inline:16px !important;
+  padding-bottom:max(12px,env(safe-area-inset-bottom)) !important;
+}
+.modal-actions.ambassador-action-footer.two-actions,
+body[data-app-role="service"] .bottom-bar.ambassador-action-footer.two-actions {
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+}
+.ambassador-action-footer > .modal-action,
+.ambassador-action-footer > .bottom-button {
+  box-sizing:border-box !important;
+  width:100% !important;
+  min-width:0 !important;
+  height:48px !important;
+  min-height:48px !important;
+  margin:0 !important;
+  border-radius:12px !important;
+  text-align:center !important;
+}
+body[data-app-role="reception"] .room-row .room-edit-icon,
+body[data-app-role="reception"] .room-row .structured-menu-chevron { display:none !important; }
+@media(max-width:560px){
+  body[data-app-role="reception"] .guest-edit-modal .guest-edit-grid > label:has(input[type="date"]) {
+    grid-column:auto !important;
+    min-width:0 !important;
+  }
+  body[data-app-role="reception"] .guest-edit-modal .guest-edit-grid > label:has(input[type="date"]) input { min-width:0 !important; width:100% !important; box-sizing:border-box !important; }
 }

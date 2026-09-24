@@ -591,9 +591,6 @@
       const title = document.createElement("span");
       const content = document.createElement("strong");
       title.textContent = label;
-      if (label === tr("Anreise") || label === tr("Abreise")) {
-        title.insertAdjacentHTML("afterbegin", ambassadorIcon(label === tr("Anreise") ? "arrival" : "departure"));
-      }
       content.textContent = value;
       item.append(title, content);
       return item;
@@ -1169,6 +1166,12 @@
       const title = normalize(modal.querySelector(".modal-head h2")?.textContent || "").toLowerCase();
       modal.classList.toggle("dialog-add-room", Boolean(modal.dataset.guestType) || title === "zimmer hinzufügen" || title === "add room" || title === "thêm phòng");
       modal.classList.toggle("dialog-finish-breakfast", title === "frühstück beenden" || title === "finish breakfast" || title === "kết thúc bữa sáng");
+    });
+    root.querySelectorAll(".modal-actions, body[data-app-role='service'] .bottom-bar").forEach((footer) => {
+      const actions = [...footer.children].filter((child) => child.matches(".modal-action, .bottom-button"));
+      footer.classList.toggle("ambassador-action-footer", actions.length === 1 || actions.length === 2);
+      footer.classList.toggle("two-actions", actions.length === 2);
+      footer.classList.toggle("single-action", actions.length === 1);
     });
   }
 

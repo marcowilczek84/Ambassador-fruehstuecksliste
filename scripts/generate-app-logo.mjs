@@ -11,7 +11,7 @@ const logo = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
 </svg>\n`;
 await writeFile(new URL("../public/favicon.svg", import.meta.url), logo);
 await sharp(Buffer.from(logo)).resize(180, 180).png().toFile(new URL("../public/apple-touch-icon.png", import.meta.url).pathname);
-for (const id of ["note", "guest-edit", "arrival", "departure"]) {
+for (const id of ["note", "guest-edit"]) {
   const paths = symbols.match(new RegExp(`<symbol id="${id}"[^>]*>([\\s\\S]*?)<\\/symbol>`))?.[1];
   if (!paths) throw new Error(`${id} symbol is missing`);
   await writeFile(new URL(`../public/ambassador-${id}.svg`, import.meta.url),

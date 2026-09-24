@@ -25,10 +25,4 @@
     <path d="M4 5.5h16v11H9l-5 4v-15Z"/>
     <path d="M8 9.5h8M8 12.5h6"/>
   </symbol>
-  <symbol id="arrival" viewBox="0 0 24 24">
-    <path d="M5 3h14v18H5zM15.5 3v18M7 12h10m-3-3 3 3-3 3"/>
-  </symbol>
-  <symbol id="departure" viewBox="0 0 24 24">
-    <path d="M5 3h14v18H5zM8.5 3v18M17 12H7m3-3-3 3 3 3"/>
-  </symbol>
 </svg>
