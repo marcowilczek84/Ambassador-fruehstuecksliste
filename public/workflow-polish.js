@@ -38,6 +38,7 @@
     "Gästeliste & Verwaltung": ["Guest list & management", "Danh sách khách & quản lý"], "Heutige Liste öffnen": ["Open today's list", "Mở danh sách hôm nay"],
     "Gäste erfassen und Tische verwalten": ["Check in guests and manage tables", "Ghi nhận khách và quản lý bàn"],
     "Heutige Liste": ["Today's list", "Danh sách hôm nay"], "Zimmer": ["Room", "Phòng"], "Gast": ["Guest", "Khách"],
+    "vorhanden": ["present", "có"],
     "Gäste": ["Guests", "Khách"], "Frühstück": ["Breakfast", "Bữa sáng"], "Bemerkung": ["Note", "Ghi chú"],
     "Bearbeiten": ["Edit", "Chỉnh sửa"], "Neue Mews-Liste laden": ["Load new Mews list", "Tải danh sách Mews mới"],
     "Mews-Liste laden": ["Load Mews list", "Tải danh sách Mews"], "Belegte Zimmer": ["Occupied rooms", "Phòng có khách"],
@@ -398,11 +399,26 @@
     if (!content || content.querySelector(".reception-table-head")) return;
     const head = document.createElement("div");
     head.className = "reception-table-head";
-    head.innerHTML = ["Zimmer", "Gast", "Gäste", "Frühstück", "Bemerkung", "Bearbeiten"].map((label) => `<span>${tr(label)}</span>`).join("");
+    head.innerHTML = ["Zimmer", "Gast", "Personen", "Anreise", "Abreise", "Frühstück", "Bemerkung"].map((label) => `<span>${tr(label)}</span>`).join("");
     content.prepend(head);
   }
 
+  function currentRoomDates() {
+    try {
+      const saved = JSON.parse(localStorage.getItem("ambassador-breakfast-rooms") || "null");
+      return new Map((Array.isArray(saved?.rooms) ? saved.rooms : []).map((room) => [room.room, room]));
+    } catch (_) {
+      return new Map();
+    }
+  }
+
+  function shortStayDate(value) {
+    const date = String(value || "").match(/^(\d{4})-(\d{2})-(\d{2})/);
+    return date ? `${date[3]}.${date[2]}.` : "–";
+  }
+
   function enhanceReceptionRows(shell) {
+    const roomDates = currentRoomDates();
     shell.querySelectorAll(".room-row").forEach((row) => {
       let breakfast = row.querySelector(".reception-breakfast");
       if (!breakfast) {
@@ -412,6 +428,7 @@
       }
       const included = row.classList.contains("included");
       const roomNumber = Number.parseInt(normalize(row.querySelector(".room-number")?.textContent || ""), 10);
+      const room = roomDates.get(roomNumber);
       if (Number.isFinite(roomNumber)) row.style.setProperty("--reception-room-order", String(roomNumber));
       row.classList.toggle("reception-occupied", !row.querySelector(".vacant"));
       const vacant = Boolean(row.querySelector(".vacant"));
@@ -419,17 +436,25 @@
       breakfast.classList.toggle("not-applicable", vacant);
       breakfast.textContent = vacant ? "–" : included ? tr("inklusive") : tr("nicht inklusive");
 
+      for (const [kind, value] of [["arrival", room?.arrival], ["departure", room?.departure]]) {
+        let cell = row.querySelector(`.reception-${kind}`);
+        if (!cell) {
+          cell = document.createElement("span");
+          cell.className = `reception-${kind}`;
+          row.append(cell);
+        }
+        cell.textContent = vacant ? "–" : shortStayDate(value);
+      }
+
       let remark = row.querySelector(".reception-remark");
       if (!remark) {
         remark = document.createElement("span");
         remark.className = "reception-remark";
         row.append(remark);
       }
-      const hasRemark = Boolean(row.querySelector(".guest-info-indicator"));
+      const hasRemark = Boolean(row.querySelector(".guest-info-indicator")) || Boolean(room?.note) || Boolean(room?.guestInfo?.length);
       remark.classList.toggle("has-remark", hasRemark);
-      remark.innerHTML = hasRemark
-        ? ambassadorIcon("note")
-        : "–";
+      remark.textContent = hasRemark ? tr("vorhanden") : "–";
     });
 
     const occupiedRooms = new Set(
@@ -454,11 +479,29 @@
         heading = document.createElement("div");
         heading.className = "reception-room-heading section-head";
         heading.innerHTML = '<span class="section-dot"></span><h3></h3><span class="section-count"></span>';
-        ipadGrid.before(heading);
+        shell.querySelector(".content .reception-table-head")?.before(heading);
       }
       heading.querySelector("h3").textContent = tr("Belegte Zimmer");
       heading.querySelector(".section-count").textContent = String(occupiedRooms.size);
     }
+  }
+
+  function alignServiceRoomSlots(shell) {
+    if (document.body.dataset.appRole !== "service") return;
+    shell.querySelectorAll(".ipad-room-column").forEach((column) => {
+      const base = Number.parseInt(column.getAttribute("aria-label") || "", 10);
+      if (![20, 30, 40, 50, 60].includes(base)) return;
+      column.querySelectorAll(".room-row").forEach((row) => {
+        const room = Number.parseInt(row.querySelector(".room-number")?.textContent || "", 10);
+        if (room >= base && room <= base + 8) row.style.setProperty("--room-slot", String(room - base + 1));
+      });
+      if (base === 50 && !column.querySelector(".room-55-placeholder")) {
+        const placeholder = document.createElement("span");
+        placeholder.className = "room-55-placeholder";
+        placeholder.setAttribute("aria-hidden", "true");
+        column.append(placeholder);
+      }
+    });
   }
 
   function alignMobileInfoBadges(shell) {
@@ -1148,6 +1191,7 @@
     if (shell) alignMobileInfoBadges(shell);
     if (shell) ensureReliableMenu(shell, sessionStorage.getItem(roleKey) || "service");
     if (shell) updateServiceOpenHeading(shell);
+    if (shell) alignServiceRoomSlots(shell);
     if (shell) polishRoomRows(shell);
     polishGuestNote(document);
     if (shell) addIPadSpecialGuestShortcut(shell);

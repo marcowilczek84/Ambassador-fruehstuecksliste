@@ -4175,3 +4175,45 @@ body[data-app-role="reception"] .reception-room-heading { display:none !importan
   body[data-app-role="service"] .ipad-room-grid .guest-names { grid-column:2 !important; grid-row:1 !important; }
   body[data-app-role="service"] .ipad-room-grid .room-tail { grid-column:2 !important; grid-row:2 !important; }
 }
+
+/* Fixed hotel positions in Service; the nonexistent room 55 is a visual gap only. */
+.room-55-placeholder { display:none !important; }
+@media(min-width:700px){
+  body[data-app-role="service"] .ipad-room-column .room-row { grid-row:var(--room-slot) !important; }
+  body[data-app-role="service"] .room-55-placeholder { display:block !important; grid-row:6 !important; height:64px !important; border-bottom:1px solid #dce3e1 !important; box-sizing:border-box !important; pointer-events:none !important; }
+
+  /* Reception is a seven-column inspection table, with the existing row button intact. */
+  body[data-app-role="reception"] .content > .reception-table-head { display:grid !important; }
+  body[data-app-role="reception"] .reception-table-head,
+  body[data-app-role="reception"] .ipad-room-grid .room-row {
+    grid-template-columns:56px minmax(150px,1fr) 65px 84px 84px 112px 82px !important;
+    gap:8px !important;
+    box-sizing:border-box !important;
+  }
+  body[data-app-role="reception"] .reception-table-head { position:sticky !important; top:0 !important; z-index:3 !important; padding:9px 12px !important; background:#fff !important; border-bottom:1px solid #dce3e1 !important; }
+  body[data-app-role="reception"] .ipad-room-grid { grid-auto-rows:56px !important; }
+  body[data-app-role="reception"] .ipad-room-grid .room-row { display:grid !important; height:56px !important; min-height:56px !important; padding:5px 12px !important; border:0 !important; border-bottom:1px solid #dce3e1 !important; border-radius:0 !important; background:#fff !important; box-shadow:none !important; text-align:left !important; }
+  body[data-app-role="reception"] .ipad-room-grid .room-key { display:contents !important; }
+  body[data-app-role="reception"] .ipad-room-grid .room-number { grid-column:1 !important; grid-row:1 !important; align-self:center !important; font-size:17px !important; font-weight:750 !important; }
+  body[data-app-role="reception"] .ipad-room-grid .people { grid-column:3 !important; grid-row:1 !important; align-self:center !important; font-size:12px !important; }
+  body[data-app-role="reception"] .ipad-room-grid .guest-names { grid-column:2 !important; grid-row:1 !important; min-width:0 !important; align-self:center !important; }
+  body[data-app-role="reception"] .ipad-room-grid .guest-names strong { font-size:13px !important; font-weight:650 !important; }
+  body[data-app-role="reception"] .ipad-room-grid .reception-arrival,
+  body[data-app-role="reception"] .ipad-room-grid .reception-departure { display:block !important; align-self:center !important; color:#59615f !important; font-size:12px !important; white-space:nowrap !important; }
+  body[data-app-role="reception"] .ipad-room-grid .reception-arrival { grid-column:4 !important; grid-row:1 !important; }
+  body[data-app-role="reception"] .ipad-room-grid .reception-departure { grid-column:5 !important; grid-row:1 !important; }
+  body[data-app-role="reception"] .ipad-room-grid .reception-breakfast { grid-column:6 !important; grid-row:1 !important; display:block !important; align-self:center !important; width:auto !important; min-width:0 !important; min-height:0 !important; padding:0 !important; color:#59615f !important; background:none !important; border:0 !important; border-radius:0 !important; font-size:12px !important; text-align:left !important; }
+  body[data-app-role="reception"] .ipad-room-grid .reception-breakfast.included { color:#141918 !important; background:none !important; }
+  body[data-app-role="reception"] .ipad-room-grid .reception-remark { grid-column:7 !important; grid-row:1 !important; display:block !important; align-self:center !important; font-size:12px !important; }
+  body[data-app-role="reception"] .ipad-room-grid .room-tail { display:none !important; }
+  body[data-app-role="reception"] .ipad-room-grid .room-included-badge { display:none !important; }
+
+  body[data-app-role="service"] .ipad-room-overview::before,
+  body[data-app-role="reception"] .reception-room-heading h3 { font-size:14px !important; font-weight:700 !important; line-height:23px !important; }
+  body[data-app-role="service"] .ipad-room-overview::after,
+  body[data-app-role="reception"] .reception-room-heading .section-count { min-width:27px !important; height:23px !important; padding:0 5px !important; border:1px solid #dce3e1 !important; border-radius:8px !important; font-size:12px !important; font-weight:650 !important; line-height:1 !important; }
+}
+@media(max-width:699px){
+  body[data-app-role="reception"] .reception-arrival,
+  body[data-app-role="reception"] .reception-departure { display:none !important; }
+}
