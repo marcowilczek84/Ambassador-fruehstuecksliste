@@ -4218,6 +4218,7 @@ body[data-app-role="reception"] .reception-room-heading { display:none !importan
 
 /* One action-bar geometry for every existing one- and two-action footer. */
 .modal-actions.ambassador-action-footer,
+ .remark-popup-actions.ambassador-action-footer,
 body[data-app-role="service"] .bottom-bar.ambassador-action-footer {
   display:grid !important;
   grid-template-columns:minmax(0,1fr) !important;
@@ -4230,10 +4231,12 @@ body[data-app-role="service"] .bottom-bar.ambassador-action-footer {
   padding-bottom:max(12px,env(safe-area-inset-bottom)) !important;
 }
 .modal-actions.ambassador-action-footer.two-actions,
+.remark-popup-actions.ambassador-action-footer.two-actions,
 body[data-app-role="service"] .bottom-bar.ambassador-action-footer.two-actions {
   grid-template-columns:repeat(2,minmax(0,1fr)) !important;
 }
 .ambassador-action-footer > .modal-action,
+.remark-popup-actions.ambassador-action-footer > button,
 .ambassador-action-footer > .bottom-button {
   box-sizing:border-box !important;
   width:100% !important;

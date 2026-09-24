@@ -1167,8 +1167,8 @@
       modal.classList.toggle("dialog-add-room", Boolean(modal.dataset.guestType) || title === "zimmer hinzufügen" || title === "add room" || title === "thêm phòng");
       modal.classList.toggle("dialog-finish-breakfast", title === "frühstück beenden" || title === "finish breakfast" || title === "kết thúc bữa sáng");
     });
-    root.querySelectorAll(".modal-actions, body[data-app-role='service'] .bottom-bar").forEach((footer) => {
-      const actions = [...footer.children].filter((child) => child.matches(".modal-action, .bottom-button"));
+    root.querySelectorAll(".modal-actions, .remark-popup-actions, body[data-app-role='service'] .bottom-bar").forEach((footer) => {
+      const actions = [...footer.children].filter((child) => child.matches("button"));
       footer.classList.toggle("ambassador-action-footer", actions.length === 1 || actions.length === 2);
       footer.classList.toggle("two-actions", actions.length === 2);
       footer.classList.toggle("single-action", actions.length === 1);
