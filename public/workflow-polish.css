@@ -4266,20 +4266,34 @@ body[data-app-role] .room-row .room-note-indicator svg {
   body[data-app-role="reception"] .ipad-room-grid .room-note-indicator,
   body[data-app-role="reception"] .ipad-room-grid .mobile-inline-info-badge { display:none !important; }
 }
-body[data-app-role="service"] .bottom-bar .bottom-button:not(.finish) { display:grid !important; place-items:center !important; }
-body[data-app-role="service"] .bottom-bar .bottom-button:not(.finish)::before,
+body[data-app-role="service"] .bottom-bar .bottom-button:not(.finish) {
+  display:grid !important; grid-template-columns:20px 128px !important;
+  gap:8px !important; align-content:center !important; justify-content:center !important;
+  text-align:left !important; white-space:nowrap !important;
+}
+body[data-app-role="service"] .bottom-bar .bottom-button:not(.finish) > svg { display:none !important; }
+body[data-app-role="service"] .bottom-bar .bottom-button:not(.finish)::before {
+  content:"" !important; display:block !important; grid-column:1 !important;
+  width:20px !important; height:20px !important;
+  background:center / contain no-repeat url("/ambassador-note.svg") !important;
+}
+body[data-app-role="service"] .bottom-bar .bottom-button:not(.finish).active::before { filter:brightness(0) invert(1) !important; }
 body[data-app-role="service"] .bottom-bar .bottom-button:not(.finish)::after { content:none !important; display:none !important; }
-body[data-app-role="service"] .bottom-bar .bottom-button .ambassador-footer-label {
-  display:grid !important; grid-template-columns:20px 1fr !important; gap:8px !important;
-  align-items:center !important; width:156px !important; max-width:100% !important;
-  margin-inline:auto !important; text-align:left !important; white-space:nowrap !important;
-}
-body[data-app-role="service"] .bottom-bar .bottom-button .ambassador-footer-label svg {
-  display:block !important; width:20px !important; height:20px !important; fill:none !important;
-  stroke:currentColor !important; stroke-width:1.8 !important;
-  stroke-linecap:round !important; stroke-linejoin:round !important;
-}
 .reliable-app-menu > header button svg { display:block !important; width:20px !important; height:20px !important; fill:none !important; stroke:currentColor !important; stroke-width:1.8 !important; stroke-linecap:round !important; stroke-linejoin:round !important; }
+
+/* Render bundled React icons from exports of the same master SVG without changing React's DOM. */
+body[data-app-role] svg.lucide-menu { background:center / contain no-repeat url("/ambassador-menu.svg") !important; }
+body[data-app-role] svg.lucide-home, body[data-app-role] svg.lucide-house { background:center / contain no-repeat url("/ambassador-home.svg") !important; }
+body[data-app-role] svg.lucide-search { background:center / contain no-repeat url("/ambassador-search.svg") !important; }
+body[data-app-role] svg.lucide-users { background:center / contain no-repeat url("/ambassador-guests.svg") !important; }
+body[data-app-role] svg.lucide-coffee { background:center / contain no-repeat url("/ambassador-cup.svg") !important; }
+body[data-app-role] .included svg.lucide-coffee,
+body[data-app-role] .breakfast-kpi svg.lucide-coffee { background-image:url("/ambassador-cup-yellow.svg") !important; }
+body[data-app-role] svg.lucide-calendar, body[data-app-role] svg.lucide-calendar-days { background:center / contain no-repeat url("/ambassador-calendar.svg") !important; }
+body[data-app-role] svg.lucide-chart-column, body[data-app-role] svg.lucide-chart-no-axes-column { background:center / contain no-repeat url("/ambassador-stats.svg") !important; }
+body[data-app-role] svg.lucide-circle-check, body[data-app-role] svg.lucide-circle-check-big { background:center / contain no-repeat url("/ambassador-check.svg") !important; }
+body[data-app-role] svg.lucide-x { background:center / contain no-repeat url("/ambassador-close.svg") !important; }
+body[data-app-role] svg:is(.lucide-menu,.lucide-home,.lucide-house,.lucide-search,.lucide-users,.lucide-coffee,.lucide-calendar,.lucide-calendar-days,.lucide-chart-column,.lucide-chart-no-axes-column,.lucide-circle-check,.lucide-circle-check-big,.lucide-x) > * { opacity:0 !important; }
 @media(max-width:560px){
   body[data-app-role="reception"] .guest-edit-modal .guest-edit-grid > label:has(input[type="date"]) {
     grid-column:auto !important;

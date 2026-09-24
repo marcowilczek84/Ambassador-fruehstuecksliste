@@ -1076,38 +1076,6 @@
     });
   }
 
-  function harmonizeVisibleIcons(root) {
-    const names = {
-      home: "home", house: "home", menu: "menu", search: "search", users: "guests",
-      coffee: "cup", calendar: "calendar", "calendar-days": "calendar",
-      "chart-no-axes-column": "stats", "chart-no-axes-column-increasing": "stats", "chart-column": "stats", "bar-chart-3": "stats",
-      "circle-check": "check", "circle-check-big": "check", x: "close"
-    };
-    root.querySelectorAll("svg.lucide").forEach((svg) => {
-      const className = [...svg.classList].find((name) => name.startsWith("lucide-") && name !== "lucide");
-      const master = names[className?.slice(7)];
-      if (!master || svg.dataset.ambassadorGlyph === master) return;
-      const use = document.createElementNS("http://www.w3.org/2000/svg", "use");
-      use.setAttribute("href", `/ambassador-icons.svg#${master}`);
-      svg.replaceChildren(use);
-      svg.dataset.ambassadorGlyph = master;
-    });
-  }
-
-  function stabilizeServiceFooter(shell) {
-    if (document.body.dataset.appRole !== "service") return;
-    const button = shell.querySelector(".bottom-bar .bottom-button:not(.finish)");
-    if (!button) return;
-    const label = normalize(button.textContent || "");
-    const group = button.querySelector(".ambassador-footer-label");
-    if (group && group.dataset.label === label) return;
-    const content = document.createElement("span");
-    content.className = "ambassador-footer-label";
-    content.dataset.label = label;
-    content.innerHTML = ambassadorIcon("note") + `<span>${label}</span>`;
-    button.replaceChildren(content);
-  }
-
   function polishGuestNote(root) {
     root.querySelectorAll(".important-note:has(p)").forEach((note) => {
       const heading = note.querySelector("strong");
@@ -1245,8 +1213,6 @@
     if (shell) updateServiceOpenHeading(shell);
     if (shell) alignServiceRoomSlots(shell);
     if (shell) polishRoomRows(shell);
-    if (shell) harmonizeVisibleIcons(shell);
-    if (shell) stabilizeServiceFooter(shell);
     polishGuestNote(document);
     if (shell) addIPadSpecialGuestShortcut(shell);
     enhanceReceptionModal(document);
