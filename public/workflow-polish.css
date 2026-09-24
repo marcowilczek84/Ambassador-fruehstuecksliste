@@ -4205,7 +4205,9 @@ body[data-app-role="reception"] .reception-room-heading { display:none !importan
   body[data-app-role="reception"] .ipad-room-grid .reception-breakfast { grid-column:6 !important; grid-row:1 !important; display:block !important; align-self:center !important; width:auto !important; min-width:0 !important; min-height:0 !important; padding:0 !important; color:#59615f !important; background:none !important; border:0 !important; border-radius:0 !important; font-size:12px !important; text-align:left !important; }
   body[data-app-role="reception"] .ipad-room-grid .reception-breakfast.included { color:#141918 !important; background:none !important; }
   body[data-app-role="reception"] .ipad-room-grid .reception-remark { grid-column:7 !important; grid-row:1 !important; display:block !important; align-self:center !important; font-size:12px !important; }
-  body[data-app-role="reception"] .ipad-room-grid .room-tail { display:none !important; }
+  body[data-app-role="reception"] .ipad-room-grid .room-row .room-tail { display:none !important; }
+  body[data-app-role="reception"] .ipad-room-grid .room-row .people svg { display:none !important; }
+  body[data-app-role="reception"] .ipad-room-grid .room-row .people { color:#59615f !important; }
   body[data-app-role="reception"] .ipad-room-grid .room-included-badge { display:none !important; }
 
   body[data-app-role="service"] .ipad-room-overview::before,
