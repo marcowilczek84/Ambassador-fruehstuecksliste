@@ -597,8 +597,8 @@
     const fields = [
       [tr("Gastname(n)"), name], [tr("Personen"), people],
       [tr("Frühstück"), tr(included ? "inklusive" : "nicht inklusive")],
-      [tr("Anreise"), dates[0]?.value?.replace(/^(\d{4})-(\d{2})-(\d{2})$/, "$3.$2.$1") || "–"],
-      [tr("Abreise"), dates[1]?.value?.replace(/^(\d{4})-(\d{2})-(\d{2})$/, "$3.$2.$1") || "–"]
+      [tr("Anreise"), dates[0]?.value || "–"],
+      [tr("Abreise"), dates[1]?.value || "–"]
     ];
     const signature = JSON.stringify(fields);
     if (summary.dataset.signature !== signature) summary.replaceChildren(...fields.map(([label, value]) => {
@@ -614,91 +614,6 @@
     grid.querySelectorAll("input, textarea, select").forEach((field) => {
       if (!field.disabled) field.disabled = true;
     });
-  }
-
-  // One read-only guest detail layout for both roles; Reception's existing
-  // React-controlled form remains mounted underneath for its edit mode.
-  function renderGuestDetail(root) {
-    const modal = root.querySelector(".guest-edit-modal");
-    if (!modal) return;
-    const grid = modal.querySelector(".guest-edit-grid");
-    if (!grid) return;
-    const service = document.body.dataset.appRole === "service";
-    const roomNumber = Number.parseInt(normalize(modal.querySelector(".modal-kicker")?.textContent || "").replace(/\D+/g, ""), 10);
-    const name = grid.querySelector("textarea")?.value || "";
-    const people = grid.querySelector('input[type="number"]')?.value || "";
-    const included = Boolean(grid.querySelector('input[type="checkbox"]')?.checked);
-    const dates = [...grid.querySelectorAll('input[type="date"]')];
-    const displayDate = (value) => value?.replace(/^(\d{4})-(\d{2})-(\d{2})$/, "$3.$2.$1") || "–";
-    const fields = [
-      [tr("Gastname(n)"), name], [tr("Personen"), people],
-      [tr("Frühstück"), tr(included ? "inklusive" : "nicht inklusive")],
-      [tr("Anreise"), displayDate(dates[0]?.value)],
-      [tr("Abreise"), displayDate(dates[1]?.value)]
-    ];
-    let summary = grid.querySelector(".service-guest-readonly");
-    if (!summary) {
-      summary = document.createElement("div");
-      summary.className = "service-guest-readonly";
-      grid.prepend(summary);
-    }
-    summary.classList.add("guest-detail-readonly");
-    const signature = JSON.stringify(fields);
-    if (summary.dataset.signature !== signature) {
-      summary.replaceChildren(...fields.map(([label, value]) => {
-        const item = document.createElement("div");
-        const title = document.createElement("span");
-        const content = document.createElement("strong");
-        title.textContent = label;
-        content.textContent = value;
-        item.append(title, content);
-        return item;
-      }));
-      summary.dataset.signature = signature;
-    }
-    if (service) return;
-
-    if (!modal.dataset.guestDetailMode) modal.dataset.guestDetailMode = "view";
-    const heading = modal.querySelector(".modal-head h2");
-    const subtitle = modal.querySelector(".modal-head p");
-    if (modal.dataset.guestDetailMode === "view") {
-      const title = activeLanguage === "EN" ? "Guest details" : activeLanguage === "VI" ? "Thông tin khách" : "Gastdetails";
-      const caption = activeLanguage === "EN" ? "Guest and stay information" : activeLanguage === "VI" ? "Thông tin khách và lưu trú" : "Gast- und Aufenthaltsdaten";
-      if (heading && heading.textContent !== title) heading.textContent = title;
-      if (subtitle && subtitle.textContent !== caption) subtitle.textContent = caption;
-    }
-    let viewActions = modal.querySelector(".guest-view-actions");
-    if (!viewActions) {
-      viewActions = document.createElement("div");
-      viewActions.className = "modal-actions ambassador-action-footer guest-view-actions";
-      const edit = document.createElement("button");
-      edit.type = "button";
-      edit.className = "modal-action primary";
-      edit.addEventListener("click", () => {
-        modal.dataset.guestDetailMode = "edit";
-        if (heading) heading.textContent = activeLanguage === "EN" ? "Edit guest" : activeLanguage === "VI" ? "Chỉnh sửa khách" : "Gast bearbeiten";
-      });
-      viewActions.append(edit);
-      modal.append(viewActions);
-    }
-    const edit = viewActions.querySelector("button");
-    const editLabel = activeLanguage === "EN" ? "Edit" : activeLanguage === "VI" ? "Chỉnh sửa" : "Bearbeiten";
-    if (edit && edit.textContent !== editLabel) edit.textContent = editLabel;
-
-    const actions = modal.querySelector(".modal-actions:not(.guest-view-actions)");
-    if (actions && !actions.dataset.guestDetailBound) {
-      actions.dataset.guestDetailBound = "true";
-      [...actions.querySelectorAll("button")].forEach((button) => button.addEventListener("click", () => {
-        // React owns cancel and save. Reopen the same room after its existing
-        // handler closes the form, so both actions land in the view mode.
-        window.setTimeout(() => {
-          if (document.querySelector(".guest-edit-modal")) return;
-          const row = [...document.querySelectorAll(".room-row")].find((candidate) =>
-            Number.parseInt(candidate.querySelector(".room-number")?.textContent || "", 10) === roomNumber);
-          row?.click();
-        }, 120);
-      }));
-    }
   }
 
   function removeManualGuestInfo(modal) {
@@ -1314,7 +1229,6 @@
     if (shell) addIPadSpecialGuestShortcut(shell);
     enhanceReceptionModal(document);
     limitServiceGuestEdit(document);
-    renderGuestDetail(document);
     enhanceRoomUndo(document);
     if (shell) {
       const finished = Boolean(shell.querySelector(".bottom-button.finish.finished"));
