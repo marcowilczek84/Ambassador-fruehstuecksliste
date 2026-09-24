@@ -2,7 +2,7 @@
   let openOnly = false;
   let scheduled = false;
   const roleKey = "ambassador-work-area";
-  const previewVersion = "8.50.0";
+  const previewVersion = "8.51.0";
   const languageKey = "ambassador-ui-language";
   const supportedLanguages = ["DE", "EN", "VI"];
   let activeLanguage = (() => {
@@ -145,31 +145,36 @@
   }
 
   function showSharedListReadyAnimation() {
-    document.querySelector(".shared-list-ready-animation")?.remove();
+    document.querySelector(".success-overlay")?.remove();
     const rooms = readDailyState("ambassador-breakfast-rooms", "rooms", []);
     const occupied = rooms.filter((room) => room && !room.vacant && Number(room.people || room.guests || 0) > 0);
-    const included = occupied.filter((room) => Boolean(room.included || room.breakfastIncluded)).length;
+    const guests = occupied.reduce((sum, room) => sum + Number(room.people || room.guests || 0), 0);
+    const included = occupied
+      .filter((room) => Boolean(room.included || room.breakfastIncluded))
+      .reduce((sum, room) => sum + Number(room.people || room.guests || 0), 0);
     const occupancy = Math.min(100, Math.round((occupied.length / Math.max(1, rooms.length)) * 100));
     const layer = document.createElement("div");
-    layer.className = "shared-list-ready-animation";
+    layer.className = "success-overlay";
     layer.setAttribute("role", "status");
-    layer.innerHTML = `<section><span>${activeLanguage === "EN" ? "List ready" : activeLanguage === "VI" ? "Danh sách đã sẵn sàng" : "Liste bereit"}</span><h2>${activeLanguage === "EN" ? "Today's breakfast list" : activeLanguage === "VI" ? "Danh sách bữa sáng hôm nay" : "Heutige Frühstücksliste"}</h2><div><figure><b data-ready-value="${included}">0</b><small>${tr("inklusive")}</small></figure><figure><b data-ready-value="${occupancy}" data-ready-percent>0%</b><small>${activeLanguage === "EN" ? "Occupancy" : activeLanguage === "VI" ? "Công suất phòng" : "Hotelauslastung"}</small></figure></div></section>`;
+    layer.setAttribute("aria-live", "polite");
+    const copy = activeLanguage === "EN"
+      ? { complete: "IMPORT COMPLETE", loaded: "List loaded successfully", ready: "Today’s breakfast list is ready.", included: "included guests", occupancy: "Hotel occupancy" }
+      : activeLanguage === "VI"
+        ? { complete: "ĐÃ NHẬP DỮ LIỆU", loaded: "Đã tải danh sách thành công", ready: "Danh sách ăn sáng hôm nay đã sẵn sàng.", included: "khách bao gồm ăn sáng", occupancy: "Công suất khách sạn" }
+        : { complete: "IMPORT ABGESCHLOSSEN", loaded: "Liste erfolgreich geladen", ready: "Die heutige Frühstücksliste ist bereit.", included: "inklusive Gäste", occupancy: "Hotelauslastung" };
+    const ringOffset = (ratio) => 314 - 314 * Math.max(0, Math.min(1, ratio));
+    layer.innerHTML = `<div class="success-panel">
+      <div class="success-check"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg></div>
+      <span class="entry-eyebrow">${copy.complete}</span>
+      <h2>${copy.loaded}</h2>
+      <p>${copy.ready}</p>
+      <div class="success-rings">
+        <div class="success-metric yellow"><svg viewBox="0 0 120 120" aria-hidden="true"><circle class="ring-track" cx="60" cy="60" r="50"></circle><circle class="ring-value" cx="60" cy="60" r="50" style="--ring-offset:${ringOffset(guests ? included / guests : 0)}"></circle></svg><div><strong>${included}</strong><small>${copy.included}</small></div></div>
+        <div class="success-metric green"><svg viewBox="0 0 120 120" aria-hidden="true"><circle class="ring-track" cx="60" cy="60" r="50"></circle><circle class="ring-value" cx="60" cy="60" r="50" style="--ring-offset:${ringOffset(occupied.length / Math.max(1, rooms.length))}"></circle></svg><div><strong>${occupancy}%</strong><small>${copy.occupancy}</small></div></div>
+      </div>
+    </div>`;
     document.body.append(layer);
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const duration = reduced ? 1 : 900;
-    const started = performance.now();
-    const tick = (now) => {
-      const progress = Math.min(1, (now - started) / duration);
-      const eased = 1 - Math.pow(1 - progress, 3);
-      layer.querySelectorAll("[data-ready-value]").forEach((node) => {
-        const value = Math.round(Number(node.dataset.readyValue || 0) * eased);
-        node.textContent = node.hasAttribute("data-ready-percent") ? `${value}%` : String(value);
-      });
-      if (progress < 1) requestAnimationFrame(tick);
-      else window.setTimeout(() => layer.classList.add("is-leaving"), reduced ? 1 : 500);
-    };
-    requestAnimationFrame(tick);
-    window.setTimeout(() => layer.remove(), reduced ? 80 : 1750);
+    window.setTimeout(() => layer.remove(), window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 80 : 4700);
   }
 
   function renderRoleSelection(entry) {
@@ -681,7 +686,7 @@
       <div class="modal-body">
         <span class="choice-label">GASTART</span>
         <div class="special-type-picker">
-          <button type="button" data-special-type="opera"><span class="special-guest-icon opera-logo"><img src="/opera-hotel-logo.webp" alt="Opera Hotel"></span><span><strong>Opera Gäste</strong><small>Gäste aus dem Hotel Opera</small></span></button>
+          <button type="button" data-special-type="opera"><span class="special-guest-icon opera-logo"><img src="/opera-hotel-logo.webp" alt="Opera Hotel"></span><span class="opera-choice-copy"><small>Gäste aus dem Hotel Opera</small></span></button>
           <button type="button" data-special-type="external"><span class="special-guest-icon">${icon("service")}</span><span><strong>Externe Gäste</strong><small>Frühstück ohne Übernachtung</small></span></button>
         </div>
         <div data-special-guest-history>${specialGuestEntriesMarkup()}</div>
@@ -1052,7 +1057,7 @@
     const entryOpen = event.target instanceof Element ? event.target.closest(".entry-screen[data-role='service'] .entry-secondary") : null;
     if (entryOpen && !entryOpen.dataset.sharedAnimationTriggered) {
       entryOpen.dataset.sharedAnimationTriggered = "true";
-      showSharedListReadyAnimation();
+      window.setTimeout(showSharedListReadyAnimation, 80);
     }
     const tableButton = event.target instanceof Element ? event.target.closest(".checkin-choice-modal .table-picker button") : null;
     if (tableButton) {

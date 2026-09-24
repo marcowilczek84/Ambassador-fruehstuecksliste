@@ -60,71 +60,6 @@ body[data-app-role="reception"] .reception-breakfast:not(.included){color:var(--
   .content,.sections-grid{padding-inline:16px!important}.search-wrap{padding-inline:16px!important}.search-box{min-height:46px!important}
   .search-box>svg{left:15px!important;width:19px!important;height:19px!important}.search-box>input{min-height:46px!important;padding-left:48px!important;font-size:15px!important}
   .filter-row{overflow-x:auto!important;flex-wrap:nowrap!important;scrollbar-width:none}.filter-row::-webkit-scrollbar{display:none}.filter-row>*{flex:0 0 auto!important}
-
-
-/* 8.50.0 final acceptance restfix: reception entry actions share one button family. */
-.entry-screen[data-role="reception"] .load-actions {
-  align-items:stretch !important;
-}
-.entry-screen[data-role="reception"] .load-choice,
-.entry-screen[data-role="reception"] .entry-secondary {
-  width:220px !important;
-  min-width:220px !important;
-  min-height:52px !important;
-  height:auto !important;
-  padding:8px 16px !important;
-  border-radius:var(--radius-medium) !important;
-  font:650 14px/1.2 inherit !important;
-  box-shadow:none !important;
-}
-.entry-screen[data-role="reception"] .load-choice {
-  display:grid !important;
-  grid-template-columns:28px minmax(0,1fr) !important;
-  gap:10px !important;
-  text-align:left !important;
-}
-.entry-screen[data-role="reception"] .load-choice .load-icon {
-  display:grid !important;
-  place-items:center !important;
-  width:28px !important;
-  height:28px !important;
-  color:var(--ambassador-petrol) !important;
-  background:transparent !important;
-  border:1px solid var(--ambassador-petrol) !important;
-  border-radius:8px !important;
-  outline:0 !important;
-  box-shadow:none !important;
-}
-.entry-screen[data-role="reception"] .load-choice .load-icon svg {
-  width:16px !important;
-  height:16px !important;
-  color:var(--ambassador-petrol) !important;
-  stroke:currentColor !important;
-}
-.entry-screen[data-role="reception"] .load-choice strong,
-.entry-screen[data-role="reception"] .entry-secondary {
-  font-size:14px !important;
-  font-weight:650 !important;
-}
-.entry-screen[data-role="reception"] .load-choice small {
-  margin-top:2px !important;
-  color:var(--text-secondary) !important;
-  font-size:10px !important;
-  font-weight:500 !important;
-  line-height:1.2 !important;
-}
-@media(max-width:560px){
-  .entry-screen[data-role="reception"] .load-actions {
-    display:grid !important;
-    grid-template-columns:1fr !important;
-    justify-items:center !important;
-  }
-  .entry-screen[data-role="reception"] .load-choice,
-  .entry-screen[data-role="reception"] .entry-secondary {
-    width:min(240px,100%) !important;
-    min-width:0 !important;
-  }
-}
   .modal-layer{padding:0!important;align-items:flex-end!important}
   .checkin-choice-modal,.guest-edit-modal,.special-guest-modal,.import-modal{width:100%!important;max-width:none!important;max-height:96dvh!important;border-right:0!important;border-bottom:0!important;border-left:0!important;border-radius:var(--radius-large) var(--radius-large) 0 0!important;overflow:hidden!important}
   .guest-edit-modal{height:96dvh!important}.modal-head{position:sticky!important;top:0!important;z-index:4!important;padding-inline:20px!important}
@@ -3562,6 +3497,7 @@ body[data-app-role="reception"] .reception-breakfast.included {
     border-color:var(--ambassador-petrol) !important;
   }
 }
+
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important;animation-iteration-count:1!important}}
 
 /* Ambassador preview round 3: final targeted polish */
@@ -3742,6 +3678,70 @@ body[data-app-role="service"] .content { overflow-x:hidden !important; clip-path
 .reception-upload { color:var(--ambassador-petrol) !important; background:#fff !important; border:1px solid var(--ambassador-petrol) !important; }
 .reception-add { color:#fff !important; background:var(--ambassador-petrol) !important; border:1px solid var(--ambassador-petrol) !important; }
 
+/* 8.50.0 final acceptance restfix: reception entry actions share one button family. */
+.entry-screen[data-role="reception"] .load-actions {
+  align-items:stretch !important;
+}
+.entry-screen[data-role="reception"] .load-choice,
+.entry-screen[data-role="reception"] .entry-secondary {
+  width:220px !important;
+  min-width:220px !important;
+  min-height:52px !important;
+  height:auto !important;
+  padding:8px 16px !important;
+  border-radius:var(--radius-medium) !important;
+  font:650 14px/1.2 inherit !important;
+  box-shadow:none !important;
+}
+.entry-screen[data-role="reception"] .load-choice {
+  display:grid !important;
+  grid-template-columns:28px minmax(0,1fr) !important;
+  gap:10px !important;
+  text-align:left !important;
+}
+.entry-screen[data-role="reception"] .load-choice .load-icon {
+  display:grid !important;
+  place-items:center !important;
+  width:28px !important;
+  height:28px !important;
+  color:var(--ambassador-petrol) !important;
+  background:transparent !important;
+  border:1px solid var(--ambassador-petrol) !important;
+  border-radius:8px !important;
+  outline:0 !important;
+  box-shadow:none !important;
+}
+.entry-screen[data-role="reception"] .load-choice .load-icon svg {
+  width:16px !important;
+  height:16px !important;
+  color:var(--ambassador-petrol) !important;
+  stroke:currentColor !important;
+}
+.entry-screen[data-role="reception"] .load-choice strong,
+.entry-screen[data-role="reception"] .entry-secondary {
+  font-size:14px !important;
+  font-weight:650 !important;
+}
+.entry-screen[data-role="reception"] .load-choice small {
+  margin-top:2px !important;
+  color:var(--text-secondary) !important;
+  font-size:10px !important;
+  font-weight:500 !important;
+  line-height:1.2 !important;
+}
+@media(max-width:560px){
+  .entry-screen[data-role="reception"] .load-actions {
+    display:grid !important;
+    grid-template-columns:1fr !important;
+    justify-items:center !important;
+  }
+  .entry-screen[data-role="reception"] .load-choice,
+  .entry-screen[data-role="reception"] .entry-secondary {
+    width:min(240px,100%) !important;
+    min-width:0 !important;
+  }
+}
+
 .import-modal .hero-facts,
 .import-modal .import-stats,
 .import-modal .kpi-grid { display:flex !important; gap:6px !important; padding:8px 14px !important; border:0 !important; background:var(--surface-muted) !important; }
@@ -3785,4 +3785,190 @@ body[data-app-role="service"] .content { overflow-x:hidden !important; clip-path
   body[data-app-role="service"] .ipad-room-grid .room-row { height:auto !important; min-height:0 !important; max-height:none !important; block-size:auto !important; }
   body[data-app-role="service"] .search-wrap { overflow:hidden !important; }
   body[data-app-role="reception"] .hero { padding:12px 24px !important; border:0 !important; border-bottom:1px solid var(--border-subtle) !important; border-radius:0 !important; box-shadow:none !important; }
+}
+
+/* Urgent iPad service fix: distinct room rows, per-room status bars and stable stay dates. */
+.guest-edit-modal .guest-edit-grid {
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  column-gap:12px !important;
+}
+.guest-edit-modal .guest-edit-grid > label:has(input[type="date"]) {
+  min-width:0 !important;
+  max-width:100% !important;
+  overflow:hidden !important;
+}
+.guest-edit-modal input[type="date"] {
+  display:block !important;
+  width:100% !important;
+  min-width:0 !important;
+  max-width:100% !important;
+  height:44px !important;
+  box-sizing:border-box !important;
+}
+
+@media(max-width:560px){
+  .guest-edit-modal .guest-edit-grid > label:has(input[type="date"]) {
+    grid-column:1 / -1 !important;
+  }
+}
+
+@media(min-width:700px) and (max-width:1400px) and (orientation:landscape){
+  body[data-app-role="service"] .ipad-room-column {
+    gap:6px !important;
+  }
+  body[data-app-role="service"] .ipad-room-grid .room-row,
+  body[data-app-role="service"] .ipad-room-grid .room-row.included,
+  body[data-app-role="service"] .ipad-room-grid .room-row.present,
+  body[data-app-role="service"] .ipad-room-grid .room-row.partial {
+    position:relative !important;
+    min-height:48px !important;
+    padding-left:12px !important;
+    border:0 !important;
+    border-bottom:1px solid var(--border-subtle) !important;
+    border-radius:0 !important;
+    background:var(--surface) !important;
+    box-shadow:none !important;
+    overflow:hidden !important;
+  }
+  body[data-app-role="service"] .ipad-room-grid .room-row::before {
+    content:"" !important;
+    display:block !important;
+    position:absolute !important;
+    top:6px !important;
+    bottom:6px !important;
+    left:0 !important;
+    width:4px !important;
+    height:auto !important;
+    border-radius:0 !important;
+    background:#cdd7d4 !important;
+  }
+  body[data-app-role="service"] .ipad-room-grid .room-row.included:not(.present):not(.partial)::before {
+    background:var(--ambassador-yellow) !important;
+  }
+  body[data-app-role="service"] .ipad-room-grid .room-row.present::before,
+  body[data-app-role="service"] .ipad-room-grid .room-row.partial::before {
+    background:var(--ambassador-petrol) !important;
+  }
+}
+
+/* 8.51.0 targeted iPhone/iPad acceptance restfix. */
+.entry-screen:not(.role-pending) .load-card {
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:center !important;
+  justify-content:center !important;
+  text-align:center !important;
+}
+.entry-screen:not(.role-pending) .load-card > * {
+  margin-left:auto !important;
+  margin-right:auto !important;
+}
+.entry-screen:not(.role-pending) .load-actions { width:100% !important; }
+
+.special-type-picker > button[data-special-type="opera"] {
+  grid-template-columns:104px minmax(0,1fr) !important;
+}
+.special-guest-icon.opera-logo {
+  width:104px !important;
+  height:48px !important;
+  min-width:104px !important;
+  padding:5px 7px !important;
+  box-sizing:border-box !important;
+}
+.special-type-picker .opera-choice-copy {
+  display:flex !important;
+  align-items:center !important;
+  min-width:0 !important;
+  min-height:48px !important;
+}
+.special-type-picker .opera-choice-copy small { margin:0 !important; line-height:1.3 !important; }
+.special-type-picker > button[data-special-type="opera"].selected .opera-choice-copy small { color:#fff !important; }
+
+.guest-edit-modal .guest-edit-grid > label:has(input[type="date"]) {
+  overflow:visible !important;
+  isolation:isolate !important;
+}
+.guest-edit-modal input[type="date"] {
+  -webkit-appearance:none !important;
+  appearance:none !important;
+  border:1px solid var(--border-strong, var(--line-strong)) !important;
+  border-radius:var(--radius-small, 10px) !important;
+  background:#fff !important;
+  background-clip:padding-box !important;
+  box-shadow:none !important;
+  overflow:hidden !important;
+}
+
+.import-modal { overflow:hidden !important; }
+.import-modal > .modal-body {
+  display:grid !important;
+  grid-template-rows:auto minmax(0,1fr) auto !important;
+  min-height:0 !important;
+  overflow:hidden !important;
+}
+.import-modal .import-list {
+  min-height:0 !important;
+  max-height:none !important;
+  overflow-y:auto !important;
+}
+.import-modal .modal-actions {
+  position:relative !important;
+  bottom:auto !important;
+  margin:10px 0 0 !important;
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  flex:0 0 auto !important;
+}
+.import-modal .import-summary {
+  display:flex !important;
+  flex-wrap:nowrap !important;
+  gap:8px !important;
+  margin-bottom:10px !important;
+}
+.import-modal .import-summary > span {
+  flex:1 1 0 !important;
+  min-width:0 !important;
+  padding:7px 9px !important;
+}
+
+.open-filter-button {
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  box-sizing:border-box !important;
+  border:1px solid var(--ambassador-petrol) !important;
+  border-radius:var(--radius-small) !important;
+  outline:0 !important;
+  box-shadow:none !important;
+  background:#fff !important;
+  background-image:none !important;
+  overflow:visible !important;
+}
+.open-filter-button::before,
+.open-filter-button::after { content:none !important; display:none !important; }
+body[data-app-role="service"] .hero h2 { overflow:visible !important; }
+
+.import-modal .import-summary {
+  padding:7px 10px !important;
+  background:var(--surface-muted) !important;
+  border:1px solid var(--border-subtle) !important;
+  border-radius:var(--radius-small) !important;
+}
+.import-modal .import-summary > span {
+  justify-content:center !important;
+  min-height:34px !important;
+  background:transparent !important;
+  border:0 !important;
+  border-radius:0 !important;
+  box-shadow:none !important;
+}
+.import-modal .import-summary > span + span {
+  border-left:1px solid var(--border-subtle) !important;
+}
+
+@media(max-width:560px){
+  .special-type-picker > button[data-special-type="opera"] { grid-template-columns:96px minmax(0,1fr) !important; }
+  .special-guest-icon.opera-logo { width:96px !important; min-width:96px !important; }
+  .import-modal { grid-template-rows:auto minmax(0,1fr) !important; }
+  .import-modal > .modal-body { padding-bottom:max(10px,env(safe-area-inset-bottom)) !important; }
+  .import-modal .modal-actions { padding:10px 0 0 !important; }
 }
