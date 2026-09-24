@@ -114,10 +114,13 @@
 
   const normalize = (value) => value.replace(/\s+/g, " ").trim();
 
+  const ambassadorIcon = (name) => `<svg viewBox="0 0 24 24" aria-hidden="true"><use href="/ambassador-icons.svg#${name}"></use></svg>`;
+
   function icon(name) {
-    if (name === "reception") {
-      return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 17h16M6 17a6 6 0 0 1 12 0M12 8v3M10 7h4"/></svg>';
-    }
+    if (name === "reception") return ambassadorIcon("reception");
+    if (name === "service") return ambassadorIcon("cup");
+    if (name === "add") return ambassadorIcon("add-room");
+    if (name === "note") return ambassadorIcon("note");
     const paths = {
       guests: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>',
       finish: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
@@ -129,7 +132,7 @@
       globe: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/>'
     };
     if (paths[name]) return `<svg viewBox="0 0 24 24" aria-hidden="true">${paths[name]}</svg>`;
-    return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 9h12v7a4 4 0 0 1-4 4H9a4 4 0 0 1-4-4V9Zm12 2h1a3 3 0 0 1 0 6h-1M8 4v2m4-2v2m4-2v2"/></svg>';
+    return ambassadorIcon("cup");
   }
 
   const menuItem = (action, iconName, title, subtitle = "") => `
@@ -379,8 +382,8 @@
         <span><strong>${tr("Heutige Liste")}</strong><small><b>${rooms}</b> ${tr("Zimmer")} <i>·</i> <b>${guests}</b> ${tr("Gäste")} <i>·</i> <b>${included}</b> ${tr("inklusive")}</small></span>
       </div>
       <div class="reception-actions">
-        <button type="button" class="reception-upload">${tr("Neue Mews-Liste laden")}</button>
-        <button type="button" class="reception-add">＋ ${tr("Zimmer hinzufügen")}</button>
+        <button type="button" class="reception-upload">${ambassadorIcon("mews-import")}<span>${tr("Neue Mews-Liste laden")}</span></button>
+        <button type="button" class="reception-add">${ambassadorIcon("add-room")}<span>${tr("Zimmer hinzufügen")}</span></button>
       </div>`;
     toolbar.querySelector(".reception-upload").addEventListener("click", () => {
       const fileInput = shell.querySelector('input[type="file"][accept*=".xlsx"]');
@@ -425,7 +428,7 @@
       const hasRemark = Boolean(row.querySelector(".guest-info-indicator"));
       remark.classList.toggle("has-remark", hasRemark);
       remark.innerHTML = hasRemark
-        ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h9l4 4v14H6zM15 3v5h5M9 12h7M9 16h7"/></svg>'
+        ? ambassadorIcon("note")
         : "–";
     });
 
@@ -454,7 +457,7 @@
       const inlineInfo = source.cloneNode(true);
       inlineInfo.classList.add("mobile-inline-info-badge");
       inlineInfo.removeAttribute("aria-hidden");
-      inlineInfo.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14v11H9l-4 4zM8 9h8M8 12h6"/></svg>';
+      inlineInfo.innerHTML = ambassadorIcon("note");
       inlineInfo.setAttribute("aria-label", tr("Bemerkung"));
       inlineInfo.addEventListener("click", (event) => {
         event.preventDefault();
@@ -531,6 +534,9 @@
       const title = document.createElement("span");
       const content = document.createElement("strong");
       title.textContent = label;
+      if (label === tr("Anreise") || label === tr("Abreise")) {
+        title.insertAdjacentHTML("afterbegin", ambassadorIcon(label === tr("Anreise") ? "arrival" : "departure"));
+      }
       content.textContent = value;
       item.append(title, content);
       return item;
@@ -976,8 +982,13 @@
     const section = shell.querySelector(".section");
     const heading = section?.querySelector(".section-head h3");
     const count = section?.querySelector(".section-count");
-    if (heading) heading.dataset.openPrefix = activeLanguage === "EN" ? "Rooms " : activeLanguage === "VI" ? "Phòng " : "Zimmer ";
+    if (heading) heading.dataset.openTitle = tr("Zimmer offen");
     if (count) count.style.removeProperty("display");
+    const overview = shell.querySelector(".ipad-room-overview");
+    if (overview && count) {
+      overview.dataset.openTitle = tr("Zimmer offen");
+      overview.dataset.openCount = normalize(count.textContent || "");
+    }
   }
 
   function polishRoomRows(shell) {
@@ -987,18 +998,13 @@
         if (!badge) {
           badge = document.createElement("span");
           badge.className = "room-included-badge";
-          badge.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h12v8a4 4 0 0 1-4 4H9a4 4 0 0 1-4-4V8Zm12 1h2a2 2 0 0 1 0 4h-2M8 3v2m4-2v2m4-2v2"/></svg><span></span>';
+          badge.innerHTML = ambassadorIcon("cup") + '<span></span>';
           row.querySelector(".room-tail")?.prepend(badge);
         }
         const label = badge.querySelector("span");
         if (label && label.textContent !== tr("inklusive")) label.textContent = tr("inklusive");
       } else badge?.remove();
     });
-    if (document.body.dataset.appRole === "service") {
-      const button = shell.querySelector(".bottom-bar .bottom-button:not(.finish)");
-      if (button && normalize(button.textContent || "") === "Gäste bearbeiten") button.setAttribute("aria-label", tr("Bemerkungen"));
-      else button?.removeAttribute("aria-label");
-    }
   }
 
   function polishGuestNote(root) {
