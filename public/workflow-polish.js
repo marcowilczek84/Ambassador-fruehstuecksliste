@@ -367,7 +367,10 @@
       const match = normalize(node?.textContent || "").match(/\d+/);
       return total + (match ? Number(match[0]) : 0);
     }, 0);
-    const included = occupiedRows.filter((row) => row.classList.contains("included")).length;
+    const included = occupiedRows.filter((row) => row.classList.contains("included")).reduce((total, row) => {
+      const match = normalize(row.querySelector(".people")?.textContent || "").match(/\d+/);
+      return total + (match ? Number(match[0]) : 0);
+    }, 0);
     const toolbar = document.createElement("div");
     toolbar.className = "reception-toolbar";
     toolbar.innerHTML = `
