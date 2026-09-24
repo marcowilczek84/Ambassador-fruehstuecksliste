@@ -4263,6 +4263,14 @@ body[data-app-role] .room-row .room-note-indicator svg {
   stroke-linecap:round !important; stroke-linejoin:round !important;
 }
 @media(min-width:700px) {
+  body[data-app-role="reception"] .reception-remark.has-remark { display:flex !important; align-items:center !important; gap:4px !important; }
+}
+body[data-app-role="reception"] .reception-remark-glyph svg {
+  display:block !important; width:14px !important; height:14px !important;
+  fill:none !important; stroke:#1c777b !important; stroke-width:1.8 !important;
+  stroke-linecap:round !important; stroke-linejoin:round !important;
+}
+@media(min-width:700px) {
   body[data-app-role="reception"] .ipad-room-grid .room-note-indicator,
   body[data-app-role="reception"] .ipad-room-grid .mobile-inline-info-badge { display:none !important; }
 }

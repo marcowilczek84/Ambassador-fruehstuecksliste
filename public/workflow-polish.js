@@ -455,7 +455,20 @@
       }
       const hasRemark = Boolean(row.querySelector(".guest-info-indicator")) || Boolean(room?.note) || Boolean(room?.guestInfo?.length);
       remark.classList.toggle("has-remark", hasRemark);
-      remark.textContent = hasRemark ? tr("vorhanden") : "–";
+      const remarkLabel = hasRemark ? tr("vorhanden") : "–";
+      if (remark.querySelector("span")?.textContent !== remarkLabel || (!hasRemark && remark.textContent !== "–")) {
+        remark.replaceChildren();
+        if (hasRemark) {
+          const glyph = document.createElement("span");
+          glyph.className = "reception-remark-glyph";
+          glyph.setAttribute("aria-hidden", "true");
+          glyph.innerHTML = ambassadorIcon("note");
+          remark.append(glyph);
+        }
+        const text = document.createElement("span");
+        text.textContent = remarkLabel;
+        remark.append(text);
+      }
     });
 
     const occupiedRooms = new Set(
