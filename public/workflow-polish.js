@@ -453,10 +453,10 @@
         remark.className = "reception-remark";
         row.append(remark);
       }
-      const hasRemark = Boolean(row.querySelector(".guest-info-indicator")) || Boolean(room?.note) || Boolean(room?.guestInfo?.length);
+      const hasRemark = Boolean(room?.note);
       remark.classList.toggle("has-remark", hasRemark);
       const remarkLabel = hasRemark ? tr("vorhanden") : "–";
-      if (remark.querySelector("span")?.textContent !== remarkLabel || (!hasRemark && remark.textContent !== "–")) {
+      if (remark.querySelector(".reception-remark-label")?.textContent !== remarkLabel || (hasRemark && !remark.querySelector(".reception-remark-glyph"))) {
         remark.replaceChildren();
         if (hasRemark) {
           const glyph = document.createElement("span");
@@ -466,6 +466,7 @@
           remark.append(glyph);
         }
         const text = document.createElement("span");
+        text.className = "reception-remark-label";
         text.textContent = remarkLabel;
         remark.append(text);
       }
@@ -528,8 +529,8 @@
       const inlineInfo = source.cloneNode(true);
       inlineInfo.classList.add("mobile-inline-info-badge");
       inlineInfo.removeAttribute("aria-hidden");
-      inlineInfo.innerHTML = ambassadorIcon("note");
-      inlineInfo.setAttribute("aria-label", tr("Bemerkung"));
+      inlineInfo.innerHTML = ambassadorIcon("info");
+      inlineInfo.setAttribute("aria-label", tr("Gastinfo"));
       inlineInfo.addEventListener("click", (event) => {
         event.preventDefault();
         event.stopPropagation();
@@ -1075,17 +1076,15 @@
       } else badge?.remove();
       const roomNumber = Number.parseInt(row.querySelector(".room-number")?.textContent || "", 10);
       const room = rooms.get(roomNumber);
-      const hasNote = !row.querySelector(".vacant") && (
-        Boolean(room?.note) || Boolean(room?.guestInfo?.length) || Boolean(row.querySelector(".guest-info-indicator"))
-      );
+      const hasNote = !row.querySelector(".vacant") && Boolean(room?.note);
       let indicator = row.querySelector(".room-note-indicator");
-      if (hasNote && !row.querySelector(".mobile-inline-info-badge") && !indicator) {
+      if (hasNote && !indicator) {
         indicator = document.createElement("span");
         indicator.className = "room-note-indicator";
         indicator.setAttribute("aria-label", tr("Bemerkung"));
         indicator.innerHTML = ambassadorIcon("note");
         row.append(indicator);
-      } else if (!hasNote || row.querySelector(".mobile-inline-info-badge")) indicator?.remove();
+      } else if (!hasNote) indicator?.remove();
     });
   }
 

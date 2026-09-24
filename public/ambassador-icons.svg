@@ -32,6 +32,9 @@
   <symbol id="note" viewBox="0 0 24 24">
     <path d="M4 5h16v12H9l-5 4V5Z"/>
   </symbol>
+  <symbol id="info" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7h.01"/>
+  </symbol>
   <symbol id="stats" viewBox="0 0 24 24">
     <path d="M4 20v-6h4v6M10 20V5h4v15M16 20v-10h4v10M3 20h18"/>
   </symbol>

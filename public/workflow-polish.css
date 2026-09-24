@@ -4257,6 +4257,7 @@ body[data-app-role] .room-row .mobile-inline-info-badge {
   width:18px !important; height:18px !important; min-width:18px !important;
   padding:0 !important; color:#1c777b !important; background:transparent !important;
 }
+body[data-app-role] .room-row:has(.room-note-indicator) .mobile-inline-info-badge { right:24px !important; }
 body[data-app-role] .room-row .room-note-indicator svg {
   width:17px !important; height:17px !important; fill:none !important;
   stroke:currentColor !important; stroke-width:1.8 !important;
