@@ -1,5 +1,8 @@
-.gm-enabled .guest-edit-modal .remark-edit-summary,
-.gm-enabled .guest-edit-modal .important-note { display:none !important }
+/* The staging guest detail uses the journal as its only note editor. Keep the
+   legacy data intact for the separate, conservative migration path. */
+.guest-edit-modal .remark-edit-summary,
+.guest-edit-modal .important-note,
+body[data-app-role="service"] .guest-edit-modal.service-note-only .modal-actions:not(.guest-view-actions) { display:none !important }
 .gm-panel { margin:20px 0 26px; color:#141918; font:inherit; }
 .gm-section { border-top:1px solid #dce3e1; padding:18px 0 14px; }
 .gm-panel h3 { margin:0 0 12px; color:#141918; font-size:16px; font-weight:680; letter-spacing:.01em; }
