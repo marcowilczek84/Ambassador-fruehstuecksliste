@@ -9,6 +9,7 @@
   let membership = null;
   let syncSignature = '';
   let modalSignature = '';
+  let lastRefreshAt = 0;
   let selectedName = '';
   let busy = false;
   try { session = JSON.parse(localStorage.getItem(sessionKey) || 'null'); } catch {}
@@ -242,11 +243,12 @@
     if (!number) return;
     if (membership && membership.work_role!==uiRole()) membership=null;
     const signature=`${number}:${uiRole()}:${Boolean(session)}:${syncSignature}`;
-    if (signature===modalSignature) return;
+    if (signature===modalSignature && modal.querySelector('.gm-panel') &&
+      (!membership || Date.now()-lastRefreshAt<5000 || modal.querySelector('.gm-dialog-layer'))) return;
     modalSignature=signature;
     try {
       if (!membership && session) await identify();
-      if (membership) {document.body.classList.add('gm-enabled');await refreshPanel();}
+      if (membership) {document.body.classList.add('gm-enabled');await refreshPanel();lastRefreshAt=Date.now();}
       else {
         const container=modal.querySelector('.modal-body');
         if (!container || container.querySelector('.gm-panel')) return;
