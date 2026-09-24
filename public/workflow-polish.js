@@ -207,11 +207,11 @@
       <div class="role-options">
         <button type="button" data-role="service">
           <span class="role-icon">${icon("service")}</span>
-          <span><strong>${tr("Service")}</strong><small>${tr("Frühstück & Check-in")}</small></span><b>›</b>
+          <span><strong>${tr("Service")}</strong><small>${tr("Frühstück & Check-in")}</small></span>
         </button>
         <button type="button" data-role="reception">
           <span class="role-icon">${icon("reception")}</span>
-          <span><strong>${tr("Rezeption")}</strong><small>${tr("Gästeliste & Verwaltung")}</small></span><b>›</b>
+          <span><strong>${tr("Rezeption")}</strong><small>${tr("Gästeliste & Verwaltung")}</small></span>
         </button>
       </div>`;
     chooser.querySelectorAll("[data-role]").forEach((button) => {
