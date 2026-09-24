@@ -122,6 +122,7 @@
     if (name === "service") return ambassadorIcon("cup");
     if (name === "add") return ambassadorIcon("add-room");
     if (name === "note") return ambassadorIcon("note");
+    if (["guests", "stats"].includes(name)) return ambassadorIcon(name);
     const paths = {
       guests: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>',
       finish: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
@@ -320,7 +321,7 @@
       const tipEntry = currentRole === "service" ? `<a class="structured-menu-item" role="menuitem" href="https://silk-trinkgeld-uiux-polish.vercel.app">
         <span class="structured-menu-icon">${icon("tip")}</span><span><strong>${tr("Trinkgeld")}</strong><small>${tr("Zusatz-App öffnen")}</small></span></a>` : "";
       layer.innerHTML = `<section class="reliable-app-menu structured-app-menu" role="menu" aria-label="${tr("Hauptmenü")}">
-        <header><span><small>${tr("MENÜ")}</small><strong>${tr("Frühstücksliste")}</strong></span><button type="button" aria-label="${tr("Menü schließen")}">×</button></header>
+        <header><span><small>${tr("MENÜ")}</small><strong>${tr("Frühstücksliste")}</strong></span><button type="button" aria-label="${tr("Menü schließen")}">${ambassadorIcon("close")}</button></header>
         <div class="structured-menu-scroll">
           <section><h3>${tr(currentRole === "reception" ? "REZEPTION" : "SERVICE")}</h3>${roleActions}</section>
           <section><h3>${tr("EINSTELLUNGEN")}</h3>
@@ -1046,6 +1047,7 @@
   }
 
   function polishRoomRows(shell) {
+    const rooms = currentRoomDates();
     shell.querySelectorAll(".room-row").forEach((row) => {
       let badge = row.querySelector(".room-included-badge");
       if (row.classList.contains("included") && !row.querySelector(".vacant")) {
@@ -1058,7 +1060,52 @@
         const label = badge.querySelector("span");
         if (label && label.textContent !== tr("inklusive")) label.textContent = tr("inklusive");
       } else badge?.remove();
+      const roomNumber = Number.parseInt(row.querySelector(".room-number")?.textContent || "", 10);
+      const room = rooms.get(roomNumber);
+      const hasNote = !row.querySelector(".vacant") && (
+        Boolean(room?.note) || Boolean(room?.guestInfo?.length) || Boolean(row.querySelector(".guest-info-indicator"))
+      );
+      let indicator = row.querySelector(".room-note-indicator");
+      if (hasNote && !row.querySelector(".mobile-inline-info-badge") && !indicator) {
+        indicator = document.createElement("span");
+        indicator.className = "room-note-indicator";
+        indicator.setAttribute("aria-label", tr("Bemerkung"));
+        indicator.innerHTML = ambassadorIcon("note");
+        row.append(indicator);
+      } else if (!hasNote || row.querySelector(".mobile-inline-info-badge")) indicator?.remove();
     });
+  }
+
+  function harmonizeVisibleIcons(root) {
+    const names = {
+      home: "home", house: "home", menu: "menu", search: "search", users: "guests",
+      coffee: "cup", calendar: "calendar", "calendar-days": "calendar",
+      "chart-no-axes-column": "stats", "chart-no-axes-column-increasing": "stats", "chart-column": "stats", "bar-chart-3": "stats",
+      "circle-check": "check", "circle-check-big": "check", x: "close"
+    };
+    root.querySelectorAll("svg.lucide").forEach((svg) => {
+      const className = [...svg.classList].find((name) => name.startsWith("lucide-") && name !== "lucide");
+      const master = names[className?.slice(7)];
+      if (!master || svg.dataset.ambassadorGlyph === master) return;
+      const use = document.createElementNS("http://www.w3.org/2000/svg", "use");
+      use.setAttribute("href", `/ambassador-icons.svg#${master}`);
+      svg.replaceChildren(use);
+      svg.dataset.ambassadorGlyph = master;
+    });
+  }
+
+  function stabilizeServiceFooter(shell) {
+    if (document.body.dataset.appRole !== "service") return;
+    const button = shell.querySelector(".bottom-bar .bottom-button:not(.finish)");
+    if (!button) return;
+    const label = normalize(button.textContent || "");
+    const group = button.querySelector(".ambassador-footer-label");
+    if (group && group.dataset.label === label) return;
+    const content = document.createElement("span");
+    content.className = "ambassador-footer-label";
+    content.dataset.label = label;
+    content.innerHTML = ambassadorIcon("note") + `<span>${label}</span>`;
+    button.replaceChildren(content);
   }
 
   function polishGuestNote(root) {
@@ -1198,6 +1245,8 @@
     if (shell) updateServiceOpenHeading(shell);
     if (shell) alignServiceRoomSlots(shell);
     if (shell) polishRoomRows(shell);
+    if (shell) harmonizeVisibleIcons(shell);
+    if (shell) stabilizeServiceFooter(shell);
     polishGuestNote(document);
     if (shell) addIPadSpecialGuestShortcut(shell);
     enhanceReceptionModal(document);
