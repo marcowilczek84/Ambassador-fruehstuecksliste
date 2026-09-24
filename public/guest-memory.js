@@ -223,7 +223,11 @@
     if (!names.includes(selectedName)) selectedName=names[0];
     const data=await loadData(room,selectedName);
     const container=modal.querySelector('.modal-body');if (!container) return;
-    let panel=container.querySelector('.gm-panel');if (!panel) {panel=document.createElement('section');container.append(panel);}
+    let panel=container.querySelector('.gm-panel');if (!panel) {
+      panel=document.createElement('section');
+      const footer=container.querySelector('.modal-actions:not(.guest-view-actions)');
+      if (footer) footer.before(panel); else container.append(panel);
+    }
     container.querySelector('.gm-guest-switch')?.remove();
     const namesUI=names.length>1?`<label class="gm-guest-switch">Gast <select>${names.map(n=>`<option ${n===selectedName?'selected':''}>${esc(n)}</option>`).join('')}</select></label>`:'';
     panel.outerHTML=namesUI+panelHtml(data,room);
@@ -253,7 +257,8 @@
         const container=modal.querySelector('.modal-body');
         if (!container || container.querySelector('.gm-panel')) return;
         const panel=document.createElement('div');panel.innerHTML=panelHtml({},{});
-        container.append(...panel.children);
+        const footer=container.querySelector('.modal-actions:not(.guest-view-actions)');
+        if (footer) footer.before(...panel.children); else container.append(...panel.children);
         container.querySelector('.gm-login')?.addEventListener('submit',async event=>{
           event.preventDefault();const form=event.currentTarget;
           try {await login(form.querySelector('input[type=email]').value,form.querySelector('input[type=password]').value);modalSignature='';await refreshPanel();}
