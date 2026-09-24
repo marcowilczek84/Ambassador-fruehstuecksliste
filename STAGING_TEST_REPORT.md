@@ -24,6 +24,11 @@ Production angewandt werden.
 - Retention-Funktion entfernte eine 31 Tage zuvor soft-gelöschte synthetische
   Notiz und einen synthetischen Aufenthalt aus 2024 samt STAY-Notiz;
   beide Prüftransaktionen wurden zurückgerollt.
+- Vercel-Preview aus dem separaten GitHub-Branch ist READY. Die veröffentlichte
+  Staging-Konfiguration enthält ausschließlich Projekt `jeuvmhahanaulvrnasgq`;
+  der aktive App-Bundle enthält keine Production-Supabase-Referenz.
+- Die veröffentlichte Web-App öffnet Service, Tagesliste und die
+  Bemerkungsseite mit einem sichtbaren Arbeitsrollen-Login.
 - Vorherige Staging-Prüfungen: einzelne Notiz anlegen/bearbeiten/soft-delete,
   `created_at` erhalten; getrennte Profile und Notizen; Merge und Restore;
   Ablehnung eines Kandidaten und erneuter Tagesimport; Legacy-Backfill
@@ -39,9 +44,13 @@ Production angewandt werden.
 - UI-E2E für Kandidaten, Merge-Vorschau, Journal, iPhone, iPad und Tastatur.
 - Ausführung des Cron-Jobs zu seinem geplanten Zeitpunkt (die Funktion selbst
   wurde mit abgelaufenen synthetischen Datensätzen geprüft).
-- Veröffentlichte Preview und Vercel-Deployment-ID. Direkter GitHub-Push
-  benötigt eine hier nicht vorhandene Anmeldung; der verfügbare Vercel-
-  Deployment-Aufruf antwortet mit „Tool deploy_to_vercel not found“.
+- Anmeldung mit echtem Auth-JWT und nachgelagerte UI-Aktionen bleiben offen:
+  der sichere Cloud-Browser nimmt nur vom Nutzer selbst eingegebene
+  Zugangsdaten an. Die beiden synthetischen Passwörter sind lokale
+  Test-Geheimnisse und wurden nicht an Browserwerkzeuge übergeben.
+
+Preview: `https://ambassador-fruehstuecksliste-oau8shgqa-restaurant-silk.vercel.app/`
+Deployment: `dpl_HWLSYLyhtbnpjebYEHEBd7CgtyKb`.
 
 Die unter „Noch nicht nachgewiesen“ genannten Fälle sind keine Freigabe für
 eine Production-Migration.
