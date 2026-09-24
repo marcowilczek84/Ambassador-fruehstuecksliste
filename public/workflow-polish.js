@@ -971,21 +971,8 @@
   function updateServiceOpenHeading(shell) {
     if (document.body.dataset.appRole !== "service") return;
     const section = shell.querySelector(".section");
-    const heading = section?.querySelector(".section-head h3");
     const count = section?.querySelector(".section-count");
-    if (!heading || !count) return;
-    const number = normalize(count.textContent || "").match(/\d+/)?.[0];
-    if (!number) return;
-    const label = tr("Zimmer offen");
-    if (heading.dataset.openCount !== number || heading.querySelector(".open-room-count")?.previousSibling?.textContent !== label) {
-      heading.replaceChildren(document.createTextNode(label + " "));
-      const badge = document.createElement("span");
-      badge.className = "open-room-count";
-      badge.textContent = number;
-      heading.append(badge);
-      heading.dataset.openCount = number;
-    }
-    count.style.display = "none";
+    if (count) count.style.removeProperty("display");
   }
 
   function polishRoomRows(shell) {
@@ -1004,7 +991,8 @@
     });
     if (document.body.dataset.appRole === "service") {
       const button = shell.querySelector(".bottom-bar .bottom-button:not(.finish)");
-      if (button && normalize(button.textContent || "") === "Gäste bearbeiten") button.textContent = tr("Bemerkungen");
+      if (button && normalize(button.textContent || "") === "Gäste bearbeiten") button.setAttribute("aria-label", tr("Bemerkungen"));
+      else button?.removeAttribute("aria-label");
     }
   }
 
@@ -1013,19 +1001,6 @@
       const heading = note.querySelector("strong");
       if (heading && heading.textContent !== tr("Bemerkung")) heading.textContent = tr("Bemerkung");
       note.classList.add("neutral-remark");
-      const icon = note.querySelector("svg");
-      if (icon && !icon.classList.contains("neutral-remark-icon")) {
-        icon.classList.add("neutral-remark-icon");
-        icon.innerHTML = '<path d="M5 5h14v11H9l-4 4zM8 9h8M8 12h6"/>';
-      }
-      if (!icon) {
-        const bubble = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-        bubble.setAttribute("viewBox", "0 0 24 24");
-        bubble.setAttribute("aria-hidden", "true");
-        bubble.classList.add("neutral-remark-icon");
-        bubble.innerHTML = '<path d="M5 5h14v11H9l-4 4zM8 9h8M8 12h6"/>';
-        note.prepend(bubble);
-      }
     });
     root.querySelectorAll(".guest-modal .detail-item").forEach((item) => {
       const title = item.querySelector("span");
