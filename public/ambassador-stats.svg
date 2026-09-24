@@ -1,3 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#1c777b" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M4 20v-6h4v6M10 20V5h4v15M16 20v-10h4v10M3 20h18"/>
-  </svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#1c777b" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="13" width="3.5" height="7" rx="1.2"/><rect x="10.25" y="5" width="3.5" height="15" rx="1.2"/><rect x="16.5" y="9" width="3.5" height="11" rx="1.2"/></svg>

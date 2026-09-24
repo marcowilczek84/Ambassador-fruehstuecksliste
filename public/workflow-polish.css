@@ -4316,3 +4316,43 @@ body[data-app-role] svg:is(.lucide-menu,.lucide-home,.lucide-house,.lucide-searc
   }
   body[data-app-role="reception"] .guest-edit-modal .guest-edit-grid > label:has(input[type="date"]) input { min-width:0 !important; width:100% !important; box-sizing:border-box !important; }
 }
+
+/* Final Ambassador icon geometry and stable mobile status positions. */
+body[data-app-role] .app-shell svg.lucide,
+body[data-app-role] .role-icon svg,
+body[data-app-role] .structured-menu-icon svg,
+body[data-app-role] .special-guest-icon svg,
+body[data-app-role] .reception-actions svg,
+body[data-app-role] .room-note-indicator svg,
+body[data-app-role] .reception-remark-glyph svg { stroke-width:1.6 !important; stroke-linecap:round !important; stroke-linejoin:round !important; }
+body[data-app-role] .room-note-indicator svg,
+body[data-app-role] .reception-remark-glyph svg { width:18px !important; height:18px !important; }
+body[data-app-role] .room-row .room-note-indicator { right:8px !important; top:50% !important; bottom:auto !important; transform:translateY(-50%) !important; }
+@media(max-width:699px) {
+  body[data-app-role] .room-row { padding-right:30px !important; }
+  body[data-app-role] .room-row .mobile-inline-info-badge { right:28px !important; top:50% !important; bottom:auto !important; transform:translateY(-50%) !important; }
+  body[data-app-role="service"] .room-row .room-edit-icon,
+  body[data-app-role="service"] .room-row .structured-menu-chevron { display:none !important; }
+  body[data-app-role="service"] .hero h2 { min-width:0 !important; column-gap:10px !important; }
+  body[data-app-role="service"] .hero h2 .open-filter-button { min-width:max-content !important; width:max-content !important; max-width:none !important; white-space:nowrap !important; }
+}
+body[data-app-role="service"] .bottom-bar .bottom-button:not(.finish) {
+  display:flex !important; align-items:center !important; justify-content:center !important;
+  gap:10px !important; text-align:center !important;
+}
+body[data-app-role="service"] .bottom-bar .bottom-button:not(.finish)::before { flex:0 0 20px !important; }
+.ambassador-action-footer > button { display:flex !important; align-items:center !important; justify-content:center !important; gap:10px !important; }
+body[data-app-role] svg.lucide-users { background-image:url("/ambassador-guests.svg") !important; }
+body[data-app-role] svg.lucide-building-2,
+body[data-app-role] svg.lucide-hotel { background:center / contain no-repeat url("/ambassador-hotel.svg") !important; }
+body[data-app-role] svg.lucide-bed,
+body[data-app-role] svg.lucide-bed-double { background:center / contain no-repeat url("/ambassador-bed.svg") !important; }
+body[data-app-role] svg.lucide-history { background:center / contain no-repeat url("/ambassador-history.svg") !important; }
+body[data-app-role] svg:is(.lucide-building-2,.lucide-hotel,.lucide-bed,.lucide-bed-double,.lucide-history) > * { opacity:0 !important; }
+body[data-app-role="service"] .hero svg.lucide-users { filter:grayscale(1) !important; }
+/* The three Service facts use the master cup, hotel, and two-guest glyphs. */
+body[data-app-role="service"] .hero-facts .hero-fact > svg { width:22px !important; height:22px !important; flex:0 0 22px !important; }
+body[data-app-role="service"] .hero-facts .hero-fact:nth-child(1) > svg { background:center / contain no-repeat url("/ambassador-cup-yellow.svg") !important; }
+body[data-app-role="service"] .hero-facts .hero-fact:nth-child(2) > svg { background:center / contain no-repeat url("/ambassador-hotel.svg") !important; }
+body[data-app-role="service"] .hero-facts .hero-fact:nth-child(3) > svg { background:center / contain no-repeat url("/ambassador-guests.svg") !important; }
+body[data-app-role="service"] .hero-facts .hero-fact > svg > * { opacity:0 !important; }

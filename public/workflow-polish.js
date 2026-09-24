@@ -453,7 +453,7 @@
         remark.className = "reception-remark";
         row.append(remark);
       }
-      const hasRemark = Boolean(room?.note);
+      const hasRemark = Boolean(String(room?.note || "").trim());
       remark.classList.toggle("has-remark", hasRemark);
       const remarkLabel = hasRemark ? tr("vorhanden") : "–";
       if (remark.querySelector(".reception-remark-label")?.textContent !== remarkLabel || (hasRemark && !remark.querySelector(".reception-remark-glyph"))) {
@@ -1076,7 +1076,7 @@
       } else badge?.remove();
       const roomNumber = Number.parseInt(row.querySelector(".room-number")?.textContent || "", 10);
       const room = rooms.get(roomNumber);
-      const hasNote = !row.querySelector(".vacant") && Boolean(room?.note);
+      const hasNote = !row.querySelector(".vacant") && Boolean(String(room?.note || "").trim());
       let indicator = row.querySelector(".room-note-indicator");
       if (hasNote && !indicator) {
         indicator = document.createElement("span");
