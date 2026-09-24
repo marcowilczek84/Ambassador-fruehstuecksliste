@@ -48,6 +48,7 @@
     "Zimmer, Name oder Tisch suchen": ["Search room, name or table", "Tìm phòng, tên hoặc bàn"],
     "Gast bearbeiten": ["Edit guest", "Chỉnh sửa khách"], "Gast- und Aufenthaltsdaten anpassen": ["Edit guest and stay details", "Chỉnh sửa thông tin khách và lưu trú"],
     "Service-Notiz": ["Service note", "Ghi chú phục vụ"],
+    "Bemerkungen": ["Notes", "Ghi chú"], "Zimmer offen": ["Rooms open", "Phòng chưa phục vụ"],
     "Gastname(n)": ["Guest name(s)", "Tên khách"], "Personen": ["People", "Số người"], "Anreise": ["Arrival", "Ngày đến"],
     "Abreise": ["Departure", "Ngày đi"], "Gastinfo": ["Guest information", "Thông tin khách"], "Info": ["Info", "Thông tin"],
     "Noch keine Gastinfos gespeichert": ["No guest information saved yet", "Chưa lưu thông tin khách"],
@@ -366,12 +367,13 @@
       const match = normalize(node?.textContent || "").match(/\d+/);
       return total + (match ? Number(match[0]) : 0);
     }, 0);
+    const included = occupiedRows.filter((row) => row.classList.contains("included")).length;
     const toolbar = document.createElement("div");
     toolbar.className = "reception-toolbar";
     toolbar.innerHTML = `
       <div class="reception-summary">
         <span class="reception-summary-icon">${icon("reception")}</span>
-        <span><strong>${tr("Heutige Liste")}</strong><small><b>${rooms}</b> ${tr("Zimmer")} <i>·</i> <b>${guests}</b> ${tr("Gäste")}</small></span>
+        <span><strong>${tr("Heutige Liste")}</strong><small><b>${rooms}</b> ${tr("Zimmer")} <i>·</i> <b>${guests}</b> ${tr("Gäste")} <i>·</i> <b>${included}</b> ${tr("inklusive")}</small></span>
       </div>
       <div class="reception-actions">
         <button type="button" class="reception-upload">${tr("Neue Mews-Liste laden")}</button>
@@ -974,8 +976,49 @@
     if (!heading || !count) return;
     const number = normalize(count.textContent || "").match(/\d+/)?.[0];
     if (!number) return;
-    heading.textContent = activeLanguage === "EN" ? `${number} rooms open` : activeLanguage === "VI" ? `${number} phòng chưa phục vụ` : `${number} Zimmer offen`;
+    const label = tr("Zimmer offen");
+    if (heading.dataset.openCount !== number || heading.querySelector(".open-room-count")?.previousSibling?.textContent !== label) {
+      heading.replaceChildren(document.createTextNode(label + " "));
+      const badge = document.createElement("span");
+      badge.className = "open-room-count";
+      badge.textContent = number;
+      heading.append(badge);
+      heading.dataset.openCount = number;
+    }
     count.style.display = "none";
+  }
+
+  function polishRoomRows(shell) {
+    shell.querySelectorAll(".room-row").forEach((row) => {
+      let badge = row.querySelector(".room-included-badge");
+      if (row.classList.contains("included") && !row.querySelector(".vacant")) {
+        if (!badge) {
+          badge = document.createElement("span");
+          badge.className = "room-included-badge";
+          badge.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h12v8a4 4 0 0 1-4 4H9a4 4 0 0 1-4-4V8Zm12 1h2a2 2 0 0 1 0 4h-2M8 3v2m4-2v2m4-2v2"/></svg><span></span>';
+          row.querySelector(".room-tail")?.prepend(badge);
+        }
+        const label = badge.querySelector("span");
+        if (label && label.textContent !== tr("inklusive")) label.textContent = tr("inklusive");
+      } else badge?.remove();
+    });
+    if (document.body.dataset.appRole === "service") {
+      const button = shell.querySelector(".bottom-bar .bottom-button:not(.finish)");
+      if (button && normalize(button.textContent || "") === "Gäste bearbeiten") button.textContent = tr("Bemerkungen");
+    }
+  }
+
+  function polishGuestNote(root) {
+    root.querySelectorAll(".important-note.info-note").forEach((note) => {
+      const heading = note.querySelector("strong");
+      if (heading && heading.textContent !== tr("Bemerkung")) heading.textContent = tr("Bemerkung");
+      note.classList.add("neutral-remark");
+      const icon = note.querySelector("svg");
+      if (icon && !icon.classList.contains("neutral-remark-icon")) {
+        icon.classList.add("neutral-remark-icon");
+        icon.innerHTML = '<path d="M5 5h14v11H9l-4 4zM8 9h8M8 12h6"/>';
+      }
+    });
   }
 
   function addIPadSpecialGuestShortcut(shell) {
@@ -1071,6 +1114,8 @@
     if (shell) alignMobileInfoBadges(shell);
     if (shell) ensureReliableMenu(shell, sessionStorage.getItem(roleKey) || "service");
     if (shell) updateServiceOpenHeading(shell);
+    if (shell) polishRoomRows(shell);
+    polishGuestNote(document);
     if (shell) addIPadSpecialGuestShortcut(shell);
     enhanceReceptionModal(document);
     limitServiceGuestEdit(document);
