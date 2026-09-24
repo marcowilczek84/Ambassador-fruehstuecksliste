@@ -47,6 +47,7 @@
     "Zimmer oder Name suchen": ["Search room or name", "Tìm phòng hoặc tên"],
     "Zimmer, Name oder Tisch suchen": ["Search room, name or table", "Tìm phòng, tên hoặc bàn"],
     "Gast bearbeiten": ["Edit guest", "Chỉnh sửa khách"], "Gast- und Aufenthaltsdaten anpassen": ["Edit guest and stay details", "Chỉnh sửa thông tin khách và lưu trú"],
+    "Service-Notiz": ["Service note", "Ghi chú phục vụ"],
     "Gastname(n)": ["Guest name(s)", "Tên khách"], "Personen": ["People", "Số người"], "Anreise": ["Arrival", "Ngày đến"],
     "Abreise": ["Departure", "Ngày đi"], "Gastinfo": ["Guest information", "Thông tin khách"], "Info": ["Info", "Thông tin"],
     "Noch keine Gastinfos gespeichert": ["No guest information saved yet", "Chưa lưu thông tin khách"],
@@ -164,7 +165,7 @@
         : { complete: "IMPORT ABGESCHLOSSEN", loaded: "Liste erfolgreich geladen", ready: "Die heutige Frühstücksliste ist bereit.", included: "inklusive Gäste", occupancy: "Hotelauslastung" };
     const ringOffset = (ratio) => 314 - 314 * Math.max(0, Math.min(1, ratio));
     layer.innerHTML = `<div class="success-panel">
-      <div class="success-check"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg></div>
+      <div class="success-check"><svg viewBox="0 0 24 24" fill="none" stroke="#1c777b" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg></div>
       <span class="entry-eyebrow">${copy.complete}</span>
       <h2>${copy.loaded}</h2>
       <p>${copy.ready}</p>
@@ -489,6 +490,50 @@
     excludedButton?.classList.toggle("selected", !checkbox.checked);
     if (includedButton) includedButton.textContent = checkbox.checked ? tr("✓ inklusive") : tr("inklusive");
     if (excludedButton) excludedButton.textContent = checkbox.checked ? tr("nicht inklusive") : tr("✓ nicht inklusive");
+  }
+
+  function limitServiceGuestEdit(root) {
+    if (document.body.dataset.appRole !== "service") return;
+    const modal = root.querySelector(".guest-edit-modal");
+    if (!modal) return;
+    modal.classList.add("service-note-only");
+    const heading = modal.querySelector(".modal-head h2");
+    const subtitle = modal.querySelector(".modal-head p");
+    const noteTitle = tr("Bemerkung");
+    if (heading && heading.textContent !== noteTitle) heading.textContent = noteTitle;
+    if (subtitle && subtitle.textContent !== tr("Service-Notiz")) subtitle.textContent = tr("Service-Notiz");
+    const grid = modal.querySelector(".guest-edit-grid");
+    if (!grid) return;
+    let summary = grid.querySelector(".service-guest-readonly");
+    if (!summary) {
+      summary = document.createElement("div");
+      summary.className = "service-guest-readonly";
+      grid.prepend(summary);
+    }
+    const name = grid.querySelector("textarea")?.value || "";
+    const people = grid.querySelector('input[type="number"]')?.value || "";
+    const included = grid.querySelector('input[type="checkbox"]')?.checked;
+    const dates = [...grid.querySelectorAll('input[type="date"]')];
+    const fields = [
+      [tr("Gastname(n)"), name], [tr("Personen"), people],
+      [tr("Frühstück"), tr(included ? "inklusive" : "nicht inklusive")],
+      [tr("Anreise"), dates[0]?.value || "–"],
+      [tr("Abreise"), dates[1]?.value || "–"]
+    ];
+    const signature = JSON.stringify(fields);
+    if (summary.dataset.signature !== signature) summary.replaceChildren(...fields.map(([label, value]) => {
+      const item = document.createElement("div");
+      const title = document.createElement("span");
+      const content = document.createElement("strong");
+      title.textContent = label;
+      content.textContent = value;
+      item.append(title, content);
+      return item;
+    }));
+    summary.dataset.signature = signature;
+    grid.querySelectorAll("input, textarea, select").forEach((field) => {
+      if (!field.disabled) field.disabled = true;
+    });
   }
 
   function removeManualGuestInfo(modal) {
@@ -1028,6 +1073,7 @@
     if (shell) updateServiceOpenHeading(shell);
     if (shell) addIPadSpecialGuestShortcut(shell);
     enhanceReceptionModal(document);
+    limitServiceGuestEdit(document);
     enhanceRoomUndo(document);
     if (shell) {
       const finished = Boolean(shell.querySelector(".bottom-button.finish.finished"));

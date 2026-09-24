@@ -3806,6 +3806,49 @@ body[data-app-role="service"] .content { overflow-x:hidden !important; clip-path
   box-sizing:border-box !important;
 }
 
+/* Service: booking data are shown read-only; the existing note editor still saves. */
+body[data-app-role="service"] .guest-edit-modal.service-note-only .guest-edit-grid > label,
+body[data-app-role="service"] .guest-edit-modal.service-note-only .guest-info-edit-summary,
+body[data-app-role="service"] .guest-edit-modal.service-note-only .reception-breakfast-choice {
+  display:none !important;
+}
+body[data-app-role="service"] .guest-edit-modal.service-note-only .service-guest-readonly {
+  grid-column:1 / -1;
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+  padding:12px 0;
+}
+body[data-app-role="service"] .service-guest-readonly > div { min-width:0; }
+body[data-app-role="service"] .service-guest-readonly span,
+body[data-app-role="service"] .service-guest-readonly strong { display:block; overflow-wrap:anywhere; }
+body[data-app-role="service"] .service-guest-readonly span { color:var(--text-secondary); font-size:12px; }
+body[data-app-role="service"] .service-guest-readonly strong { color:var(--text-primary); font-size:15px; }
+
+/* Restore one straight, clipped status strip inside each iPhone service row. */
+@media(max-width:560px) {
+  body[data-app-role="service"] .room-row {
+    position:relative !important;
+    overflow:hidden !important;
+  }
+  body[data-app-role="service"] .room-row::before {
+    content:"" !important;
+    display:block !important;
+    position:absolute !important;
+    left:0 !important;
+    top:7px !important;
+    bottom:7px !important;
+    width:4px !important;
+    height:auto !important;
+    border-radius:0 !important;
+    background:#cdd7d4 !important;
+  }
+  body[data-app-role="service"] .room-row.included:not(.present):not(.partial)::before { background:var(--ambassador-yellow) !important; }
+  body[data-app-role="service"] .room-row.present::before,
+  body[data-app-role="service"] .room-row.partial::before { background:var(--ambassador-petrol) !important; }
+  body[data-app-role="service"] .room-row .room-number { color:var(--text-primary) !important; }
+}
+
 @media(max-width:560px){
   .guest-edit-modal .guest-edit-grid > label:has(input[type="date"]) {
     grid-column:1 / -1 !important;
