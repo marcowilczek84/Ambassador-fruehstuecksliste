@@ -18,6 +18,7 @@
       name.startsWith('ambassador-breakfast-') || name.startsWith('ambassador-guest-') || name.startsWith('ambassador-gm-')
     ) localStorage.removeItem(name);
     document.documentElement.dataset.deviceGate='pending';
+    document.getElementById('device-pair-overlay')?.remove();
     show();
   }
   function persist(data) {
@@ -75,6 +76,12 @@
   function show() {
     if (!document.body || ready || document.getElementById('device-pair-overlay')) return;
     const layer=document.createElement('div');layer.id='device-pair-overlay';
+    if (session) {
+      layer.innerHTML='<div class="device-pair-card"><img src="/ambassador-logo.svg" alt="Ambassador Hotel Zürich"><h1>Verbindung wird geprüft</h1><p>Die Freischaltung dieses Geräts wird überprüft.</p><button type="button">Erneut prüfen</button></div>';
+      document.body.append(layer);
+      layer.querySelector('button').onclick=()=>verify();
+      return;
+    }
     layer.innerHTML=`<form class="device-pair-card"><img src="/ambassador-logo.svg" alt="Ambassador Hotel Zürich">
       <h1>Gerät freischalten</h1><p>Einmaligen Freischaltcode für dieses Hotelgerät eingeben.</p>
       <label>Code<input name="code" required autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="32"></label>
