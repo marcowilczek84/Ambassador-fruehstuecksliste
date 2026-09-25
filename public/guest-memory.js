@@ -104,17 +104,17 @@
   async function resolveStay(room,name) {
     const encoded=encodeURIComponent(normalizeName(name));
     const stays=await query('guest_stays',`select=*&hotel_id=eq.${membership.hotel_id}&normalized_name=eq.${encoded}&arrival_date=eq.${room.arrival}&departure_date=eq.${room.departure}`);
-    if (stays.length===1) return stays[0];
+    if (stays.length===1) return {stay:stays[0],ambiguous:false};
     if (stays.length>1) {
       const rooms=await query('guest_stay_rooms',`select=stay_id,room_number&hotel_id=eq.${membership.hotel_id}&room_number=eq.${room.room}`);
       const matching=stays.filter(stay=>rooms.some(entry=>entry.stay_id===stay.id));
-      if (matching.length===1) return matching[0];
+      if (matching.length===1) return {stay:matching[0],ambiguous:false};
     }
-    return null;
+    return {stay:null,ambiguous:stays.length>1};
   }
   async function loadData(room,name) {
-    const stay=await resolveStay(room,name);
-    if (!stay) return {stay:null,notes:[],persistent:[],candidates:[],history:[],unresolved:[]};
+    const {stay,ambiguous}=await resolveStay(room,name);
+    if (!stay) return {stay:null,ambiguous,notes:[],persistent:[],candidates:[],history:[],unresolved:[]};
     const notes=await query('guest_notes',`select=*&hotel_id=eq.${membership.hotel_id}&stay_id=eq.${stay.id}&deleted_at=is.null&order=created_at.desc`);
     const persistent=stay.guest_profile_id ? await query('guest_notes',`select=*&hotel_id=eq.${membership.hotel_id}&guest_profile_id=eq.${stay.guest_profile_id}&deleted_at=is.null&order=created_at.desc`) : [];
     let candidates=[],history=[],unresolved=[];
@@ -142,7 +142,14 @@
     if (!membership) return `<section class="gm-panel"><h3>Gastgedächtnis</h3><p>Arbeitsrolle anmelden</p>
       <form class="gm-login"><label>E-Mail<input type="email" required autocomplete="username" value="${uiRole()==='SERVICE'?'service':'reception'}-guest-memory@staging.invalid"></label>
       <label>Passwort<input type="password" required autocomplete="current-password"></label><button type="submit">Anmelden</button></form></section>`;
-    if (!data.stay) return `<section class="gm-panel"><h3>Aktueller Aufenthalt</h3><p>${label('Aufenthalt wird geprüft. Bei zwei gleichnamigen Gästen entscheidet die Rezeption.','Stay needs review.')}</p></section>`;
+    if (!data.stay) {
+      const expired=room.departure && room.departure<day();
+      const message=expired
+        ? label('Dieser Aufenthalt ist laut importierter Liste bereits beendet. Für den heutigen Service kann keine neue Aufenthaltsbemerkung angelegt werden.','This stay has already ended according to the imported list.')
+        : data.ambiguous ? label('Mehrere gleichnamige Aufenthalte sind möglich. Die Rezeption muss die Zuordnung prüfen.','Several stays with the same name match. Reception must review the assignment.')
+        : label('Für diesen Gast wurde noch kein Aufenthalt im Gastgedächtnis gefunden. Bitte die Rezeption prüfen lassen.','No stay has been found for this guest yet. Please contact reception.');
+      return `<section class="gm-panel"><h3>Aktueller Aufenthalt</h3><p>${message}</p></section>`;
+    }
     const {stay,notes,persistent,candidates,history,unresolved}=data;
     const candidateUI=membership.work_role==='RECEPTION' && candidates.length ? `<section class="gm-section"><h3>Möglicher bekannter Gast</h3><p>Für diesen Namen existieren frühere Gastinformationen.</p><details><summary>Prüfen</summary>${candidates.map(candidate=>`<div class="gm-candidate"><strong>${esc(candidate.display_name)}</strong><small>Profil ${esc(candidate.id.slice(0,8))}</small><button data-action="same" data-id="${candidate.id}">Dieselbe Person</button><button data-action="other" data-id="${candidate.id}">Andere Person</button>${stay.guest_profile_id?`<button data-action="merge-preview" data-id="${candidate.id}">Profile vergleichen</button>`:''}</div>`).join('')}</details></section>`:'';
     const persistentUI=persistent.length?`<section class="gm-section"><h3>Dauerhafte Gastinformationen</h3>${persistent.map(noteHtml).join('')}</section>`:'';
