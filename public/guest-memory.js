@@ -1,10 +1,10 @@
-/* Guest memory preview: uses only the separate staging Supabase project. */
+/* Guest memory uses the runtime configuration for this deployment. */
 (() => {
   'use strict';
   const base = window.__AMBASSADOR_STAGING_URL__;
   const key = window.__AMBASSADOR_STAGING_KEY__;
-  if (!base?.includes('jeuvmhahanaulvrnasgq.supabase.co') || !key?.startsWith('sb_publishable_')) return;
-  const sessionKey = 'ambassador-gm-staging-session';
+  const deviceAuth = window.__AMBASSADOR_DEVICE_AUTH__;
+  if (base !== 'https://jeuvmhahanaulvrnasgq.supabase.co' || !deviceAuth) return;
   let session = null;
   let membership = null;
   let syncSignature = '';
@@ -12,7 +12,7 @@
   let lastRefreshAt = 0;
   let selectedName = '';
   let busy = false;
-  try { session = JSON.parse(localStorage.getItem(sessionKey) || 'null'); } catch {}
+  session = deviceAuth.getSession();
 
   const uiRole = () => (sessionStorage.getItem('ambassador-work-area') || document.body.dataset.appRole || '').toUpperCase();
   const day = () => new Intl.DateTimeFormat('en-CA', {timeZone:'Europe/Zurich'}).format(new Date());
@@ -27,25 +27,15 @@
   const time = value => value ? new Intl.DateTimeFormat('de-CH', {timeZone:'Europe/Zurich',day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}).format(new Date(value)) : '';
   const label = (de,en) => document.documentElement.lang?.startsWith('en') ? en : de;
 
-  async function renew() {
-    if (!session?.refresh_token) throw Error('Arbeitsrolle anmelden');
-    const response = await fetch(`${base}/auth/v1/token?grant_type=refresh_token`, {
-      method:'POST',headers:{apikey:key,'content-type':'application/json'},
-      body:JSON.stringify({refresh_token:session.refresh_token})
-    });
-    if (!response.ok) { session=null;membership=null;localStorage.removeItem(sessionKey);throw Error('Arbeitsrolle erneut anmelden'); }
-    session=await response.json();
-    if (!session.expires_at) session.expires_at=Math.floor(Date.now()/1000)+(session.expires_in||3600);
-    localStorage.setItem(sessionKey,JSON.stringify(session));
-  }
   async function request(path, options={}, retry=true) {
-    if (!session?.access_token) throw Error('Arbeitsrolle anmelden');
-    if (Date.now() > (session.expires_at || 0)*1000 - 30000) await renew();
+    if (!deviceAuth.isReady()) throw Error('Gerät freischalten');
+    const access=await deviceAuth.token();
+    if (!access) throw Error('Gerät freischalten');
     const response=await fetch(`${base}${path}`, {
-      ...options,headers:{apikey:key,Authorization:`Bearer ${session.access_token}`,
+      ...options,headers:{apikey:key,Authorization:`Bearer ${access}`,
         'content-type':'application/json',...(options.headers||{})},cache:'no-store'
     });
-    if (response.status===401 && retry) { await renew();return request(path,options,false); }
+    if (response.status===401 && retry && await deviceAuth.verify()) return request(path,options,false);
     if (!response.ok) { const error=await response.json().catch(()=>({}));throw Error(error.message || `Anfrage fehlgeschlagen (${response.status})`); }
     return response.status===204 ? null : response.json();
   }
@@ -56,28 +46,15 @@
   });
 
   async function identify() {
-    if (!session) return;
-    const data=await query('gm_memberships','select=user_id,hotel_id,work_role&active=eq.true');
-    membership=data.find(item=>item.work_role===uiRole()) || null;
-    if (!membership) throw Error('Angemeldete Arbeitsrolle und gewählter Bereich stimmen nicht überein');
+    if (!deviceAuth.isReady()) return;
+    const data=await query('gm_hotels','select=id');
+    membership=data[0]?{hotel_id:data[0].id,work_role:'SERVICE'}:null;
+    if (!membership) throw Error('Gerät nicht freigeschaltet');
     return membership;
-  }
-  async function login(email,password) {
-    const response=await fetch(`${base}/auth/v1/token?grant_type=password`,{
-      method:'POST',headers:{apikey:key,'content-type':'application/json'},
-      body:JSON.stringify({email,password})
-    });
-    const result=await response.json();
-    if (!response.ok) throw Error(result.msg || result.error_description || 'Anmeldung fehlgeschlagen');
-    session=result;
-    if (!session.expires_at) session.expires_at=Math.floor(Date.now()/1000)+(session.expires_in||3600);
-    localStorage.setItem(sessionKey,JSON.stringify(session));
-    try { await identify(); } catch (error) { session=null;membership=null;localStorage.removeItem(sessionKey);throw error; }
-    syncSignature=''; modalSignature='';
   }
 
   async function syncStays() {
-    if (!membership || membership.work_role!=='RECEPTION' || busy) return;
+    if (!membership || busy) return;
     let state;
     try { state=JSON.parse(localStorage.getItem('ambassador-breakfast-rooms') || 'null'); } catch { return; }
     if (state?.date !== day() || !Array.isArray(state.rooms)) return;
@@ -117,20 +94,12 @@
     if (!stay) return {stay:null,ambiguous,notes:[],persistent:[],candidates:[],history:[],unresolved:[]};
     const notes=await query('guest_notes',`select=*&hotel_id=eq.${membership.hotel_id}&stay_id=eq.${stay.id}&deleted_at=is.null&order=created_at.desc`);
     const persistent=stay.guest_profile_id ? await query('guest_notes',`select=*&hotel_id=eq.${membership.hotel_id}&guest_profile_id=eq.${stay.guest_profile_id}&deleted_at=is.null&order=created_at.desc`) : [];
-    let candidates=[],history=[],unresolved=[];
-    if (membership.work_role==='RECEPTION') {
-      const profiles=await query('guest_profiles',`select=*&hotel_id=eq.${membership.hotel_id}&normalized_name=eq.${encodeURIComponent(normalizeName(name))}&merged_into=is.null`);
-      const decisions=await query('guest_match_decisions',`select=candidate_profile_id&stay_id=eq.${stay.id}&decision=eq.REJECTED`);
-      candidates=profiles.filter(p=>p.id!==stay.guest_profile_id && !decisions.some(d=>d.candidate_profile_id===p.id));
-      if (stay.guest_profile_id) history=await query('guest_stays',`select=id,arrival_date,departure_date&hotel_id=eq.${membership.hotel_id}&guest_profile_id=eq.${stay.guest_profile_id}&id=neq.${stay.id}&order=arrival_date.desc`);
-      unresolved=await query('guest_legacy_unresolved',`select=id,original_body,observed_on&hotel_id=eq.${membership.hotel_id}&room_number=eq.${room.room}&assignment_status=eq.UNRESOLVED`);
-    }
-    return {stay,notes,persistent,candidates,history,unresolved};
+    return {stay,notes,persistent};
   }
 
   function noteHtml(note) {
     const persistent=note.note_type==='PERSISTENT';
-    const canDelete=!persistent || membership.work_role==='RECEPTION';
+    const canDelete=true;
     return `<article class="gm-note" data-note-id="${note.id}">
       <small>${esc(label('Erstellt','Created'))} ${esc(time(note.created_at))}</small>
       <p>${esc(note.body)}</p><span class="gm-note-kind">${persistent?label('Dauerhafte Gastinformation','Permanent guest information'):label('Dieser Aufenthalt','This stay')}</span>
@@ -139,9 +108,7 @@
     </article>`;
   }
   function panelHtml(data,room) {
-    if (!membership) return `<section class="gm-panel"><h3>Gastgedächtnis</h3><p>Arbeitsrolle anmelden</p>
-      <form class="gm-login"><label>E-Mail<input type="email" required autocomplete="username" value="${uiRole()==='SERVICE'?'service':'reception'}-guest-memory@staging.invalid"></label>
-      <label>Passwort<input type="password" required autocomplete="current-password"></label><button type="submit">Anmelden</button></form></section>`;
+    if (!membership) return '';
     if (!data.stay) {
       const expired=room.departure && room.departure<day();
       const message=expired
@@ -150,14 +117,11 @@
         : label('Für diesen Gast wurde noch kein Aufenthalt im Gastgedächtnis gefunden. Bitte die Rezeption prüfen lassen.','No stay has been found for this guest yet. Please contact reception.');
       return `<section class="gm-panel"><h3>Aktueller Aufenthalt</h3><p>${message}</p></section>`;
     }
-    const {stay,notes,persistent,candidates,history,unresolved}=data;
-    const candidateUI=membership.work_role==='RECEPTION' && candidates.length ? `<section class="gm-section"><h3>Möglicher bekannter Gast</h3><p>Für diesen Namen existieren frühere Gastinformationen.</p><details><summary>Prüfen</summary>${candidates.map(candidate=>`<div class="gm-candidate"><strong>${esc(candidate.display_name)}</strong><small>Profil ${esc(candidate.id.slice(0,8))}</small><button data-action="same" data-id="${candidate.id}">Dieselbe Person</button><button data-action="other" data-id="${candidate.id}">Andere Person</button>${stay.guest_profile_id?`<button data-action="merge-preview" data-id="${candidate.id}">Profile vergleichen</button>`:''}</div>`).join('')}</details></section>`:'';
+    const {stay,notes,persistent}=data;
     const persistentUI=persistent.length?`<section class="gm-section"><h3>Dauerhafte Gastinformationen</h3>${persistent.map(noteHtml).join('')}</section>`:'';
-    const historyUI=membership.work_role==='RECEPTION' && history.length?`<section class="gm-section"><details><summary>Frühere Aufenthalte · ${history.length}</summary>${history.map(h=>`<div class="gm-history"><button data-action="history" data-id="${h.id}">${esc(h.arrival_date)} – ${esc(h.departure_date)}</button><div data-history-id="${h.id}"></div></div>`).join('')}</details></section>`:'';
-    const unresolvedUI=membership.work_role==='RECEPTION'&&unresolved.length?`<section class="gm-section"><h3>Alte Bemerkungen · Zuordnung nicht eindeutig</h3>${unresolved.map(item=>`<p>${esc(item.original_body)}<button data-action="assign" data-id="${item.id}">Diesem Aufenthalt zuordnen</button> · <button data-action="discard-legacy" data-id="${item.id}">Löschen</button></p>`).join('')}</section>`:'';
-    return `<section class="gm-panel" data-stay-id="${stay.id}">${candidateUI}${persistentUI}
+    return `<section class="gm-panel" data-stay-id="${stay.id}">${persistentUI}
       <section class="gm-section"><h3>Aktueller Aufenthalt</h3>${notes.map(noteHtml).join('')||'<p class="gm-empty">Keine Bemerkung gespeichert</p>'}
-      <button class="gm-add" data-action="add">+ Bemerkung hinzufügen</button></section>${historyUI}${unresolvedUI}</section>`;
+      <button class="gm-add" data-action="add">+ Bemerkung hinzufügen</button></section></section>`;
   }
 
   function editor(panel,note=null) {
@@ -193,29 +157,6 @@
     if (action==='delete' && note) {
       if (!confirm('Bemerkung löschen?\nDiese Bemerkung wird entfernt.')) return;
       await rpc('gm_soft_delete_note',{p_note:id});
-    } else if (action==='same' || action==='other') {
-      if (!confirm(action==='same'?'Diesen Aufenthalt mit dem ausgewählten Gastprofil verbinden?':'Dieses Profil für den Aufenthalt ablehnen?')) return;
-      await rpc('gm_decide_match',{p_stay:data.stay.id,p_profile:id,p_same_person:action==='same'});
-    } else if (action==='assign') {
-      if (!confirm('Alte Bemerkung diesem Aufenthalt zuordnen?')) return;
-      await rpc('gm_assign_legacy',{p_legacy:id,p_stay:data.stay.id});
-    } else if (action==='discard-legacy') {
-      if (!confirm('Alte Bemerkung löschen?')) return;
-      await rpc('gm_discard_legacy',{p_legacy:id});
-    } else if (action==='history') {
-      const target=panel.querySelector(`[data-history-id="${id}"]`);
-      if (!target) return;
-      if (target.textContent) {target.replaceChildren();return;}
-      const notes=await query('guest_notes',`select=*&stay_id=eq.${id}&deleted_at=is.null&order=created_at.desc`);
-      target.innerHTML=notes.length?notes.map(noteHtml).join(''):'Keine Bemerkungen';return;
-    } else if (action==='merge-preview') {
-      const source=data.stay.guest_profile_id;
-      const target=id;
-      const sourceNotes=data.persistent.map(n=>n.body).join('\n')||'Keine Informationen';
-      const targetNotes=await query('guest_notes',`select=body&guest_profile_id=eq.${target}&deleted_at=is.null`);
-      const message=`GASTPROFILE ZUSAMMENFÜHREN?\n\nProfil A:\n${sourceNotes}\n\nProfil B:\n${targetNotes.map(n=>n.body).join('\n')||'Keine Informationen'}\n\nKeine Information wird überschrieben. Zusammenführen?`;
-      if (!confirm(message)) return;
-      await rpc('gm_merge_profiles',{p_source:source,p_target:target});
     } else return;
     modalSignature='';await refreshPanel();
   }
@@ -248,11 +189,13 @@
   }
 
   async function tick() {
+    if (!deviceAuth.isReady()) {membership=null;return;}
+    session=deviceAuth.getSession();
+    if (!membership) await identify();
     const modal=document.querySelector('.guest-edit-modal');
     if (!modal) { modalSignature='';selectedName='';return; }
     const number=+(modal.querySelector('.modal-kicker')?.textContent.match(/\d+/)?.[0]||0);
     if (!number) return;
-    if (membership && membership.work_role!==uiRole()) membership=null;
     const signature=`${number}:${uiRole()}:${Boolean(session)}:${syncSignature}`;
     if (signature===modalSignature && modal.querySelector('.gm-panel') &&
       (!membership || Date.now()-lastRefreshAt<5000 || modal.querySelector('.gm-dialog-layer'))) return;
@@ -260,22 +203,9 @@
     try {
       if (!membership && session) await identify();
       if (membership) {document.body.classList.add('gm-enabled');await refreshPanel();lastRefreshAt=Date.now();}
-      else {
-        const container=modal.querySelector('.modal-body');
-        if (!container || container.querySelector('.gm-panel')) return;
-        const panel=document.createElement('div');panel.innerHTML=panelHtml({},{});
-        const footer=container.querySelector('.modal-actions:not(.guest-view-actions)');
-        if (footer) footer.before(...panel.children); else container.append(...panel.children);
-        container.querySelector('.gm-login')?.addEventListener('submit',async event=>{
-          event.preventDefault();const form=event.currentTarget;
-          try {await login(form.querySelector('input[type=email]').value,form.querySelector('input[type=password]').value);modalSignature='';await refreshPanel();}
-          catch(error){alert(error.message);}
-        });
-      }
+      else await identify();
     } catch(error) {
-      if (/Arbeitsrolle|Bereich/.test(error.message)) {
-        session=null;membership=null;localStorage.removeItem(sessionKey);
-      }
+      if (/Gerät/.test(error.message)) membership=null;
       modalSignature='';console.warn('Gastgedächtnis:',error.message);
     }
   }
