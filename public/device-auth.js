@@ -31,7 +31,10 @@
       method:'POST',headers:{apikey:key,'Content-Type':'application/json'},
       body:JSON.stringify({refresh_token:session.refresh_token}),cache:'no-store'
     });
-    if (!response.ok) { clear();return null; }
+    if (!response.ok) {
+      if (response.status===400 || response.status===401) clear();
+      throw Error('Verbindung zur Gerätesession fehlgeschlagen');
+    }
     const data=await response.json();
     persist({...data,expires_at:data.expires_at||Math.floor(Date.now()/1000)+data.expires_in});
     return session.access_token;
@@ -46,11 +49,16 @@
           method:'POST',headers:{apikey:key,Authorization:`Bearer ${access}`,'Content-Type':'application/json'},
           body:'{}',cache:'no-store'
         });
-        if (!response.ok || await response.json()!==true) {clear();return false;}
+        if (response.status===401 || response.status===403) {clear();return false;}
+        if (!response.ok) throw Error('Verbindung zur Geräteprüfung fehlgeschlagen');
+        if (await response.json()!==true) {clear();return false;}
         ready=true;document.documentElement.dataset.deviceGate='ready';
         document.getElementById('device-pair-overlay')?.remove();
         return true;
-      } catch { clear();return false; }
+      } catch {
+        // Offline and temporary API errors must never destroy a paired device.
+        ready=false;document.documentElement.dataset.deviceGate='pending';show();return false;
+      }
     })().finally(()=>{verifying=null;});
     return verifying;
   }
@@ -101,6 +109,6 @@
   if (document.readyState==='loading') document.addEventListener('DOMContentLoaded',show,{once:true});
   else show();
   verify().finally(()=>{if (!ready) show();});
-  setInterval(()=>{if (ready) verify();},30000);
-  window.addEventListener('focus',()=>{if (ready) verify();});
+  setInterval(()=>{if (session) verify();},30000);
+  window.addEventListener('focus',()=>{if (session) verify();});
 })();

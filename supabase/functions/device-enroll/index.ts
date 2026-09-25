@@ -27,7 +27,7 @@ Deno.serve(async request => {
   const {data:claim,error:claimError}=await admin.rpc('gm_claim_device_code',{p_code:code});
   if (claimError || !claim?.length) return reply(400,{error:'Code ungültig oder abgelaufen'});
 
-  const email=`${crypto.randomUUID()}@devices.staging.invalid`;
+  const email=`${crypto.randomUUID()}@devices.invalid`;
   const password=Array.from(crypto.getRandomValues(new Uint8Array(32)),v=>v.toString(16).padStart(2,'0')).join('');
   const {data:created,error:createError}=await admin.auth.admin.createUser({
     email,password,email_confirm:true,app_metadata:{hotel_device:true}
