@@ -1,10 +1,10 @@
 /* Staging device pairing; all data requests use a server-verified device session. */
 (() => {
   'use strict';
-  const base=window.__AMBASSADOR_STAGING_URL__;
-  const key=window.__AMBASSADOR_STAGING_KEY__;
-  if (base!=='https://jeuvmhahanaulvrnasgq.supabase.co' || !key) return;
-  const storageKey='ambassador-staging-device-session-v1';
+  const base=window.__AMBASSADOR_PRODUCTION_URL__;
+  const key=window.__AMBASSADOR_PRODUCTION_KEY__;
+  if (base!=='https://xgbbwnmqgpwxxftnjrkc.supabase.co' || !key) return;
+  const storageKey='ambassador-production-device-session-v1';
   const nativeFetch=window.fetch.bind(window);
   let session=null,ready=false,verifying=null;
   document.documentElement.dataset.deviceGate='pending';

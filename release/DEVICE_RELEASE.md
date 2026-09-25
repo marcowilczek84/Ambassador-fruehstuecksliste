@@ -5,7 +5,7 @@
 ## Bestand und Freigabegrenzen
 
 - Production-Supabase: `xgbbwnmqgpwxxftnjrkc`; Staging: `jeuvmhahanaulvrnasgq`. Keine Staging-Konten, Codes, Profil-/Aufenthalts-/Bemerkungsdaten oder Secrets exportieren.
-- Anonyme Production-Policies für `breakfast_lists` und `guest_preferences` erlauben momentan SELECT/INSERT/UPDATE/DELETE. `breakfast_list` ist leer, besitzt RLS und keine anon-Policy.
+- Anonyme Production-Policies für `breakfast_lists` und `guest_preferences` erlauben momentan SELECT/INSERT/UPDATE/DELETE. Die ältere Tabelle `breakfast_list` besitzt ebenfalls offene `public`-Policies und enthält laut erneuter Prüfung am 25.09.2026 einen Datensatz; alle drei Tabellen brauchen den Device-Guard.
 - Gastgedächtnis-Tabellen existieren in Production noch nicht. Elf historische Zimmernotiz-Quellen: zwei eindeutig STAY, neun ungeklärt; niemals automatisch PERSISTENT.
 - Frei wechselbare Bedienansichten SERVICE/REZEPTION erhalten identische *normale* Rechte auf dem Gerät. Keine Identity-/Legacy-/Merge-RPCs freigeben.
 

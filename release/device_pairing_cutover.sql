@@ -4,6 +4,12 @@ create policy gm_breakfast_device_guard on public.breakfast_lists as restrictive
  for all to anon,authenticated using(guest_memory_private.has_device())
  with check(guest_memory_private.has_device());
 
+-- Production still exposes a legacy breakfast_list table via public policies.
+-- Guard this table too; the Production read-only check found one row.
+create policy gm_legacy_breakfast_device_guard on public.breakfast_list as restrictive
+ for all to anon,authenticated using(guest_memory_private.has_device())
+ with check(guest_memory_private.has_device());
+
 -- Existing Production guest_preferences policies allow anon. Close them without
 -- deleting data or destroying the old policies needed for a controlled rollback.
 create policy gm_preferences_device_guard on public.guest_preferences as restrictive
@@ -12,37 +18,117 @@ create policy gm_preferences_device_guard on public.guest_preferences as restric
 
 -- The existing merge RPC returns guest data; RLS must also be checked before
 -- any read or mutation inside it, including its ON CONFLICT path.
-create or replace function public.merge_breakfast_changes(
- p_list_date date,p_rooms jsonb default '[]'::jsonb,p_arrivals jsonb default '[]'::jsonb,
- p_history jsonb default null,p_activity jsonb default '[]'::jsonb,p_updated bigint default 0
-) returns jsonb language plpgsql set search_path='public' as $$
-declare old_payload jsonb; merged jsonb;
+CREATE OR REPLACE FUNCTION public.merge_breakfast_changes(p_list_date date, p_rooms jsonb DEFAULT '[]'::jsonb, p_arrivals jsonb DEFAULT '[]'::jsonb, p_history jsonb DEFAULT NULL::jsonb, p_activity jsonb DEFAULT '[]'::jsonb, p_updated bigint DEFAULT 0)
+ RETURNS jsonb
+ LANGUAGE plpgsql
+ SET search_path TO 'public'
+AS $function$
+declare
+  current_payload jsonb;
+  current_rooms jsonb;
+  current_arrivals jsonb;
+  current_activity jsonb;
+  merged_rooms jsonb;
+  merged_arrivals jsonb;
+  merged_activity jsonb;
+  merged_history jsonb;
+  result_payload jsonb;
 begin
- if not guest_memory_private.has_device() then
-   raise exception 'device not authorized' using errcode='42501';
- end if;
- if jsonb_typeof(p_rooms)<>'array' or jsonb_typeof(p_arrivals)<>'array'
-    or jsonb_typeof(p_activity)<>'array' then raise exception 'expected arrays'; end if;
- insert into public.breakfast_lists(list_date,payload,updated_at)
- values(p_list_date,jsonb_build_object('rooms','[]'::jsonb,'v8Arrivals','[]'::jsonb,
-   'v8Activity','[]'::jsonb,'v8History','[]'::jsonb),0)
- on conflict do nothing;
- select payload into old_payload from public.breakfast_lists where list_date=p_list_date for update;
- select coalesce(jsonb_agg(item order by (item->>'room')::int),'[]'::jsonb) into merged from (
-   select old.item from jsonb_array_elements(coalesce(old_payload->'rooms','[]'::jsonb)) old(item)
-   where not exists(select 1 from jsonb_array_elements(p_rooms) changed(item)
-                    where changed.item->>'room'=old.item->>'room')
-   union all select item from jsonb_array_elements(p_rooms) changed(item)
- ) x;
- old_payload := old_payload || jsonb_build_object('date',p_list_date::text,'rooms',merged,
-   'v8Arrivals',coalesce(old_payload->'v8Arrivals','[]'::jsonb) || p_arrivals,
-   'v8Activity',p_activity,
-   'v8History',coalesce(p_history,old_payload->'v8History','[]'::jsonb),
-   'updated',greatest(p_updated,coalesce((old_payload->>'updated')::bigint,0)));
- update public.breakfast_lists set payload=old_payload,updated_at=greatest(p_updated,updated_at)
- where list_date=p_list_date;
- return old_payload;
-end $$;
+  if not guest_memory_private.has_device() then
+    raise exception 'device not authorized' using errcode='42501';
+  end if;
+  if jsonb_typeof(coalesce(p_rooms, '[]'::jsonb)) <> 'array'
+     or jsonb_typeof(coalesce(p_arrivals, '[]'::jsonb)) <> 'array'
+     or jsonb_typeof(coalesce(p_activity, '[]'::jsonb)) <> 'array' then
+    raise exception 'rooms, arrivals and activity must be JSON arrays';
+  end if;
+
+  insert into public.breakfast_lists (list_date, payload, updated_at)
+  values (
+    p_list_date,
+    jsonb_build_object(
+      'date', p_list_date::text,
+      'rooms', '[]'::jsonb,
+      'v8Arrivals', '[]'::jsonb,
+      'v8History', coalesce(p_history, '[]'::jsonb),
+      'v8Activity', '[]'::jsonb,
+      'updated', greatest(p_updated, 0)
+    ),
+    greatest(p_updated, 0)
+  )
+  on conflict (list_date) do nothing;
+
+  select payload
+    into current_payload
+    from public.breakfast_lists
+   where list_date = p_list_date
+   for update;
+
+  current_payload := coalesce(current_payload, '{}'::jsonb);
+  current_rooms := case when jsonb_typeof(current_payload->'rooms') = 'array' then current_payload->'rooms' else '[]'::jsonb end;
+  current_arrivals := case when jsonb_typeof(current_payload->'v8Arrivals') = 'array' then current_payload->'v8Arrivals' else '[]'::jsonb end;
+  current_activity := case when jsonb_typeof(current_payload->'v8Activity') = 'array' then current_payload->'v8Activity' else '[]'::jsonb end;
+
+  select coalesce(jsonb_agg(room_item order by (room_item->>'room')::integer), '[]'::jsonb)
+    into merged_rooms
+    from (
+      select existing.room_item
+        from jsonb_array_elements(current_rooms) as existing(room_item)
+       where not exists (
+         select 1
+           from jsonb_array_elements(coalesce(p_rooms, '[]'::jsonb)) as changed(room_item)
+          where changed.room_item->>'room' = existing.room_item->>'room'
+       )
+      union all
+      select changed.room_item
+        from jsonb_array_elements(coalesce(p_rooms, '[]'::jsonb)) as changed(room_item)
+    ) merged;
+
+  select coalesce(jsonb_agg(arrival_item order by coalesce((arrival_item->>'at')::bigint, 0)), '[]'::jsonb)
+    into merged_arrivals
+    from (
+      select distinct arrival_item
+        from jsonb_array_elements(current_arrivals || coalesce(p_arrivals, '[]'::jsonb)) as arrivals(arrival_item)
+    ) deduplicated_arrivals;
+
+  select coalesce(jsonb_agg(activity_item order by activity_at), '[]'::jsonb)
+    into merged_activity
+    from (
+      select activity_item, activity_at
+        from (
+          select distinct on (activity_item->>'id')
+                 activity_item,
+                 coalesce((activity_item->>'at')::bigint, 0) as activity_at
+            from jsonb_array_elements(current_activity || coalesce(p_activity, '[]'::jsonb)) as activities(activity_item)
+           order by activity_item->>'id', coalesce((activity_item->>'at')::bigint, 0) desc
+        ) unique_activity
+       order by activity_at desc
+       limit 30
+    ) recent_activity;
+
+  merged_history := case
+    when p_history is not null and jsonb_typeof(p_history) = 'array' then p_history
+    when jsonb_typeof(current_payload->'v8History') = 'array' then current_payload->'v8History'
+    else '[]'::jsonb
+  end;
+
+  result_payload := current_payload || jsonb_build_object(
+    'date', p_list_date::text,
+    'rooms', merged_rooms,
+    'v8Arrivals', merged_arrivals,
+    'v8History', merged_history,
+    'v8Activity', merged_activity,
+    'updated', greatest(p_updated, coalesce((current_payload->>'updated')::bigint, 0))
+  );
+
+  update public.breakfast_lists
+     set payload = result_payload,
+         updated_at = greatest(p_updated, updated_at)
+   where list_date = p_list_date;
+
+  return result_payload;
+end;
+$function$;
 revoke execute on function public.merge_breakfast_changes(date,jsonb,jsonb,jsonb,jsonb,bigint) from anon;
 grant execute on function public.merge_breakfast_changes(date,jsonb,jsonb,jsonb,jsonb,bigint) to authenticated;
 

@@ -26,6 +26,13 @@ create table public.gm_settings (
   deleted_note_days integer not null default 30 check (deleted_note_days between 1 and 365)
 );
 
+-- A production hotel record is required before any device code can be issued.
+-- This UUID belongs only to Production; no Staging hotel row or test data is copied.
+insert into public.gm_hotels(id,name)
+values ('417b5dcf-8aab-4e57-b3f4-ad4085c16e43','Ambassador Hotel Zürich');
+insert into public.gm_settings(hotel_id)
+values ('417b5dcf-8aab-4e57-b3f4-ad4085c16e43');
+
 create table public.guest_profiles (
   id uuid primary key default gen_random_uuid(),
   hotel_id uuid not null references public.gm_hotels(id),

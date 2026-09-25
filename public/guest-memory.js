@@ -1,10 +1,10 @@
 /* Guest memory uses the runtime configuration for this deployment. */
 (() => {
   'use strict';
-  const base = window.__AMBASSADOR_STAGING_URL__;
-  const key = window.__AMBASSADOR_STAGING_KEY__;
+  const base = window.__AMBASSADOR_PRODUCTION_URL__;
+  const key = window.__AMBASSADOR_PRODUCTION_KEY__;
   const deviceAuth = window.__AMBASSADOR_DEVICE_AUTH__;
-  if (base !== 'https://jeuvmhahanaulvrnasgq.supabase.co' || !deviceAuth) return;
+  if (base !== 'https://xgbbwnmqgpwxxftnjrkc.supabase.co' || !deviceAuth) return;
   let session = null;
   let membership = null;
   let syncSignature = '';
