@@ -127,12 +127,15 @@
   function editor(panel,note=null) {
     const edit=Boolean(note);
     const dialog=document.createElement('div');dialog.className='gm-dialog-layer';
-    dialog.innerHTML=`<div class="gm-dialog" role="dialog" aria-modal="true"><h3>${edit?'Bemerkung bearbeiten':'Bemerkung hinzufügen'}</h3>
-      <form><fieldset ${edit?'disabled':''}><legend>Gültigkeit</legend><label><input type="radio" name="type" value="STAY" ${!note||note.note_type==='STAY'?'checked':''}> Dieser Aufenthalt</label>
-      <label><input type="radio" name="type" value="PERSISTENT" ${note?.note_type==='PERSISTENT'?'checked':''}> Dauerhafte Gastinformation</label></fieldset>
-      <textarea required maxlength="4000" rows="5" aria-label="Bemerkung">${esc(note?.body||'')}</textarea>
-      <div class="gm-dialog-actions"><button type="button" data-cancel>Abbrechen</button><button type="submit">Speichern</button></div></form></div>`;
-    panel.append(dialog);dialog.querySelector('[data-cancel]').onclick=()=>dialog.remove();
+    dialog.innerHTML=`<div class="gm-dialog" role="dialog" aria-modal="true" aria-labelledby="gm-dialog-title">
+      <header class="gm-dialog-header"><div><h3 id="gm-dialog-title">${edit?'Bemerkung bearbeiten':'Bemerkung hinzufügen'}</h3><p>Gastinformation erfassen</p></div><button type="button" class="gm-dialog-close" data-cancel aria-label="Schließen">×</button></header>
+      <form><div class="gm-dialog-body"><fieldset ${edit?'disabled':''}><legend>Gültigkeit</legend><div class="gm-type-options">
+      <label class="gm-type-option"><input type="radio" name="type" value="STAY" ${!note||note.note_type==='STAY'?'checked':''}><span><b aria-hidden="true">✓</b>Dieser Aufenthalt</span></label>
+      <label class="gm-type-option"><input type="radio" name="type" value="PERSISTENT" ${note?.note_type==='PERSISTENT'?'checked':''}><span><b aria-hidden="true">✓</b>Dauerhafte Gastinfo</span></label>
+      </div></fieldset><label class="gm-text-label" for="gm-note-text">Bemerkung</label>
+      <textarea id="gm-note-text" required maxlength="4000" rows="5" placeholder="Bemerkung eingeben …">${esc(note?.body||'')}</textarea></div>
+      <footer class="gm-dialog-actions"><button type="button" data-cancel>Abbrechen</button><button type="submit">Speichern</button></footer></form></div>`;
+    panel.append(dialog);dialog.querySelectorAll('[data-cancel]').forEach(button=>button.onclick=()=>dialog.remove());
     dialog.querySelector('form').onsubmit=async event=>{
       event.preventDefault();const form=event.currentTarget,submit=form.querySelector('[type=submit]');submit.disabled=true;
       try {
