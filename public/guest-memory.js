@@ -3,6 +3,7 @@
   'use strict';
   const base = window.__AMBASSADOR_GM_CONFIG__?.url;
   const key = window.__AMBASSADOR_GM_CONFIG__?.publishableKey;
+  const accounts = window.__AMBASSADOR_GM_CONFIG__?.accounts;
   if (base !== 'https://xgbbwnmqgpwxxftnjrkc.supabase.co' || !key?.startsWith('sb_publishable_')) return;
   const sessionKey = 'ambassador-gm-production-session';
   let session = null;
@@ -62,7 +63,9 @@
     if (!membership) throw Error('Angemeldete Arbeitsrolle und gewählter Bereich stimmen nicht überein');
     return membership;
   }
-  async function login(email,password) {
+  async function login(password) {
+    const email=accounts?.[uiRole()];
+    if (!email) throw Error('Arbeitsrolle ist nicht eingerichtet');
     const response=await fetch(`${base}/auth/v1/token?grant_type=password`,{
       method:'POST',headers:{apikey:key,'content-type':'application/json'},
       body:JSON.stringify({email,password})
@@ -139,9 +142,8 @@
     </article>`;
   }
   function panelHtml(data,room) {
-    if (!membership) return `<section class="gm-panel"><h3>Gastgedächtnis</h3><p>Arbeitsrolle anmelden</p>
-      <form class="gm-login"><label>E-Mail<input type="email" required autocomplete="username"></label>
-      <label>Passwort<input type="password" required autocomplete="current-password"></label><button type="submit">Anmelden</button></form></section>`;
+    if (!membership) return `<section class="gm-panel"><h3>Gastgedächtnis</h3><p>${esc(uiRole()==='RECEPTION'?'Rezeption':'Service')} anmelden</p>
+      <form class="gm-login"><label>Passwort<input type="password" required autocomplete="current-password"></label><button type="submit">Anmelden</button></form></section>`;
     if (!data.stay) {
       const expired=room.departure && room.departure<day();
       const message=expired
@@ -268,7 +270,7 @@
         if (footer) footer.before(...panel.children); else container.append(...panel.children);
         container.querySelector('.gm-login')?.addEventListener('submit',async event=>{
           event.preventDefault();const form=event.currentTarget;
-          try {await login(form.querySelector('input[type=email]').value,form.querySelector('input[type=password]').value);modalSignature='';await refreshPanel();}
+          try {await login(form.querySelector('input[type=password]').value);modalSignature='';await refreshPanel();}
           catch(error){alert(error.message);}
         });
       }
