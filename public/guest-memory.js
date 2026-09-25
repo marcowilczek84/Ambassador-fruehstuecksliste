@@ -1,10 +1,10 @@
-/* Guest memory preview: uses only the separate staging Supabase project. */
+/* Guest memory uses the runtime configuration for this deployment. */
 (() => {
   'use strict';
-  const base = window.__AMBASSADOR_STAGING_URL__;
-  const key = window.__AMBASSADOR_STAGING_KEY__;
-  if (!base?.includes('jeuvmhahanaulvrnasgq.supabase.co') || !key?.startsWith('sb_publishable_')) return;
-  const sessionKey = 'ambassador-gm-staging-session';
+  const base = window.__AMBASSADOR_GM_CONFIG__?.url;
+  const key = window.__AMBASSADOR_GM_CONFIG__?.publishableKey;
+  if (base !== 'https://xgbbwnmqgpwxxftnjrkc.supabase.co' || !key?.startsWith('sb_publishable_')) return;
+  const sessionKey = 'ambassador-gm-production-session';
   let session = null;
   let membership = null;
   let syncSignature = '';
@@ -140,7 +140,7 @@
   }
   function panelHtml(data,room) {
     if (!membership) return `<section class="gm-panel"><h3>Gastgedächtnis</h3><p>Arbeitsrolle anmelden</p>
-      <form class="gm-login"><label>E-Mail<input type="email" required autocomplete="username" value="${uiRole()==='SERVICE'?'service':'reception'}-guest-memory@staging.invalid"></label>
+      <form class="gm-login"><label>E-Mail<input type="email" required autocomplete="username"></label>
       <label>Passwort<input type="password" required autocomplete="current-password"></label><button type="submit">Anmelden</button></form></section>`;
     if (!data.stay) {
       const expired=room.departure && room.departure<day();

@@ -1,4 +1,4 @@
-/* The staging guest detail uses the journal as its only note editor. Keep the
+/* The guest detail uses the journal as its only note editor. Keep the
    legacy data intact for the separate, conservative migration path. */
 .guest-edit-modal .remark-edit-summary,
 .guest-edit-modal .important-note,
