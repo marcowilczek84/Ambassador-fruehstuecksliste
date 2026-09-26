@@ -6,12 +6,12 @@
 
 /* 8.47.0 — Ambassador master design system, loaded last. */
 :root {
-  --ambassador-petrol:#1c777b; --ambassador-yellow:#f0cf00;
+  --ambassador-petrol:#1c777b; --ambassador-yellow:#f3cf24;
   --text-primary:#141918; --text-secondary:#747d7a;
   --border-subtle:#dce3e1; --surface:#fff; --surface-muted:#f7f9f8;
   --disabled:#edf0ee; --disabled-text:#89918e;
   --error:#a53d3d; --warning:#806600; --success:#1c777b;
-  --radius-small:8px; --radius-medium:12px; --radius-large:18px;
+  --radius-small:8px; --radius-medium:12px; --radius-large:16px;
   --amb-petrol:var(--ambassador-petrol); --amb-yellow:var(--ambassador-yellow);
   --amb-ink:var(--text-primary); --amb-muted:var(--text-secondary);
   --amb-border:var(--border-subtle); --amb-divider:#edf0ee;
