@@ -403,7 +403,9 @@
       const match = normalize(row.querySelector(".people")?.textContent || "").match(/\d+/);
       return total + (match ? Number(match[0]) : 0);
     }, 0);
-    const next = `<b>${rooms}</b> ${tr("Zimmer")} <i>·</i> <b>${guests}</b> ${tr("Gäste")} <i>·</i> <b>${included}</b> ${tr("inklusive")}`;
+    const roomLabel = rooms === 1 ? tr("Zimmer") : (activeLanguage === "EN" ? "Rooms" : tr("Zimmer"));
+    const guestLabel = guests === 1 ? tr("Gast") : tr("Gäste");
+    const next = `<b>${rooms}</b> ${roomLabel} <i>·</i> <b>${guests}</b> ${guestLabel} <i>·</i> <b>${included}</b> ${tr("inklusive")}`;
     if (summary.innerHTML !== next) summary.innerHTML = next;
   }
 
