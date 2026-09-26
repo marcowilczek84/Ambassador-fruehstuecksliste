@@ -357,7 +357,34 @@
 
   function buildReceptionToolbar(shell) {
     const hero = shell.querySelector(".hero");
-    if (!hero || hero.querySelector(".reception-toolbar")) return;
+    if (!hero) return;
+    if (hero.querySelector(".reception-toolbar")) {
+      updateReceptionSummary(shell);
+      return;
+    }
+    const toolbar = document.createElement("div");
+    toolbar.className = "reception-toolbar";
+    toolbar.innerHTML = `
+      <div class="reception-summary">
+        <span class="reception-summary-icon">${icon("reception")}</span>
+        <span><strong>${tr("Heutige Liste")}</strong><small></small></span>
+      </div>
+      <div class="reception-actions">
+        <button type="button" class="reception-upload">${ambassadorIcon("mews-import")}<span>${tr("Neue Mews-Liste laden")}</span></button>
+        <button type="button" class="reception-add">${ambassadorIcon("add-room")}<span>${tr("Zimmer hinzufügen")}</span></button>
+      </div>`;
+    updateReceptionSummary(shell, toolbar);
+    toolbar.querySelector(".reception-upload").addEventListener("click", () => {
+      const fileInput = shell.querySelector('input[type="file"][accept*=".xlsx"]');
+      if (fileInput) fileInput.click();
+    });
+    toolbar.querySelector(".reception-add").addEventListener("click", () => clickMenuAction(shell, "Zimmer hinzufügen"));
+    hero.append(toolbar);
+  }
+
+  function updateReceptionSummary(shell, toolbar = shell.querySelector(".reception-toolbar")) {
+    const summary = toolbar?.querySelector(".reception-summary small");
+    if (!summary) return;
     const uniqueRooms = new Map();
     [...shell.querySelectorAll(".room-row")]
       .filter((row) => !row.querySelector(".vacant"))
@@ -376,23 +403,8 @@
       const match = normalize(row.querySelector(".people")?.textContent || "").match(/\d+/);
       return total + (match ? Number(match[0]) : 0);
     }, 0);
-    const toolbar = document.createElement("div");
-    toolbar.className = "reception-toolbar";
-    toolbar.innerHTML = `
-      <div class="reception-summary">
-        <span class="reception-summary-icon">${icon("reception")}</span>
-        <span><strong>${tr("Heutige Liste")}</strong><small><b>${rooms}</b> ${tr("Zimmer")} <i>·</i> <b>${guests}</b> ${tr("Gäste")} <i>·</i> <b>${included}</b> ${tr("inklusive")}</small></span>
-      </div>
-      <div class="reception-actions">
-        <button type="button" class="reception-upload">${ambassadorIcon("mews-import")}<span>${tr("Neue Mews-Liste laden")}</span></button>
-        <button type="button" class="reception-add">${ambassadorIcon("add-room")}<span>${tr("Zimmer hinzufügen")}</span></button>
-      </div>`;
-    toolbar.querySelector(".reception-upload").addEventListener("click", () => {
-      const fileInput = shell.querySelector('input[type="file"][accept*=".xlsx"]');
-      if (fileInput) fileInput.click();
-    });
-    toolbar.querySelector(".reception-add").addEventListener("click", () => clickMenuAction(shell, "Zimmer hinzufügen"));
-    hero.append(toolbar);
+    const next = `<b>${rooms}</b> ${tr("Zimmer")} <i>·</i> <b>${guests}</b> ${tr("Gäste")} <i>·</i> <b>${included}</b> ${tr("inklusive")}`;
+    if (summary.innerHTML !== next) summary.innerHTML = next;
   }
 
   function buildReceptionTable(shell) {
