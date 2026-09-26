@@ -52,5 +52,11 @@ body[data-app-role="service"] .guest-edit-modal.service-note-only .modal-actions
 .gm-dialog textarea:focus { outline:2px solid #1c777b; outline-offset:1px; }
 .gm-dialog-actions { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:10px; flex:none; padding:14px 20px calc(16px + env(safe-area-inset-bottom)); border-top:1px solid #dce3e1; background:#fff; }
 .gm-dialog-actions button { min-width:0; min-height:48px; border:1px solid #dce3e1; border-radius:12px; background:#fff; color:#141918; font:inherit; font-weight:650; cursor:pointer; }
-.gm-dialog-actions button[type="submit"] { border-color:#1c777b; background:#1c777b; color:#fff; }
+.gm-dialog-actions button[type="submit"],
+.gm-dialog-actions button[type="submit"]:active,
+.gm-dialog-actions button[type="submit"]:focus,
+.gm-dialog-actions button[type="submit"]:disabled { border-color:#1c777b; background:#1c777b; color:#fff !important; }
+.gm-dialog-actions button[type="submit"]:disabled { opacity:.55; }
+.gm-note-actions button[data-action="edit"],.gm-panel .gm-add { color:#1c777b !important; }
+.gm-note-actions button[data-action="delete"] { color:#747d7a !important; }
 @media(max-width:480px) { .gm-panel { padding:0 1px; } .gm-dialog-layer { align-items:end; padding:0; } .gm-dialog { width:100%; max-height:calc(100dvh - 12px); border-radius:16px 16px 0 0; } .gm-type-option span { font-size:12px; } }
