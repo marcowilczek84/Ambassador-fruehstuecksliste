@@ -10,6 +10,8 @@
   let syncSignature = '';
   let modalSignature = '';
   let lastRefreshAt = 0;
+  let lastCheckinRefreshAt = 0;
+  let checkinBusy = false;
   let selectedName = '';
   let busy = false;
   session = deviceAuth.getSession();
@@ -191,6 +193,41 @@
     });
   }
 
+  async function refreshCheckinNotes() {
+    const modal=document.querySelector('.checkin-choice-modal');
+    if (!modal || !membership || checkinBusy || Date.now()-lastCheckinRefreshAt<5000) return;
+    const body=modal.querySelector('.modal-body');
+    const number=+(modal.querySelector('.modal-kicker')?.textContent.match(/\d+/)?.[0]||0);
+    const room=roomData(number);
+    if (!body || !room) return;
+    checkinBusy=true;
+    lastCheckinRefreshAt=Date.now();
+    try {
+      const names=[...new Set(room.guests?.filter(Boolean)||[])];
+      const entries=[];
+      for (const name of names) {
+        const data=await loadData(room,name);
+        if (!data.stay) continue;
+        const linkedRooms=await query('guest_stay_rooms',`select=stay_id&hotel_id=eq.${membership.hotel_id}&stay_id=eq.${data.stay.id}&room_number=eq.${+room.room}`);
+        if (!linkedRooms.length) continue;
+        const notes=[...data.persistent.filter(note=>note.note_type==='PERSISTENT'),
+          ...data.notes.filter(note=>note.note_type==='STAY')];
+        if (notes.length) entries.push({name,notes});
+      }
+      if (!modal.isConnected || document.querySelector('.checkin-choice-modal')!==modal) return;
+      body.querySelector('.gm-checkin-notes')?.remove();
+      if (!entries.length) return;
+      const section=document.createElement('section');
+      section.className='gm-checkin-notes';
+      section.setAttribute('aria-label',label('Hinweise zum Gast','Guest notes'));
+      section.innerHTML=`<h3>${label('Hinweise zum Gast','Guest notes')}</h3>${entries.map(({name,notes})=>
+        `<div class="gm-checkin-guest">${names.length>1?`<strong>${esc(name)}</strong>`:''}${notes.map(note=>
+          `<p><span>${note.note_type==='PERSISTENT'?label('Dauerhaft','Permanent'):label('Dieser Aufenthalt','This stay')}</span>${esc(note.body)}</p>`).join('')}</div>`).join('')}`;
+      body.prepend(section);
+    } catch(error) { console.warn('Check-in-Hinweise:',error.message); }
+    finally { checkinBusy=false; }
+  }
+
   async function tick() {
     if (!deviceAuth.isReady()) {membership=null;return;}
     session=deviceAuth.getSession();
@@ -212,7 +249,7 @@
       modalSignature='';console.warn('Gastgedächtnis:',error.message);
     }
   }
-  window.setInterval(()=>{tick().catch(console.error);syncStays().catch(console.error);},2500);
-  window.addEventListener('focus',()=>{modalSignature='';tick().catch(console.error);syncStays().catch(console.error);});
+  window.setInterval(()=>{tick().then(syncStays).then(refreshCheckinNotes).catch(console.error);},2500);
+  window.addEventListener('focus',()=>{modalSignature='';lastCheckinRefreshAt=0;tick().then(syncStays).then(refreshCheckinNotes).catch(console.error);});
   tick().catch(console.error);
 })();
