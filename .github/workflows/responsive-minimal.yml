@@ -1,6 +1,11 @@
 name: Ambassador responsive viewport minimal test
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - ambassador-final-uiux-20260927
+    paths:
+      - '.github/workflows/responsive-minimal.yml'
 
 permissions:
   contents: read
@@ -45,11 +50,12 @@ jobs:
                   entry.measured = await page.evaluate(() => ({
                     innerWidth: window.innerWidth,
                     innerHeight: window.innerHeight,
-                    devicePixelRatio: window.devicePixelRatio
+                    devicePixelRatio: window.devicePixelRatio,
+                    readyState: document.readyState
                   }));
                   entry.previewReached = Boolean(response?.ok() && entry.url.includes('ambassador-fruehstuecksliste-oi72wjjmw-restaurant-silk.vercel.app') && !/Authentication Required|Log in to Vercel/i.test(await page.locator('body').innerText()));
                   if (entry.previewReached) {
-                    entry.screenshot = 'responsive-minimal/' + device + '-full.png';
+                    entry.screenshot = 'responsive-minimal/' + device + '-' + width + 'x' + height + '.png';
                     await page.screenshot({ path: entry.screenshot, fullPage: true });
                   }
                   entry.pass = entry.previewReached && entry.measured.innerWidth === width && entry.measured.innerHeight === height && Boolean(entry.screenshot);
@@ -65,7 +71,7 @@ jobs:
               results.errors.push({ phase: 'browser-launch', message: String(error) });
             } finally {
               await browser?.close();
-              fs.writeFileSync('responsive-minimal/results.json', JSON.stringify(results, null, 2) + '\n');
+              fs.writeFileSync('responsive-minimal/responsive-measurements.json', JSON.stringify(results, null, 2) + '\n');
               console.log(JSON.stringify(results, null, 2));
             }
             if (results.checks.length !== 2 || results.checks.some(entry => !entry.pass)) process.exitCode = 1;
