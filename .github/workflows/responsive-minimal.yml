@@ -1,5 +1,5 @@
 name: Ambassador responsive visual audit
-# Rerun with isolated read-only contexts for each visual flow.
+# Final read-only audit includes iPad reception click diagnostics.
 on:
   workflow_dispatch:
   push:
