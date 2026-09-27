@@ -134,6 +134,7 @@
 #ambassador-ui .special-type-picker > button { display:flex!important; align-items:center!important; gap:12px!important; width:100%!important; min-width:0!important; height:88px!important; min-height:88px!important; padding:12px!important; border:1px solid var(--ui-line)!important; border-radius:12px!important; background:#fff!important; color:var(--ui-text)!important; text-align:left!important; box-shadow:none!important; }
 #ambassador-ui .special-type-picker > button.selected { background:var(--ui-petrol)!important; color:#fff!important; border-color:var(--ui-petrol)!important; }
 #ambassador-ui .special-guest-icon, #ambassador-ui .special-guest-icon.opera-logo { display:grid!important; place-items:center!important; flex:0 0 42px!important; width:42px!important; min-width:42px!important; height:42px!important; padding:4px!important; background:#fff!important; border:0!important; border-radius:8px!important; }
+#ambassador-ui .special-guest-icon svg { color:var(--ui-petrol)!important; stroke:var(--ui-petrol)!important; }
 #ambassador-ui .opera-logo img { width:100%!important; height:100%!important; object-fit:contain!important; }
 #ambassador-ui .special-type-picker strong { display:block!important; font-size:14px!important; line-height:1.3!important; }
 #ambassador-ui .special-type-picker small { display:block!important; margin-top:3px!important; font-size:12px!important; line-height:1.3!important; color:var(--ui-muted)!important; }

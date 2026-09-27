@@ -232,6 +232,7 @@ async function runDevice(browser, device, width, height) {
       const external = dialog.getByRole('button', { name: /Externe Gäste Frühstück/ });
       await opera.click(); await shot('special-opera', 'Opera gewählt');
       await external.click(); await shot('special-external', 'Externe Gäste gewählt');
+      matrix[device+'.externalSelectedIconVisible']=await external.locator('svg').evaluate(el=>{const s=getComputedStyle(el);return s.stroke==='rgb(28, 119, 123)'&&el.getBoundingClientRect().width>0;})?'PASS':'FAIL';
       audits[device].specialTypes = await Promise.all([opera, external].map(async x => x.evaluate(el => {
         const r = el.getBoundingClientRect(), s = getComputedStyle(el);
         return { selected: el.classList.contains('selected'), width: r.width, height: r.height, radius: s.borderRadius, padding: s.padding };
