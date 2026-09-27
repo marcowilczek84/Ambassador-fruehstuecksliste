@@ -790,7 +790,7 @@
       departedCount: Number(before.departedCount || 0),
       present: Boolean(before.present),
       departed: Boolean(before.departed),
-      table: before.table || ""
+      table: Number(before.arrivedCount || 0) ? (before.table || "") : ""
     };
     const nextRooms = rooms.map((room) => Number(room.room) === roomNumber ? restored : room);
     const nextArrivals = arrivals.filter((event) => !(event.actionId === action.id && Number(event.room) === roomNumber));
@@ -844,7 +844,9 @@
       if (!window.confirm(`${tr("Check-in von Zimmer")} ${roomNumber} ${tr("wirklich rückgängig machen?")}`)) return;
       if (!undoRoomCheckin(roomNumber, action)) return;
       block.innerHTML = `<div><strong>${tr("Check-in wurde rückgängig gemacht")}</strong></div>`;
-      window.setTimeout(() => modal.querySelector('[aria-label="Schließen"]')?.click(), 500);
+      // React reads the daily list from localStorage on mount. Reopen it so
+      // the restored arrival and table state are visible immediately.
+      window.setTimeout(() => window.location.reload(), 650);
     });
   }
 
