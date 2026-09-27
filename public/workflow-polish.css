@@ -4198,6 +4198,16 @@ body[data-app-role="reception"] .room-row { box-shadow:none !important; }
   }
   .checkin-choice-modal .modal-actions button { min-height:50px !important; height:50px !important; }
   body[data-app-role="reception"] .search-wrap { width:calc(100% - 48px) !important; max-width:none !important; margin-inline:24px !important; }
+  body[data-app-role="reception"] .search-row {
+    width:min(760px,100%) !important;
+    max-width:none !important;
+    margin:0 !important;
+  }
+  body[data-app-role="reception"] .search-box {
+    width:100% !important;
+    max-width:none !important;
+    margin:0 !important;
+  }
   body[data-app-role="reception"] .guest-edit-modal { box-shadow:none !important; border-left:1px solid #dce3e1 !important; }
 }
 
