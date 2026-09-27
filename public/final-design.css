@@ -1,0 +1,179 @@
+/* Final design preview: calm entry points, readable operational cards, clear controls. */
+.entry-screen.role-pending .role-selection {
+  width:min(900px,calc(100vw - 48px)) !important;
+  top:43% !important;
+}
+.role-selection .role-logo {
+  width:min(245px,48vw) !important;
+  margin-bottom:28px !important;
+}
+.role-selection .role-eyebrow {
+  font-size:25px !important;
+  line-height:1.2 !important;
+  letter-spacing:-.025em !important;
+}
+.role-selection h1 {
+  margin-top:11px !important;
+  font-size:19px !important;
+  line-height:1.3 !important;
+  color:#141918 !important;
+}
+.role-selection .role-date {
+  margin:8px 0 30px !important;
+  font-size:14px !important;
+  color:#747d7a !important;
+}
+.role-selection .role-options { gap:16px !important; }
+.role-selection .role-options button {
+  min-height:112px !important;
+  grid-template-columns:52px minmax(0,1fr) 20px !important;
+  padding:20px 24px !important;
+  border:1px solid #dce3e1 !important;
+  border-radius:16px !important;
+  box-shadow:none !important;
+}
+.role-selection .role-options button:hover,
+.role-selection .role-options button:focus-visible {
+  border-color:#1c777b !important;
+  background:#f8fbfa !important;
+}
+.role-selection .role-options strong { font-size:19px !important; color:#141918 !important; }
+.role-selection .role-options small { font-size:14px !important; color:#747d7a !important; }
+
+.entry-screen:not(.role-pending) .load-card {
+  width:min(850px,calc(100vw - 48px)) !important;
+  padding:28px 24px !important;
+}
+.entry-screen:not(.role-pending) .entry-logo {
+  width:min(245px,50vw) !important;
+  margin-bottom:28px !important;
+}
+.entry-screen:not(.role-pending) .entry-app-mark { display:none !important; }
+.entry-screen:not(.role-pending) .entry-eyebrow {
+  font-size:12px !important;
+  color:#747d7a !important;
+  letter-spacing:.12em !important;
+}
+.entry-screen:not(.role-pending) .load-card h1 {
+  font-size:32px !important;
+  color:#141918 !important;
+  line-height:1.16 !important;
+}
+.entry-screen:not(.role-pending) .entry-role-subtitle { font-size:16px !important; }
+.entry-screen:not(.role-pending) .load-copy { margin:12px auto 30px !important; }
+.entry-screen:not(.role-pending) .load-actions {
+  width:min(680px,100%) !important;
+  gap:14px !important;
+}
+.entry-screen:not(.role-pending) .load-choice,
+.entry-screen:not(.role-pending) .entry-secondary {
+  flex:1 1 250px !important;
+  width:auto !important;
+  min-width:0 !important;
+  min-height:68px !important;
+  padding:12px 18px !important;
+  border-radius:12px !important;
+  font-size:15px !important;
+  box-shadow:none !important;
+}
+.entry-screen:not(.role-pending) .load-choice strong { font-size:15px !important; }
+.entry-screen:not(.role-pending) .load-choice small { font-size:12px !important; }
+.entry-screen[data-role="reception"] .load-card:not(:has(.entry-secondary)) .load-choice {
+  background:#1c777b !important;
+  color:#fff !important;
+  border-color:#1c777b !important;
+}
+.entry-screen[data-role="reception"] .load-card:not(:has(.entry-secondary)) .load-choice .load-icon,
+.entry-screen[data-role="reception"] .load-card:not(:has(.entry-secondary)) .load-choice svg,
+.entry-screen[data-role="reception"] .load-card:not(:has(.entry-secondary)) .load-choice small {
+  color:#fff !important;
+  border-color:rgba(255,255,255,.7) !important;
+}
+.entry-screen[data-role="reception"] .load-card:not(:has(.entry-secondary)) .load-actions::before {
+  content:"Noch keine Liste geladen · Aktuellen Mews-Export auswählen und vor der Übernahme kontrollieren.";
+  flex:0 0 100%;
+  margin:0 0 10px;
+  color:#747d7a;
+  font-size:14px;
+  line-height:1.5;
+}
+
+/* Service rooms are individual touch targets. Keep their yellow inclusion edge. */
+body[data-app-role="service"] .ipad-room-grid .room-row,
+body[data-app-role="service"] .room-row {
+  min-height:78px !important;
+  height:auto !important;
+  padding:12px 14px 12px 17px !important;
+  border:1px solid #dce3e1 !important;
+  border-radius:12px !important;
+  background:#fff !important;
+  box-shadow:none !important;
+}
+body[data-app-role="service"] .room-row::before,
+body[data-app-role="service"] .ipad-room-grid .room-row::before {
+  top:8px !important;
+  bottom:8px !important;
+  left:0 !important;
+  width:4px !important;
+  border-radius:0 3px 3px 0 !important;
+}
+body[data-app-role="service"] .room-row:focus-visible {
+  outline:2px solid #1c777b !important;
+  outline-offset:2px !important;
+}
+body[data-app-role="service"] .guest-names strong { font-size:13px !important; }
+
+/* The table section heading was hidden by the earlier compact layout. */
+@media(min-width:700px) and (max-width:1366px) {
+  .checkin-choice-modal .choice-separator {
+    display:block !important;
+    grid-column:2 !important;
+    grid-row:1 !important;
+    align-self:start !important;
+    width:auto !important;
+    height:22px !important;
+    min-height:22px !important;
+    margin:0 !important;
+    padding:0 !important;
+    color:#747d7a !important;
+    background:transparent !important;
+    border:0 !important;
+    font-size:12px !important;
+    line-height:22px !important;
+    letter-spacing:.08em !important;
+    z-index:1 !important;
+  }
+  body[data-app-role="service"] .ipad-room-grid {
+    grid-template-columns:repeat(4,minmax(0,1fr)) !important;
+    gap:12px !important;
+  }
+  body[data-app-role="service"] .ipad-room-column {
+    display:grid !important;
+    grid-template-rows:repeat(9,minmax(78px,auto)) !important;
+    gap:10px !important;
+  }
+}
+@media(min-width:700px) and (max-width:1100px) {
+  body[data-app-role="service"] .ipad-room-grid {
+    grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+  }
+}
+@media(max-width:699px) {
+  .entry-screen.role-pending .role-selection { width:calc(100vw - 32px) !important; top:43% !important; }
+  .role-selection .role-logo { width:min(200px,54vw) !important; margin-bottom:23px !important; }
+  .role-selection .role-eyebrow { font-size:23px !important; }
+  .role-selection h1 { font-size:18px !important; }
+  .role-selection .role-date { margin-bottom:22px !important; }
+  .role-selection .role-options { grid-template-columns:1fr !important; gap:12px !important; }
+  .role-selection .role-options button { min-height:96px !important; padding:16px 20px !important; }
+  .entry-screen:not(.role-pending) .load-card { width:calc(100vw - 32px) !important; padding:18px 0 !important; }
+  .entry-screen:not(.role-pending) .load-actions { flex-direction:column !important; align-items:stretch !important; }
+  .entry-screen:not(.role-pending) .load-choice,
+  .entry-screen:not(.role-pending) .entry-secondary {
+    flex:0 0 auto !important;
+    width:100% !important;
+    min-height:60px !important;
+  }
+  body[data-app-role="service"] .room-row { min-height:76px !important; }
+  .checkin-choice-modal .table-picker button { min-height:42px !important; height:42px !important; }
+}
