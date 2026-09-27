@@ -248,11 +248,20 @@ body[data-app-role="reception"] .app-shell.workspace-empty .reception-toolbar .r
 
 /* Final shared room language: one fixed scan rhythm for the main and additional rooms. */
 body[data-app-role="service"] .room-row,
-body[data-app-role="service"] .ipad-room-grid .room-row {
+body[data-app-role="service"] .room-row.included,
+body[data-app-role="service"] .room-row.present,
+body[data-app-role="service"] .room-row.partial,
+body[data-app-role="service"] .ipad-room-grid .room-row,
+body[data-app-role="service"] .ipad-room-grid .room-row.included,
+body[data-app-role="service"] .ipad-room-grid .room-row.present,
+body[data-app-role="service"] .ipad-room-grid .room-row.partial {
   position:relative !important;
   height:78px !important;
   min-height:78px !important;
   max-height:78px !important;
+  border:1px solid #dce3e1 !important;
+  border-radius:12px !important;
+  background:#fff !important;
   box-sizing:border-box !important;
   overflow:hidden !important;
 }
@@ -327,7 +336,13 @@ body[data-app-role="service"] .ipad-room-grid .room-row.partial::before { backgr
 
 @media(max-width:699px) {
   body[data-app-role="service"] .room-row,
-  body[data-app-role="service"] .ipad-room-grid .room-row { height:76px !important; min-height:76px !important; max-height:76px !important; }
+  body[data-app-role="service"] .room-row.included,
+  body[data-app-role="service"] .room-row.present,
+  body[data-app-role="service"] .room-row.partial,
+  body[data-app-role="service"] .ipad-room-grid .room-row,
+  body[data-app-role="service"] .ipad-room-grid .room-row.included,
+  body[data-app-role="service"] .ipad-room-grid .room-row.present,
+  body[data-app-role="service"] .ipad-room-grid .room-row.partial { height:76px !important; min-height:76px !important; max-height:76px !important; }
   .special-type-picker { grid-template-columns:1fr !important; }
   .guest-edit-modal { display:flex !important; flex-direction:column !important; overflow:hidden !important; }
   .guest-edit-modal > .modal-head { flex:0 0 auto !important; }
