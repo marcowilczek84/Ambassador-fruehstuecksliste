@@ -258,6 +258,12 @@
   }
 
   function clickMenuAction(shell, label) {
+    // The finish action already lives in the native footer, not the native menu.
+    // Forward to its existing handler; confirmation and business logic stay intact.
+    if (label === "Frühstück beenden") {
+      shell.querySelector(".bottom-button.finish")?.click();
+      return;
+    }
     document.body.classList.add("proxy-menu-action");
     shell.querySelector(".icon-button")?.click();
     let attempts = 0;

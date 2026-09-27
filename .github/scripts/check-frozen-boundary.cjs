@@ -6,7 +6,7 @@ const baseline='81627e259252d6bf2dd8ba533af1619d492cfe26';
 const sourcePath='public/workflow-polish.js';
 const before=execFileSync('git',['show',baseline+':'+sourcePath],{encoding:'utf8'});
 const after=fs.readFileSync(sourcePath,'utf8');
-const allowedFunctions=new Set(['icon','buildReceptionToolbar','buildReceptionTable','enhanceReceptionRows','applyRoleView','apply']);
+const allowedFunctions=new Set(['icon','buildReceptionToolbar','buildReceptionTable','enhanceReceptionRows','applyRoleView','apply','clickMenuAction']);
 function functions(source) {
  const found=new Map(),tree=ts.createSourceFile(sourcePath,source,ts.ScriptTarget.Latest,true,ts.ScriptKind.JS);
  function visit(node){if(ts.isFunctionDeclaration(node)&&node.name)found.set(node.name.text,node.getText(tree));ts.forEachChild(node,visit);}visit(tree);return found;

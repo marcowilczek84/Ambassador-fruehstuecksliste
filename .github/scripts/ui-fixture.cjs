@@ -9,4 +9,5 @@ module.exports = function seedUiFixture() {
     note:room===21?'Synthetische Bemerkung für die UI-Abnahme.':'', guestInfo:[]
   }));
   localStorage.setItem('ambassador-breakfast-rooms', JSON.stringify({date,rooms}));
+  localStorage.setItem('ambassador-breakfast-activity-v1', JSON.stringify({date,items:[{id:'audit-existing-checkin-20',at:Date.now(),kind:'checkin',people:1,table:'Tisch 12',label:'Audit Zimmer 20 erfasst',afterRooms:[rooms[0]],roomNumbers:[20],beforeRooms:[{...rooms[0],present:false,arrivedCount:0,table:''}]}]}));
 };

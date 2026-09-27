@@ -73,7 +73,7 @@ async function runDevice(browser, device, width, height) {
   }
   async function inspectFooter(selector, key) {
     const geometry = await page.evaluate(sel => {
-      const root=document.querySelector(sel), body=root?.querySelector('.modal-body'), footer=root?.querySelector('.modal-actions');
+      const root=document.querySelector(sel), body=root?.querySelector('.import-list') || root?.querySelector('.modal-body'), footer=root?.querySelector('.modal-actions');
       if (!root || !body || !footer) return null;
       const b=body.getBoundingClientRect(), f=footer.getBoundingClientRect();
       return { bodyBottom:b.bottom, footerTop:f.top, footerBottom:f.bottom,
@@ -89,7 +89,7 @@ async function runDevice(browser, device, width, height) {
   async function closeDialog() {
     const nested=page.locator('.group-room-popup-head button, .remark-popup-head button').last();
     if(await nested.count()){await nested.click();return;}
-    const dialog = page.getByRole('dialog').last();
+    const dialog = page.locator('.modal:visible').last();
     if (await dialog.count()) {
       const close = dialog.locator('button.close-button, button.group-room-popup-close').first();
       if (await close.count()) await close.click(); else await dialog.getByRole('button',{name:/Abbrechen|Schließen/}).first().click();
@@ -258,9 +258,13 @@ async function runDevice(browser, device, width, height) {
       await closeDialog();
       await page.getByRole('button',{name:'Zimmer 20 öffnen'}).click();
       await shot('service-captured-detail','Bereits erfasstes Zimmer; kein neuer Check-in');
+      await closeDialog();
+      await page.locator('.bottom-bar .bottom-button:not(.finish)').click();
+      await page.getByRole('button',{name:'Zimmer 20 öffnen'}).click();
+      await shot('service-checkin-management','Vorhandene Check-in-Verwaltung; synthetischer bereits erfasster Gast');
       const undo=page.getByRole('button',{name:/rückgängig|Rückgängig/}).first();
       if(await undo.count()) {
-        page.once('dialog',async confirmation=>{audits[device].undoConfirmation={type:confirmation.type(),message:confirmation.message(),dismissed:true};await confirmation.dismiss();});
+        page.once('dialog',async confirmation=>{audits[device].undoConfirmation={type:confirmation.type(),message:confirmation.message(),dismissed:true};await confirmation.dismiss();matrix[device+'.undoConfirmationDismissed']='PASS';});
         await undo.click();
         unavailable.push({device,name:'undo-native-dialog-screenshot',reason:'Native browser confirmation was opened and dismissed; not represented by a page screenshot.'});
       }
@@ -357,7 +361,7 @@ async function runDevice(browser, device, width, height) {
       audits[device].importPreviewOnly = true;
       if(await page.locator('.import-modal').count()) {
         await inspectFooter('.import-modal','importFooter');
-        await scroll('.import-modal .modal-body',1);await shot('reception-import-control-bottom','Importkontrolle bis zum Ende; nicht übernommen');
+        await scroll('.import-modal .import-list',1);await shot('reception-import-control-bottom','Importkontrolle bis zum Ende; nicht übernommen');
       }
     });
     await step('reception menu', async () => {
@@ -365,7 +369,7 @@ async function runDevice(browser, device, width, height) {
       if (!await page.getByRole('button',{name:'Menü öffnen'}).count()) return;
       await page.getByRole('button',{name:'Menü öffnen'}).click(); await shot('reception-menu','Rezeptionsmenü');
       await page.getByRole('menuitem',{name:/Frühstücksliste löschen/}).click();
-      await page.getByRole('dialog').last().waitFor();
+      await page.locator('.modal').filter({hasText:'Liste wirklich löschen?'}).waitFor();
       await shot('reception-delete-confirmation','Bestehende Löschbestätigung; nicht bestätigt');await closeDialog();
     });
   });

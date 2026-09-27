@@ -138,7 +138,7 @@
 #ambassador-ui .special-type-picker strong { display:block!important; font-size:14px!important; line-height:1.3!important; }
 #ambassador-ui .special-type-picker small { display:block!important; margin-top:3px!important; font-size:12px!important; line-height:1.3!important; color:var(--ui-muted)!important; }
 #ambassador-ui .special-type-picker > button.selected small { color:#fff!important; }
-#ambassador-ui .opera-choice-copy { min-width:0!important; min-height:0!important; }
+#ambassador-ui .opera-choice-copy { display:block!important; min-width:0!important; min-height:0!important; }
 #ambassador-ui .special-count { background:transparent!important; border:0!important; border-top:1px solid var(--ui-line)!important; border-bottom:1px solid var(--ui-line)!important; border-radius:0!important; padding:20px 0!important; margin:0 0 24px!important; }
 #ambassador-ui .special-table-picker { grid-template-columns:repeat(10,minmax(0,1fr))!important; gap:6px!important; background:transparent!important; border:0!important; padding:0!important; }
 
@@ -273,3 +273,21 @@
 /* Existing two-action geometry also remains on the frozen confirmation/success views. */
 .modal-actions:has(> .modal-action:nth-child(2):last-child) { display:grid!important; grid-template-columns:repeat(2,minmax(0,1fr))!important; gap:10px!important; }
 .modal-actions:has(> .modal-action:nth-child(2):last-child) > .modal-action { width:100%!important; min-width:0!important; min-height:48px!important; border-radius:10px!important; }
+
+/* Legacy import/add forms: the existing list/form is the sole scroll area.
+   Display-contents leaves React ownership and every existing handler intact. */
+#ambassador-ui .import-modal > .modal-body, #ambassador-ui .dialog-add-room > .modal-body { display:contents!important; }
+#ambassador-ui .import-summary { flex:0 0 auto!important; margin:0!important; padding:16px var(--ui-padding)!important; border:0!important; border-bottom:1px solid var(--ui-line)!important; border-radius:0!important; background:transparent!important; }
+#ambassador-ui .import-summary svg { display:none!important; }
+#ambassador-ui .import-list { flex:1 1 auto!important; min-height:0!important; overflow-y:auto!important; display:block!important; margin:0!important; padding:8px var(--ui-padding) 16px!important; }
+#ambassador-ui .import-list > div { display:grid!important; grid-template-columns:44px minmax(0,1fr) auto!important; gap:12px!important; min-height:48px!important; padding:12px 0!important; border:0!important; border-bottom:1px solid var(--ui-line)!important; border-radius:0!important; background:#fff!important; }
+#ambassador-ui .import-modal .modal-actions { flex:0 0 auto!important; position:static!important; width:100%!important; margin:0!important; padding:14px var(--ui-padding) max(16px,env(safe-area-inset-bottom))!important; border-top:1px solid var(--ui-line)!important; background:#fff!important; box-shadow:none!important; }
+#ambassador-ui .dialog-add-room .form-grid { flex:1 1 auto!important; min-height:0!important; overflow-y:auto!important; margin:0!important; padding:20px var(--ui-padding)!important; }
+#ambassador-ui .dialog-add-room .check-field { display:flex!important; align-items:center!important; gap:10px!important; min-height:44px!important; }
+#ambassador-ui .dialog-add-room input[type="checkbox"] { width:23px!important; height:23px!important; flex:0 0 23px!important; accent-color:var(--ui-petrol)!important; }
+#ambassador-ui .dialog-add-room .modal-body > .modal-action { flex:0 0 auto!important; width:calc(100% - 2 * var(--ui-padding))!important; margin:0 var(--ui-padding) max(16px,env(safe-area-inset-bottom))!important; min-height:48px!important; border-radius:10px!important; }
+#ambassador-ui :is(.dialog-add-room,.special-guest-modal,.checkin-choice-modal,.guest-edit-modal) button:disabled { color:var(--ui-muted)!important; background:var(--ui-soft)!important; border-color:var(--ui-line)!important; opacity:1!important; }
+
+@media(max-width:699px) {
+  #ambassador-ui .modal-layer:has(> :is(.checkin-choice-modal,.special-guest-modal,.dialog-add-room,.import-modal)) { padding:0!important; align-items:flex-end!important; }
+}
