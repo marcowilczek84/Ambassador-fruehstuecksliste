@@ -14,9 +14,13 @@ async function get(path) {
       const statuses=await get('/deployments/'+deployment.id+'/statuses');
       const status=statuses.find(s=>s.state==='success'&&s.environment_url);
       if(!status) continue;
-      const target=new URL('/index-live.html',status.environment_url).href;
+      const preview=new URL('/index-live.html',status.environment_url);
+      // Several Vercel projects share this repository. Accept only this app's
+      // immutable Preview hostname, never another project's successful status.
+      if(!/^ambassador-fruehstuecksliste-[a-z0-9]+-restaurant-silk\.vercel\.app$/.test(preview.hostname)) continue;
+      const target=preview.href;
       const response=await fetch(target);
-      if(!response.ok) continue;
+      if(!response.ok || !(await response.text()).includes('workflow-polish.js')) continue;
       fs.appendFileSync(process.env.GITHUB_ENV,'PREVIEW_URL='+target+'\nSOURCE_SHA='+process.env.GITHUB_SHA+'\n');
       fs.mkdirSync('responsive-audit-output',{recursive:true});
       fs.writeFileSync('responsive-audit-output/deployment.json',JSON.stringify({commit:process.env.GITHUB_SHA,githubDeploymentId:deployment.id,environment:deployment.environment,previewUrl:target,statusUrl:status.url},null,2));
