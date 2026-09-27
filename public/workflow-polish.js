@@ -76,6 +76,11 @@
     "Noch offen": ["Still open", "Chưa phục vụ"], "Roomservice erfassen": ["Record room service", "Ghi nhận phục vụ tại phòng"],
     "Kein Tisch": ["No table", "Không có bàn"], "Tisch / Service": ["Table / service", "Bàn / phục vụ"],
     "Die Rezeption hat noch keine heutige Liste bereitgestellt.": ["Reception has not provided today's list yet.", "Lễ tân chưa cung cấp danh sách hôm nay."],
+    "Arbeitsbereich": ["Work area", "Khu vực làm việc"],
+    "Noch keine Frühstücksliste": ["No breakfast list yet", "Chưa có danh sách bữa sáng"],
+    "Noch keine Liste geladen": ["No list loaded yet", "Chưa tải danh sách"],
+    "Lade den aktuellen Mews-Export, um den heutigen Arbeitstag zu beginnen.": ["Load the current Mews export to start today's work.", "Tải báo cáo Mews hiện tại để bắt đầu ngày làm việc."],
+    "Mews-Liste auswählen": ["Select Mews list", "Chọn danh sách Mews"],
     "Nicht belegt": ["Vacant", "Phòng trống"]
   };
 
@@ -138,10 +143,7 @@
 
   function selectRole(role) {
     sessionStorage.setItem(roleKey, role);
-    document.body.dataset.appRole = role;
-    document.querySelector(".role-selection")?.remove();
-    document.querySelector(".entry-screen")?.classList.remove("role-pending");
-    schedule();
+    location.reload();
   }
 
   function showSharedListReadyAnimation() {
@@ -190,14 +192,19 @@
     entry.classList.add("role-pending");
     if (entry.querySelector(".role-selection")) return;
     const currentDate = entry.querySelector(".load-date")?.textContent || "";
+    const dateParts = currentDate.match(/(\d{1,2})\.(\d{1,2})\.(\d{4})/);
+    const displayDate = dateParts && activeLanguage === "DE"
+      ? new Intl.DateTimeFormat("de-CH", { weekday: "long", day: "numeric", month: "long", year: "numeric" })
+        .format(new Date(Number(dateParts[3]), Number(dateParts[2]) - 1, Number(dateParts[1])))
+      : currentDate;
     const chooser = document.createElement("section");
     chooser.className = "role-selection";
     chooser.setAttribute("aria-label", "Arbeitsbereich auswählen");
     chooser.innerHTML = `
       <img class="role-logo" src="/ambassador-logo.svg?v=confirmed-20260816-0517" alt="Ambassador Hotel Zürich">
       <span class="role-eyebrow">Frühstücksliste</span>
-      <h1>${tr("Bereich wählen")}</h1>
-      <p class="role-date">${currentDate}</p>
+      <h1>${tr("Arbeitsbereich")}</h1>
+      <p class="role-date">${displayDate}</p>
       <div class="role-options">
         <button type="button" data-role="service">
           <span class="role-icon">${icon("service")}</span>
@@ -773,6 +780,32 @@
     }
   }
 
+  function updateEmptyWorkspace(shell) {
+    const role = document.body.dataset.appRole;
+    if (role !== "service" && role !== "reception") return;
+    const savedRooms = readDailyState("ambassador-breakfast-rooms", "rooms", []);
+    const hasGuests = [...shell.querySelectorAll(".room-row")].some((row) => !row.querySelector(".vacant"));
+    const empty = !savedRooms.length && !hasGuests;
+    if (shell.classList.contains("workspace-empty") !== empty) shell.classList.toggle("workspace-empty", empty);
+    if (!empty) return;
+
+    const content = shell.querySelector(".content");
+    if (!content) return;
+    let state = content.querySelector(".workspace-empty-state");
+    if (!state) {
+      state = document.createElement("section");
+      state.className = "workspace-empty-state";
+      content.prepend(state);
+    }
+    const html = role === "service"
+      ? `<h2>${tr("Noch keine Frühstücksliste")}</h2><p>${tr("Die Rezeption hat noch keine heutige Liste bereitgestellt.")}</p>`
+      : `<span>${tr("Heutige Liste")}</span><h2>${tr("Noch keine Liste geladen")}</h2><p>${tr("Lade den aktuellen Mews-Export, um den heutigen Arbeitstag zu beginnen.")}</p><button type="button" class="workspace-import-button">${tr("Mews-Liste auswählen")}</button>`;
+    if (state.innerHTML !== html) {
+      state.innerHTML = html;
+      state.querySelector("button")?.addEventListener("click", () => shell.querySelector('input[type="file"][accept*=".xlsx"]')?.click());
+    }
+  }
+
   function enforceRoleFunctions(root) {
     const role = sessionStorage.getItem(roleKey);
     if (!role) return;
@@ -1023,6 +1056,7 @@
     });
     if (shell) updateFilter(shell);
     if (shell) applyRoleView(shell);
+    if (shell) updateEmptyWorkspace(shell);
     if (shell) alignMobileInfoBadges(shell);
     if (shell) ensureReliableMenu(shell, sessionStorage.getItem(roleKey) || "service");
     if (shell) updateServiceOpenHeading(shell);

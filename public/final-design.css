@@ -177,3 +177,71 @@ body[data-app-role="service"] .guest-names strong { font-size:13px !important; }
   body[data-app-role="service"] .room-row { min-height:76px !important; }
   .checkin-choice-modal .table-picker button { min-height:42px !important; height:42px !important; }
 }
+
+/* Final navigation: the two workspaces open directly from one compact chooser. */
+.entry-screen.role-pending .role-selection {
+  top:45% !important;
+  width:min(760px,calc(100vw - 40px)) !important;
+}
+.role-selection .role-logo { order:0 !important; margin-bottom:18px !important; }
+.role-selection .role-eyebrow { order:1 !important; font-size:25px !important; }
+.role-selection .role-date { order:2 !important; margin:10px 0 22px !important; }
+.role-selection h1 {
+  order:3 !important;
+  align-self:stretch !important;
+  margin:0 0 12px !important;
+  color:#747d7a !important;
+  font-size:12px !important;
+  font-weight:600 !important;
+  letter-spacing:.09em !important;
+  text-transform:uppercase !important;
+}
+.role-selection .role-options { order:4 !important; gap:12px !important; }
+.role-selection .role-options button { min-height:98px !important; padding:17px 20px !important; }
+
+/* Keep the existing app chrome and import input when there is no daily list. */
+.app-shell .workspace-empty-state { display:none; }
+.app-shell.workspace-empty .workspace-empty-state {
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  width:min(680px,100%);
+  padding:42px 24px;
+  margin:0 auto;
+  background:#fff;
+}
+.workspace-empty-state > span {
+  margin-bottom:16px;
+  color:#747d7a;
+  font-size:12px;
+  font-weight:650;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+.workspace-empty-state h2 { margin:0 0 10px; color:#141918; font-size:25px; line-height:1.2; }
+.workspace-empty-state p { margin:0 0 23px; color:#747d7a; font-size:15px; line-height:1.5; }
+.workspace-import-button {
+  min-height:52px;
+  padding:0 24px;
+  color:#fff;
+  background:#1c777b;
+  border:1px solid #1c777b;
+  border-radius:10px;
+  font-size:14px;
+  font-weight:700;
+  cursor:pointer;
+}
+.workspace-import-button:focus-visible { outline:2px solid #141918; outline-offset:3px; }
+.app-shell.workspace-empty .content > :not(.workspace-empty-state),
+.app-shell.workspace-empty .search-wrap,
+.app-shell.workspace-empty .bottom-bar { display:none !important; }
+body[data-app-role="service"] .app-shell.workspace-empty .hero { display:none !important; }
+body[data-app-role="reception"] .app-shell.workspace-empty .reception-toolbar .reception-summary small,
+body[data-app-role="reception"] .app-shell.workspace-empty .reception-toolbar .reception-actions { display:none !important; }
+@media(max-width:699px) {
+  .entry-screen.role-pending .role-selection { top:45% !important; width:calc(100vw - 32px) !important; }
+  .role-selection .role-logo { margin-bottom:16px !important; }
+  .role-selection .role-date { margin-bottom:18px !important; }
+  .role-selection .role-options button { min-height:90px !important; }
+  .app-shell.workspace-empty .workspace-empty-state { padding:34px 20px max(34px,env(safe-area-inset-bottom)); }
+}
