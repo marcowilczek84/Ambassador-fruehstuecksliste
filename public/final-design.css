@@ -334,6 +334,34 @@ body[data-app-role="service"] .ipad-room-grid .room-row.partial::before { backgr
 .special-guest-modal > .modal-body { flex:1 1 auto !important; min-height:0 !important; overflow-y:auto !important; }
 .special-guest-modal > .modal-actions { position:relative !important; margin:0 !important; padding:12px 16px max(14px,env(safe-area-inset-bottom)) !important; background:#fff !important; border-top:1px solid #dce3e1 !important; }
 
+/* React's original action row sits inside the scroll body; the UI bridge moves it. */
+.checkin-choice-modal,
+.guest-edit-modal { display:flex !important; flex-direction:column !important; overflow:hidden !important; }
+.checkin-choice-modal > .modal-head,
+.guest-edit-modal > .modal-head,
+.checkin-choice-modal > .modal-actions,
+.guest-edit-modal > .modal-actions { flex:0 0 auto !important; }
+.checkin-choice-modal > .modal-body,
+.guest-edit-modal > .modal-body { flex:1 1 auto !important; min-height:0 !important; overflow-y:auto !important; }
+.checkin-choice-modal > .modal-actions,
+.guest-edit-modal > .modal-actions {
+  position:relative !important;
+  display:grid !important;
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  width:100% !important;
+  box-sizing:border-box !important;
+  gap:10px !important;
+  margin:0 !important;
+  padding:12px 22px max(14px,env(safe-area-inset-bottom)) !important;
+  border-top:1px solid #dce3e1 !important;
+  background:#fff !important;
+}
+.checkin-choice-modal > .modal-actions > button,
+.guest-edit-modal > .modal-actions > button { min-width:0 !important; width:100% !important; min-height:48px !important; height:48px !important; border-radius:10px !important; }
+@media(min-width:700px) {
+  .checkin-choice-modal .modal-body.checkin-choice-body { grid-template-rows:minmax(120px,auto) 68px 68px !important; }
+}
+
 @media(max-width:699px) {
   body[data-app-role="service"] .room-row,
   body[data-app-role="service"] .room-row.included,
@@ -344,8 +372,7 @@ body[data-app-role="service"] .ipad-room-grid .room-row.partial::before { backgr
   body[data-app-role="service"] .ipad-room-grid .room-row.present,
   body[data-app-role="service"] .ipad-room-grid .room-row.partial { height:76px !important; min-height:76px !important; max-height:76px !important; }
   .special-type-picker { grid-template-columns:1fr !important; }
-  .guest-edit-modal { display:flex !important; flex-direction:column !important; overflow:hidden !important; }
-  .guest-edit-modal > .modal-head { flex:0 0 auto !important; }
   .guest-edit-modal > .modal-body { flex:1 1 auto !important; min-height:0 !important; overflow-y:auto !important; padding-bottom:24px !important; }
   .guest-edit-modal > .modal-actions { flex:0 0 auto !important; position:relative !important; margin:0 !important; padding:12px 16px max(14px,env(safe-area-inset-bottom)) !important; background:#fff !important; border-top:1px solid #dce3e1 !important; }
+  .checkin-choice-modal > .modal-actions { padding:12px 16px max(14px,env(safe-area-inset-bottom)) !important; }
 }
