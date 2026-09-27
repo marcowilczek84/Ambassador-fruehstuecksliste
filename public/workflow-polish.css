@@ -3026,6 +3026,10 @@ body[data-app-role="reception"] .room-row.included { border-left-color: var(--am
 body[data-app-role="reception"] .guest-edit-modal .reception-breakfast-choice button.selected { color: #fff !important; background: var(--amb-petrol, #1c777b) !important; border-color: var(--amb-petrol, #1c777b) !important; }
 
 /* Persistent check-in management */
+.guest-modal > .guest-info-live,
+body[data-app-role="service"] .guest-info-indicator,
+body[data-app-role="service"] .mobile-inline-info-badge { display: none !important; }
+
 .room-checkin-management {
   grid-column: 1 / -1;
   display: flex;

@@ -825,7 +825,7 @@
 
   function enhanceRoomUndo(root) {
     if (document.body.dataset.appRole !== "service") return;
-    const modal = root.querySelector(".guest-edit-modal");
+    const modal = root.querySelector(".guest-modal");
     if (!modal || modal.querySelector(".room-checkin-management")) return;
     const roomNumber = Number.parseInt(normalize(modal.querySelector(".modal-kicker")?.textContent || "").replace(/\D+/g, ""), 10);
     if (!Number.isFinite(roomNumber)) return;
