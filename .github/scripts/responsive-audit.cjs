@@ -44,7 +44,12 @@ async function runDevice(browser, device, width, height) {
   }
   async function step(name, fn) {
     try { await fn(); }
-    catch (error) { unavailable.push({ device, name, reason: String(error).slice(0, 400) }); }
+    catch (error) {
+      unavailable.push({ device, name, reason: String(error).slice(0, 400) });
+      await closeDialog().catch(() => {});
+      const menuClose = page.getByRole('button', { name: 'Menü schließen' });
+      if (await menuClose.count()) await menuClose.click().catch(() => {});
+    }
   }
   async function scroll(selector, portion) {
     return page.locator(selector).first().evaluate((el, p) => {
@@ -65,8 +70,8 @@ async function runDevice(browser, device, width, height) {
       await page.getByRole('button', { name: 'Zur Startseite' }).click();
     }
     await page.getByRole('button', { name: role === 'service' ? /Service Frühstück/ : /Rezeption Gästeliste/ }).click();
-    await page.getByRole('heading', { name: role === 'service' ? /Frühstücksliste · Service/ : /Frühstücksliste · Rezeption/ }).waitFor({ timeout: 25000 });
-    await page.getByRole('region', { name: 'Frühstücksliste' }).waitFor({ timeout: 25000 });
+    await page.locator(`body[data-app-role="${role}"]`).waitFor({ state: 'attached', timeout: 25000 });
+    await page.locator('.room-row').first().waitFor({ state: 'attached', timeout: 25000 });
   }
 
   const response = await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 });
@@ -135,8 +140,8 @@ async function runDevice(browser, device, width, height) {
       await dialog.waitFor(); await shot('checkin-multiple-open', 'Check-in mit mehreren Gästen ohne Tisch');
       await dialog.getByRole('button', { name: '1 Gast' }).click(); await shot('checkin-one-selected', 'Ein Gast gewählt');
       await dialog.getByRole('button', { name: /2 Gäste/ }).click(); await shot('checkin-multiple-selected', 'Mehrere Gäste gewählt');
-      await dialog.getByRole('button', { name: /Roomservice/ }).click(); await shot('checkin-roomservice-on', 'Roomservice aktiv');
-      await dialog.getByRole('button', { name: /Roomservice/ }).click();
+      await dialog.getByRole('button', { name: /Roomservice Frühstück/ }).click(); await shot('checkin-roomservice-on', 'Roomservice aktiv');
+      await dialog.getByRole('button', { name: /Roomservice Frühstück/ }).click();
       await dialog.getByRole('button', { name: '17', exact: true }).click(); await shot('checkin-table-17', 'Tisch 17 ausgewählt');
       await step('checkin scroll', async () => {
         await scroll('.checkin-choice-modal .modal-body', 1); await shot('checkin-bottom-footer', 'Check-in bis zum Footer gescrollt');
