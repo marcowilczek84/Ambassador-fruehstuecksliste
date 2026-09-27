@@ -1,0 +1,81 @@
+name: Ambassador responsive viewport minimal test
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  measure:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install test-only browser
+        run: |
+          npm install --no-save --ignore-scripts playwright@1.62.1
+          npx playwright install --with-deps chromium
+      - name: Measure exact CSS viewports and capture full screenshots
+        env:
+          PREVIEW_URL: https://ambassador-fruehstuecksliste-oi72wjjmw-restaurant-silk.vercel.app/index-live.html
+        run: |
+          mkdir -p responsive-minimal
+          node <<'NODE'
+          const fs = require('node:fs');
+          const { chromium } = require('playwright');
+          const results = { previewUrl: process.env.PREVIEW_URL, checks: [], errors: [] };
+          (async () => {
+            let browser;
+            try {
+              browser = await chromium.launch({ headless: true });
+              for (const [device, width, height] of [['iphone', 390, 844], ['ipad', 1024, 1366]]) {
+                const context = await browser.newContext({ viewport: { width, height }, deviceScaleFactor: 1 });
+                const page = await context.newPage();
+                const entry = { device, requested: [width, height], screenshot: null };
+                results.checks.push(entry);
+                try {
+                  const response = await page.goto(process.env.PREVIEW_URL, { waitUntil: 'domcontentloaded', timeout: 60000 });
+                  await page.waitForLoadState('networkidle', { timeout: 15000 }).catch(() => {});
+                  entry.url = page.url();
+                  entry.httpStatus = response?.status() ?? null;
+                  entry.title = await page.title();
+                  entry.measured = await page.evaluate(() => ({
+                    innerWidth: window.innerWidth,
+                    innerHeight: window.innerHeight,
+                    devicePixelRatio: window.devicePixelRatio
+                  }));
+                  entry.previewReached = Boolean(response?.ok() && entry.url.includes('ambassador-fruehstuecksliste-oi72wjjmw-restaurant-silk.vercel.app') && !/Authentication Required|Log in to Vercel/i.test(await page.locator('body').innerText()));
+                  if (entry.previewReached) {
+                    entry.screenshot = 'responsive-minimal/' + device + '-full.png';
+                    await page.screenshot({ path: entry.screenshot, fullPage: true });
+                  }
+                  entry.pass = entry.previewReached && entry.measured.innerWidth === width && entry.measured.innerHeight === height && Boolean(entry.screenshot);
+                } catch (error) {
+                  entry.error = String(error);
+                  results.errors.push({ device, message: entry.error });
+                  entry.pass = false;
+                } finally {
+                  await context.close();
+                }
+              }
+            } catch (error) {
+              results.errors.push({ phase: 'browser-launch', message: String(error) });
+            } finally {
+              await browser?.close();
+              fs.writeFileSync('responsive-minimal/results.json', JSON.stringify(results, null, 2) + '\n');
+              console.log(JSON.stringify(results, null, 2));
+            }
+            if (results.checks.length !== 2 || results.checks.some(entry => !entry.pass)) process.exitCode = 1;
+          })();
+          NODE
+      - name: Upload private measurement artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ambassador-responsive-minimal
+          path: responsive-minimal/
+          retention-days: 7
+          if-no-files-found: warn
