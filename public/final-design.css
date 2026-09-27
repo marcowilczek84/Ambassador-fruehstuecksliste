@@ -1,398 +1,275 @@
-/* Final design preview: calm entry points, readable operational cards, clear controls. */
-.entry-screen.role-pending .role-selection {
-  width:min(900px,calc(100vw - 48px)) !important;
-  top:43% !important;
+/* Frozen UI release, 2026-09-28.
+   One presentation layer for the existing application. Business handlers and
+   the recovered application bundle are deliberately unchanged. */
+#ambassador-ui {
+  --ui-petrol:#1c777b; --ui-yellow:#f3cf24; --ui-text:#141918;
+  --ui-muted:#747d7a; --ui-line:#dce3e1; --ui-soft:#f7f8f8;
+  --ui-padding:24px; --ui-room-height:112px;
+  background:#fff; color:var(--ui-text);
 }
-.role-selection .role-logo {
-  width:min(245px,48vw) !important;
-  margin-bottom:28px !important;
-}
-.role-selection .role-eyebrow {
-  font-size:25px !important;
-  line-height:1.2 !important;
-  letter-spacing:-.025em !important;
-}
-.role-selection h1 {
-  margin-top:11px !important;
-  font-size:19px !important;
-  line-height:1.3 !important;
-  color:#141918 !important;
-}
-.role-selection .role-date {
-  margin:8px 0 30px !important;
-  font-size:14px !important;
-  color:#747d7a !important;
-}
-.role-selection .role-options { gap:16px !important; }
-.role-selection .role-options button {
-  min-height:112px !important;
-  grid-template-columns:52px minmax(0,1fr) 20px !important;
-  padding:20px 24px !important;
-  border:1px solid #dce3e1 !important;
-  border-radius:16px !important;
-  box-shadow:none !important;
-}
-.role-selection .role-options button:hover,
-.role-selection .role-options button:focus-visible {
-  border-color:#1c777b !important;
-  background:#f8fbfa !important;
-}
-.role-selection .role-options strong { font-size:19px !important; color:#141918 !important; }
-.role-selection .role-options small { font-size:14px !important; color:#747d7a !important; }
+#ambassador-ui button:focus-visible, #ambassador-ui input:focus-visible,
+#ambassador-ui textarea:focus-visible { outline:2px solid var(--ui-petrol)!important; outline-offset:2px!important; }
 
-.entry-screen:not(.role-pending) .load-card {
-  width:min(850px,calc(100vw - 48px)) !important;
-  padding:28px 24px !important;
+/* Entry: original assets and two equal navigation controls. */
+#ambassador-ui .entry-screen.role-pending .role-selection { top:45%!important; width:min(760px,calc(100vw - 32px))!important; gap:0!important; }
+#ambassador-ui .role-logo { order:0!important; width:min(245px,54vw)!important; margin:0 0 24px!important; }
+#ambassador-ui .role-eyebrow { order:1!important; font-size:24px!important; line-height:1.25!important; font-weight:700!important; text-transform:none!important; letter-spacing:0!important; }
+#ambassador-ui .role-date { order:2!important; margin:10px 0 32px!important; font-size:14px!important; color:var(--ui-muted)!important; }
+#ambassador-ui .role-selection h1 { order:3!important; margin:0 0 14px!important; font-size:12px!important; font-weight:600!important; letter-spacing:.12em!important; color:var(--ui-muted)!important; text-transform:uppercase!important; }
+#ambassador-ui .role-options { order:4!important; display:grid!important; grid-template-columns:repeat(2,minmax(0,1fr))!important; gap:16px!important; width:100%!important; }
+#ambassador-ui .role-options button { display:grid!important; grid-template-columns:36px minmax(0,1fr) 16px!important; gap:16px!important; min-height:98px!important; padding:20px!important; border:1px solid var(--ui-line)!important; border-radius:12px!important; background:#fff!important; box-shadow:none!important; }
+#ambassador-ui .role-options strong { font-size:18px!important; font-weight:600!important; color:var(--ui-text)!important; }
+#ambassador-ui .role-options small { font-size:13px!important; color:var(--ui-muted)!important; line-height:1.4!important; }
+#ambassador-ui .role-icon { width:32px!important; height:32px!important; color:var(--ui-petrol)!important; }
+#ambassador-ui .role-icon svg { width:26px!important; height:26px!important; fill:none!important; stroke:currentColor!important; stroke-width:1.7!important; }
+#ambassador-ui .entry-meili-footer { width:140px!important; opacity:.7!important; }
+
+/* Shared search and working header. */
+#ambassador-ui .topbar { min-height:72px!important; height:72px!important; padding:12px var(--ui-padding)!important; display:flex!important; align-items:center!important; gap:16px!important; box-shadow:none!important; }
+#ambassador-ui .header-logo { width:150px!important; height:auto!important; max-height:46px!important; object-fit:contain!important; }
+#ambassador-ui .page-title { position:static!important; transform:none!important; min-width:0!important; max-width:none!important; flex:1!important; text-align:left!important; }
+#ambassador-ui .page-title h1 { font-size:18px!important; line-height:1.3!important; }
+#ambassador-ui .page-title p { font-size:12px!important; margin:2px 0 0!important; }
+#ambassador-ui .header-actions { position:static!important; transform:none!important; display:flex!important; gap:8px!important; flex:0 0 auto!important; margin-left:auto!important; }
+#ambassador-ui .header-actions button { position:static!important; transform:none!important; margin:0!important; width:44px!important; height:44px!important; min-width:44px!important; min-height:44px!important; }
+#ambassador-ui .search-box { display:flex!important; position:relative!important; align-items:center!important; gap:10px!important; min-height:46px!important; height:46px!important; padding:0 12px!important; border:1px solid var(--ui-line)!important; border-radius:10px!important; background:#fff!important; box-shadow:none!important; }
+#ambassador-ui .search-box > svg { position:static!important; transform:none!important; flex:0 0 20px!important; width:20px!important; height:20px!important; margin:0!important; color:var(--ui-muted)!important; }
+#ambassador-ui .search-box input { flex:1!important; min-width:0!important; width:100%!important; padding:0!important; height:44px!important; border:0!important; font-size:14px!important; background:transparent!important; box-shadow:none!important; }
+
+/* Service: one geometry for every room, including additional/vacant rooms. */
+#ambassador-ui[data-app-role="service"] .app-shell { display:grid!important; grid-template-rows:72px auto 64px minmax(0,1fr) auto!important; height:100dvh!important; width:100%!important; min-width:0!important; max-width:100%!important; min-height:0!important; padding:0!important; }
+#ambassador-ui[data-app-role="service"] .hero { min-width:0!important; width:100%!important; box-sizing:border-box!important; min-height:0!important; height:auto!important; max-height:none!important; overflow:visible!important; }
+#ambassador-ui[data-app-role="service"] .content { min-height:0!important; height:100%!important; overflow:auto!important; }
+#ambassador-ui[data-app-role="service"] .bottom-bar { position:static!important; min-height:58px!important; padding:10px var(--ui-padding) max(10px,env(safe-area-inset-bottom))!important; }
+#ambassador-ui[data-app-role="service"] .hero { display:block!important; box-shadow:none!important; padding:8px var(--ui-padding) 0!important; margin:0!important; }
+#ambassador-ui[data-app-role="service"] .open-guests-headline { display:flex!important; align-items:center!important; justify-content:space-between!important; gap:8px!important; min-width:0!important; width:100%!important; overflow:visible!important; }
+#ambassador-ui[data-app-role="service"] .open-filter-button { flex:0 0 auto!important; min-width:0!important; width:auto!important; min-height:44px!important; margin:0!important; padding:4px 0 4px 8px!important; border:0!important; border-radius:0!important; background:transparent!important; color:var(--ui-petrol)!important; font-size:13px!important; white-space:nowrap!important; }
+#ambassador-ui[data-app-role="service"] .open-filter-button::after { content:" ›"!important; display:inline!important; }
+#ambassador-ui[data-app-role="service"] .progress-track { height:4px!important; width:100%!important; margin:8px 0 12px!important; }
+#ambassador-ui[data-app-role="service"] .hero-facts { display:grid!important; grid-template-columns:repeat(3,minmax(0,1fr))!important; width:100%!important; gap:16px!important; margin:0!important; }
+#ambassador-ui[data-app-role="service"] .hero-fact { box-shadow:none!important; border-radius:0!important; min-height:44px!important; padding:0!important; }
+#ambassador-ui[data-app-role="service"] .search-wrap { padding:8px var(--ui-padding)!important; }
+#ambassador-ui[data-app-role="service"] .search-row { max-width:none!important; width:100%!important; }
+#ambassador-ui[data-app-role="service"] .room-row {
+  display:grid!important; position:relative!important; width:100%!important; min-width:0!important;
+  height:var(--ui-room-height)!important; min-height:var(--ui-room-height)!important; max-height:var(--ui-room-height)!important; block-size:var(--ui-room-height)!important;
+  grid-template-columns:48px minmax(0,1fr) 76px!important; grid-template-rows:1fr!important; gap:8px!important;
+  padding:10px 12px 10px 16px!important; margin:0!important; box-sizing:border-box!important;
+  border:0!important; border-bottom:1px solid var(--ui-line)!important; border-radius:0!important;
+  background:#fff!important; box-shadow:none!important; overflow:hidden!important; align-items:start!important; text-align:left!important;
 }
-.entry-screen:not(.role-pending) .entry-logo {
-  width:min(245px,50vw) !important;
-  margin-bottom:28px !important;
-}
-.entry-screen:not(.role-pending) .entry-app-mark { display:none !important; }
-.entry-screen:not(.role-pending) .entry-eyebrow {
-  font-size:12px !important;
-  color:#747d7a !important;
-  letter-spacing:.12em !important;
-}
-.entry-screen:not(.role-pending) .load-card h1 {
-  font-size:32px !important;
-  color:#141918 !important;
-  line-height:1.16 !important;
-}
-.entry-screen:not(.role-pending) .entry-role-subtitle { font-size:16px !important; }
-.entry-screen:not(.role-pending) .load-copy { margin:12px auto 30px !important; }
-.entry-screen:not(.role-pending) .load-actions {
-  width:min(680px,100%) !important;
-  gap:14px !important;
-}
-.entry-screen:not(.role-pending) .load-choice,
-.entry-screen:not(.role-pending) .entry-secondary {
-  flex:1 1 250px !important;
-  width:auto !important;
-  min-width:0 !important;
-  min-height:68px !important;
-  padding:12px 18px !important;
-  border-radius:12px !important;
-  font-size:15px !important;
-  box-shadow:none !important;
-}
-.entry-screen:not(.role-pending) .load-choice strong { font-size:15px !important; }
-.entry-screen:not(.role-pending) .load-choice small { font-size:12px !important; }
-.entry-screen[data-role="reception"] .load-card:not(:has(.entry-secondary)) .load-choice {
-  background:#1c777b !important;
-  color:#fff !important;
-  border-color:#1c777b !important;
-}
-.entry-screen[data-role="reception"] .load-card:not(:has(.entry-secondary)) .load-choice .load-icon,
-.entry-screen[data-role="reception"] .load-card:not(:has(.entry-secondary)) .load-choice svg,
-.entry-screen[data-role="reception"] .load-card:not(:has(.entry-secondary)) .load-choice small {
-  color:#fff !important;
-  border-color:rgba(255,255,255,.7) !important;
-}
-.entry-screen[data-role="reception"] .load-card:not(:has(.entry-secondary)) .load-actions::before {
-  content:"Noch keine Liste geladen · Aktuellen Mews-Export auswählen und vor der Übernahme kontrollieren.";
-  flex:0 0 100%;
-  margin:0 0 10px;
-  color:#747d7a;
-  font-size:14px;
-  line-height:1.5;
+#ambassador-ui[data-app-role="service"] .room-row::before { content:""!important; display:block!important; position:absolute!important; top:8px!important; bottom:8px!important; left:0!important; width:4px!important; height:auto!important; border-radius:0!important; background:#cdd7d4!important; }
+#ambassador-ui[data-app-role="service"] .room-row.included::before { background:var(--ui-yellow)!important; }
+#ambassador-ui[data-app-role="service"] .room-row:is(.present,.partial,.departed)::before { background:var(--ui-petrol)!important; }
+#ambassador-ui[data-app-role="service"] .room-key { display:flex!important; flex-direction:column!important; align-items:flex-start!important; gap:6px!important; padding:0!important; width:auto!important; min-width:0!important; }
+#ambassador-ui[data-app-role="service"] .room-number { font-size:20px!important; font-weight:700!important; line-height:24px!important; color:var(--ui-text)!important; }
+#ambassador-ui[data-app-role="service"] .people { display:flex!important; align-items:center!important; gap:4px!important; font-size:12px!important; line-height:16px!important; color:var(--ui-muted)!important; }
+#ambassador-ui[data-app-role="service"] .people svg { width:15px!important; height:15px!important; }
+#ambassador-ui[data-app-role="service"] .guest-names { display:block!important; position:static!important; width:auto!important; height:auto!important; min-width:0!important; padding:0!important; align-self:start!important; overflow:visible!important; }
+#ambassador-ui[data-app-role="service"] .guest-names strong { display:block!important; font-size:14px!important; font-weight:600!important; line-height:19px!important; white-space:nowrap!important; overflow:hidden!important; text-overflow:ellipsis!important; }
+#ambassador-ui[data-app-role="service"] .guest-names strong:nth-of-type(n+3) { display:none!important; }
+#ambassador-ui[data-app-role="service"] :is(.meta-line,.frozen-breakfast-note) { position:absolute!important; left:72px!important; bottom:10px!important; display:flex!important; align-items:center!important; gap:4px!important; font-size:11px!important; line-height:16px!important; color:var(--ui-muted)!important; margin:0!important; }
+#ambassador-ui[data-app-role="service"] .meta-line svg { width:13px!important; height:13px!important; color:var(--ui-yellow)!important; }
+#ambassador-ui[data-app-role="service"] .frozen-breakfast-note[hidden] { display:none!important; }
+#ambassador-ui[data-app-role="service"] .room-tail { position:static!important; display:flex!important; flex-direction:column!important; align-items:flex-end!important; gap:4px!important; min-width:0!important; margin:0!important; }
+#ambassador-ui[data-app-role="service"] .table-badge { padding:0!important; background:transparent!important; border:0!important; border-radius:0!important; font-size:12px!important; line-height:20px!important; white-space:nowrap!important; color:var(--ui-petrol)!important; }
+#ambassador-ui[data-app-role="service"] .room-state:not(.redundant-open-status) { position:absolute!important; right:10px!important; bottom:10px!important; max-width:78px!important; padding:0!important; border:0!important; border-radius:0!important; background:transparent!important; font-size:11px!important; line-height:14px!important; text-align:right!important; color:var(--ui-petrol)!important; }
+#ambassador-ui[data-app-role="service"] .room-state svg { display:none!important; }
+#ambassador-ui[data-app-role="service"] .section { border:0!important; border-radius:0!important; box-shadow:none!important; }
+#ambassador-ui[data-app-role="service"] .section-head { margin:0!important; padding:16px 0 8px!important; }
+#ambassador-ui[data-app-role="service"] .section-head h3 { font-size:16px!important; }
+#ambassador-ui .room-placeholder { height:var(--ui-room-height)!important; min-height:var(--ui-room-height)!important; pointer-events:none!important; border:0!important; background:transparent!important; }
+@media(min-width:700px) {
+  #ambassador-ui[data-app-role="service"] .ipad-room-overview { display:block!important; }
+  #ambassador-ui[data-app-role="service"] .content > .section { display:none!important; }
+  #ambassador-ui[data-app-role="service"] .ipad-room-grid { display:grid!important; grid-template-columns:repeat(5,minmax(0,1fr))!important; gap:12px!important; width:100%!important; }
+  #ambassador-ui[data-app-role="service"] .ipad-room-column { display:grid!important; grid-template-columns:minmax(0,1fr)!important; grid-template-rows:repeat(9,var(--ui-room-height))!important; gap:0!important; min-width:0!important; }
+  #ambassador-ui[data-app-role="service"] .room-row { display:block!important; padding:10px 12px 10px 14px!important; }
+  #ambassador-ui[data-app-role="service"] .room-key { position:absolute!important; top:10px!important; left:14px!important; flex-direction:row!important; align-items:center!important; gap:12px!important; }
+  #ambassador-ui[data-app-role="service"] .guest-names { position:absolute!important; top:37px!important; bottom:auto!important; height:60px!important; left:14px!important; right:8px!important; }
+  #ambassador-ui[data-app-role="service"] :is(.meta-line,.frozen-breakfast-note) { position:absolute!important; top:40px!important; bottom:auto!important; left:0!important; }
+  #ambassador-ui[data-app-role="service"] .table-badge { position:absolute!important; top:12px!important; right:8px!important; font-size:11px!important; }
+  #ambassador-ui[data-app-role="service"] .room-state:not(.redundant-open-status) { bottom:4px!important; right:8px!important; max-width:none!important; }
 }
 
-/* Service rooms are individual touch targets in a continuous list. */
-body[data-app-role="service"] .ipad-room-grid .room-row,
-body[data-app-role="service"] .room-row {
-  min-height:78px !important;
-  height:auto !important;
-  padding:12px 14px 12px 17px !important;
-  border:0 !important;
-  border-bottom:1px solid #dce3e1 !important;
-  border-radius:0 !important;
-  background:#fff !important;
-  box-shadow:none !important;
-}
-body[data-app-role="service"] .room-row::before,
-body[data-app-role="service"] .ipad-room-grid .room-row::before {
-  top:0 !important;
-  bottom:0 !important;
-  left:0 !important;
-  width:4px !important;
-  border-radius:0 !important;
-}
-body[data-app-role="service"] .room-row:focus-visible {
-  outline:2px solid #1c777b !important;
-  outline-offset:2px !important;
-}
-body[data-app-role="service"] .guest-names strong { font-size:13px !important; }
+/* Controlled sheets: existing React header/body/footer siblings are preserved. */
+#ambassador-ui :is(.guest-edit-modal,.checkin-choice-modal,.special-guest-modal,.dialog-add-room,.import-modal) { display:flex!important; flex-direction:column!important; overflow:hidden!important; padding:0!important; border-radius:16px!important; background:#fff!important; max-height:calc(100dvh - 32px)!important; box-shadow:none!important; }
+#ambassador-ui :is(.guest-edit-modal,.checkin-choice-modal,.special-guest-modal,.dialog-add-room,.import-modal) > .modal-head { flex:0 0 auto!important; padding:20px var(--ui-padding)!important; border-bottom:1px solid var(--ui-line)!important; background:#fff!important; }
+#ambassador-ui :is(.guest-edit-modal,.checkin-choice-modal,.special-guest-modal,.dialog-add-room,.import-modal) > .modal-body { flex:1 1 auto!important; min-height:0!important; overflow-y:auto!important; padding:20px var(--ui-padding) 24px!important; background:#fff!important; overscroll-behavior:contain!important; }
+#ambassador-ui :is(.guest-edit-modal,.checkin-choice-modal,.special-guest-modal,.dialog-add-room,.import-modal) > .modal-actions { flex:0 0 auto!important; position:static!important; display:grid!important; grid-template-columns:repeat(2,minmax(0,1fr))!important; gap:10px!important; width:100%!important; margin:0!important; padding:14px var(--ui-padding) max(16px,env(safe-area-inset-bottom))!important; border-top:1px solid var(--ui-line)!important; background:#fff!important; box-shadow:none!important; }
+#ambassador-ui :is(.guest-edit-modal,.checkin-choice-modal,.special-guest-modal,.dialog-add-room,.import-modal) .modal-actions .modal-action { min-width:0!important; width:100%!important; min-height:48px!important; height:auto!important; padding:12px 8px!important; border-radius:10px!important; font-size:15px!important; font-weight:600!important; box-shadow:none!important; white-space:normal!important; overflow:visible!important; line-height:1.25!important; }
+#ambassador-ui :is(.guest-edit-modal,.checkin-choice-modal,.special-guest-modal,.dialog-add-room,.import-modal) .modal-actions .modal-action:not(.primary) { background:#fff!important; color:var(--ui-text)!important; border:1px solid var(--ui-line)!important; }
+#ambassador-ui :is(.guest-edit-modal,.checkin-choice-modal,.special-guest-modal,.dialog-add-room,.import-modal) .modal-actions .primary:not(:disabled), #ambassador-ui .reception-view-actions .primary { background:var(--ui-petrol)!important; color:#fff!important; border-color:var(--ui-petrol)!important; }
+#ambassador-ui :is(.guest-edit-modal,.checkin-choice-modal,.special-guest-modal,.dialog-add-room,.import-modal) .modal-head h2 { font-size:20px!important; font-weight:700!important; }
+#ambassador-ui :is(.guest-edit-modal,.checkin-choice-modal,.special-guest-modal,.dialog-add-room,.import-modal) .modal-head p { font-size:14px!important; line-height:1.4!important; }
+#ambassador-ui :is(.guest-edit-modal,.checkin-choice-modal,.special-guest-modal,.dialog-add-room,.import-modal) .modal-head .close-button { flex:0 0 42px!important; width:42px!important; height:42px!important; min-width:42px!important; }
+#ambassador-ui .frozen-checkin-breakfast { display:block; margin-top:8px; font-size:12px; color:var(--ui-muted); }
+#ambassador-ui .frozen-checkin-breakfast.included::before { content:""; display:inline-block; width:6px; height:6px; margin-right:6px; background:var(--ui-yellow); }
 
-/* The table section heading was hidden by the earlier compact layout. */
-@media(min-width:700px) and (max-width:1366px) {
-  .checkin-choice-modal .choice-separator {
-    display:block !important;
-    grid-column:2 !important;
-    grid-row:1 !important;
-    align-self:start !important;
-    width:auto !important;
-    height:22px !important;
-    min-height:22px !important;
-    margin:0 !important;
-    padding:0 !important;
-    color:#747d7a !important;
-    background:transparent !important;
-    border:0 !important;
-    font-size:12px !important;
-    line-height:22px !important;
-    letter-spacing:.08em !important;
-    z-index:1 !important;
-  }
-  body[data-app-role="service"] .ipad-room-grid {
-    grid-template-columns:repeat(4,minmax(0,1fr)) !important;
-    gap:12px !important;
-  }
-  body[data-app-role="service"] .ipad-room-column {
-    display:grid !important;
-    grid-template-rows:repeat(9,minmax(78px,auto)) !important;
-    gap:10px !important;
-  }
-}
-@media(min-width:700px) and (max-width:1100px) {
-  body[data-app-role="service"] .ipad-room-grid {
-    grid-template-columns:repeat(5,minmax(0,1fr)) !important;
-  }
+/* Check-in: controls stay intact; only their arrangement changes. */
+#ambassador-ui .checkin-choice-modal { width:min(980px,calc(100vw - 32px))!important; max-width:980px!important; height:auto!important; }
+#ambassador-ui .checkin-choice-body { display:grid!important; grid-template-columns:minmax(0,44fr) minmax(0,56fr)!important; grid-template-rows:auto auto auto 1fr!important; gap:20px 24px!important; }
+#ambassador-ui .checkin-count-block { grid-column:1!important; grid-row:1!important; padding:0 0 20px!important; margin:0!important; background:transparent!important; border:0!important; border-bottom:1px solid var(--ui-line)!important; border-radius:0!important; box-shadow:none!important; }
+#ambassador-ui .choice-label { font-size:14px!important; font-weight:600!important; letter-spacing:0!important; text-transform:none!important; }
+#ambassador-ui .checkin-quantity-grid { display:flex!important; gap:8px!important; margin-top:12px!important; flex-wrap:wrap!important; }
+#ambassador-ui .checkin-quantity-grid button { flex:1!important; min-width:64px!important; min-height:48px!important; height:48px!important; border:1px solid var(--ui-line)!important; border-radius:10px!important; background:#fff!important; color:var(--ui-text)!important; font-size:15px!important; }
+#ambassador-ui .checkin-quantity-grid button.active, #ambassador-ui .single-guest-value { color:#fff!important; background:var(--ui-petrol)!important; border:1px solid var(--ui-petrol)!important; }
+#ambassador-ui .single-guest-value { padding:13px 16px!important; min-height:48px!important; margin-top:12px!important; border-radius:10px!important; font-size:15px!important; font-weight:600!important; }
+#ambassador-ui .room-service-option { grid-column:1!important; grid-row:2!important; min-height:56px!important; height:auto!important; padding:8px 0!important; border:0!important; border-radius:0!important; box-shadow:none!important; background:transparent!important; color:var(--ui-text)!important; }
+#ambassador-ui .room-service-option.selected { background:var(--ui-petrol)!important; color:#fff!important; border-radius:10px!important; padding-inline:12px!important; }
+#ambassador-ui .room-service-option.selected small { color:#fff!important; }
+#ambassador-ui .group-link { grid-column:1!important; grid-row:3!important; padding:0!important; margin:0!important; border:0!important; background:transparent!important; border-radius:0!important; box-shadow:none!important; }
+#ambassador-ui .group-link-trigger { width:100%!important; min-height:52px!important; padding:10px 12px!important; border:1px solid var(--ui-line)!important; border-radius:10px!important; background:#fff!important; }
+#ambassador-ui .group-link-trigger strong { font-size:14px!important; }
+#ambassador-ui .group-link-trigger small { font-size:12px!important; }
+#ambassador-ui .choice-separator { display:block!important; grid-column:2!important; grid-row:1!important; align-self:start!important; height:auto!important; width:auto!important; padding:0!important; margin:0!important; border:0!important; background:transparent!important; text-align:left!important; font-size:16px!important; font-weight:700!important; letter-spacing:0!important; color:var(--ui-text)!important; }
+#ambassador-ui .choice-separator::before, #ambassador-ui .choice-separator::after { display:none!important; }
+#ambassador-ui .table-picker { grid-column:2!important; grid-row:1 / 5!important; align-self:start!important; display:grid!important; grid-template-columns:repeat(8,minmax(0,1fr))!important; grid-template-rows:none!important; grid-auto-rows:48px!important; gap:6px!important; width:100%!important; height:auto!important; min-height:0!important; max-height:none!important; margin:32px 0 0!important; padding:0!important; border:0!important; border-radius:0!important; background:transparent!important; box-shadow:none!important; overflow:visible!important; }
+#ambassador-ui .table-picker button, #ambassador-ui .special-table-picker button { display:block!important; min-width:0!important; width:100%!important; min-height:48px!important; height:48px!important; padding:0!important; font-size:14px!important; border:1px solid var(--ui-line)!important; border-radius:10px!important; background:#fff!important; color:var(--ui-text)!important; box-shadow:none!important; }
+#ambassador-ui .table-picker button.selected, #ambassador-ui .special-table-picker button.selected { background:var(--ui-petrol)!important; border-color:var(--ui-petrol)!important; color:#fff!important; }
+#ambassador-ui .table-range-switch { display:none!important; }
+
+/* Special guests: one symmetric type-control system. */
+#ambassador-ui .special-type-picker { display:grid!important; grid-template-columns:repeat(2,minmax(0,1fr))!important; gap:12px!important; margin:12px 0 24px!important; }
+#ambassador-ui .special-type-picker > button { display:flex!important; align-items:center!important; gap:12px!important; width:100%!important; min-width:0!important; height:88px!important; min-height:88px!important; padding:12px!important; border:1px solid var(--ui-line)!important; border-radius:12px!important; background:#fff!important; color:var(--ui-text)!important; text-align:left!important; box-shadow:none!important; }
+#ambassador-ui .special-type-picker > button.selected { background:var(--ui-petrol)!important; color:#fff!important; border-color:var(--ui-petrol)!important; }
+#ambassador-ui .special-guest-icon, #ambassador-ui .special-guest-icon.opera-logo { display:grid!important; place-items:center!important; flex:0 0 42px!important; width:42px!important; min-width:42px!important; height:42px!important; padding:4px!important; background:#fff!important; border:0!important; border-radius:8px!important; }
+#ambassador-ui .opera-logo img { width:100%!important; height:100%!important; object-fit:contain!important; }
+#ambassador-ui .special-type-picker strong { display:block!important; font-size:14px!important; line-height:1.3!important; }
+#ambassador-ui .special-type-picker small { display:block!important; margin-top:3px!important; font-size:12px!important; line-height:1.3!important; color:var(--ui-muted)!important; }
+#ambassador-ui .special-type-picker > button.selected small { color:#fff!important; }
+#ambassador-ui .opera-choice-copy { min-width:0!important; min-height:0!important; }
+#ambassador-ui .special-count { background:transparent!important; border:0!important; border-top:1px solid var(--ui-line)!important; border-bottom:1px solid var(--ui-line)!important; border-radius:0!important; padding:20px 0!important; margin:0 0 24px!important; }
+#ambassador-ui .special-table-picker { grid-template-columns:repeat(10,minmax(0,1fr))!important; gap:6px!important; background:transparent!important; border:0!important; padding:0!important; }
+
+/* Rezeption owns a single sorted list; columns have no boxes/hit surfaces. */
+#ambassador-ui[data-app-role="reception"] { --reception-list:44%; }
+#ambassador-ui[data-app-role="reception"] .app-shell { display:grid!important; grid-template-columns:minmax(0,1fr)!important; grid-template-rows:72px auto 64px minmax(0,1fr)!important; width:100%!important; max-width:none!important; height:100dvh!important; min-height:0!important; padding:0!important; }
+#ambassador-ui[data-app-role="reception"] .hero { display:block!important; position:static!important; padding:16px var(--ui-padding) 8px!important; width:100%!important; min-height:0!important; height:auto!important; border:0!important; }
+#ambassador-ui[data-app-role="reception"] .hero > :not(.reception-toolbar) { display:none!important; }
+#ambassador-ui[data-app-role="reception"] .reception-toolbar { display:flex!important; align-items:center!important; justify-content:space-between!important; gap:24px!important; width:100%!important; margin:0!important; padding:0!important; }
+#ambassador-ui[data-app-role="reception"] .reception-summary { display:block!important; min-width:0!important; }
+#ambassador-ui[data-app-role="reception"] .reception-summary-icon { display:none!important; }
+#ambassador-ui[data-app-role="reception"] .reception-summary strong { font-size:22px!important; line-height:1.2!important; }
+#ambassador-ui[data-app-role="reception"] .reception-summary small { display:block!important; margin-top:5px!important; font-size:13px!important; color:var(--ui-muted)!important; }
+#ambassador-ui[data-app-role="reception"] .reception-summary b { color:var(--ui-text)!important; font-weight:600!important; }
+#ambassador-ui[data-app-role="reception"] .reception-actions { display:flex!important; gap:10px!important; }
+#ambassador-ui[data-app-role="reception"] .reception-actions button { min-width:0!important; height:46px!important; min-height:46px!important; padding:8px 16px!important; font-size:14px!important; font-weight:600!important; border:1px solid var(--ui-line)!important; border-radius:10px!important; }
+#ambassador-ui[data-app-role="reception"] .search-wrap { position:static!important; width:var(--reception-list)!important; max-width:none!important; margin:0!important; padding:8px 16px 8px var(--ui-padding)!important; height:64px!important; }
+#ambassador-ui[data-app-role="reception"] .search-row { width:100%!important; max-width:none!important; margin:0!important; }
+#ambassador-ui[data-app-role="reception"] .content, #ambassador-ui[data-app-role="reception"] .app-shell:has(.guest-edit-modal) .content { display:block!important; width:var(--reception-list)!important; min-width:0!important; max-width:none!important; height:100%!important; min-height:0!important; margin:0!important; padding:0 16px 24px var(--ui-padding)!important; overflow:auto!important; border:0!important; border-radius:0!important; }
+#ambassador-ui[data-app-role="reception"] .content > :is(.section,.edit-mode-hint), #ambassador-ui[data-app-role="reception"] .bottom-bar { display:none!important; }
+#ambassador-ui[data-app-role="reception"] .ipad-room-overview { display:block!important; position:static!important; width:100%!important; margin:0!important; padding:0!important; overflow:visible!important; }
+#ambassador-ui[data-app-role="reception"] .ipad-room-grid { display:flex!important; flex-direction:column!important; gap:0!important; width:100%!important; min-width:0!important; margin:0!important; padding:0!important; height:auto!important; overflow:visible!important; }
+#ambassador-ui[data-app-role="reception"] .ipad-room-column { display:contents!important; }
+#ambassador-ui[data-app-role="reception"] .room-placeholder { display:none!important; }
+#ambassador-ui[data-app-role="reception"] .room-row { display:grid!important; position:relative!important; order:var(--reception-room-order)!important; grid-template-columns:44px minmax(0,1fr) 34px!important; grid-template-rows:21px 18px!important; gap:2px 8px!important; align-items:center!important; width:100%!important; min-width:0!important; height:64px!important; min-height:64px!important; max-height:64px!important; margin:0!important; padding:10px 8px!important; border:0!important; border-bottom:1px solid var(--ui-line)!important; border-radius:0!important; background:#fff!important; box-shadow:none!important; overflow:hidden!important; text-align:left!important; }
+#ambassador-ui[data-app-role="reception"] .room-row::before, #ambassador-ui[data-app-role="reception"] .room-row::after { display:none!important; }
+#ambassador-ui[data-app-role="reception"] .room-key { display:contents!important; }
+#ambassador-ui[data-app-role="reception"] .room-number { grid-column:1!important; grid-row:1!important; font-size:16px!important; line-height:20px!important; color:var(--ui-text)!important; }
+#ambassador-ui[data-app-role="reception"] .guest-names { grid-column:2!important; grid-row:1!important; display:block!important; width:auto!important; min-width:0!important; white-space:nowrap!important; overflow:hidden!important; text-overflow:ellipsis!important; }
+#ambassador-ui[data-app-role="reception"] .guest-names strong { display:inline!important; font-size:14px!important; line-height:20px!important; font-weight:500!important; }
+#ambassador-ui[data-app-role="reception"] .guest-names strong + strong::before { content:" · "; }
+#ambassador-ui[data-app-role="reception"] .people { grid-column:3!important; grid-row:1!important; justify-self:end!important; display:block!important; font-size:13px!important; line-height:20px!important; color:var(--ui-muted)!important; }
+#ambassador-ui[data-app-role="reception"] .room-row :is(svg,.meta-line,.status-note,.room-tail,.frozen-breakfast-note) { display:none!important; }
+#ambassador-ui[data-app-role="reception"] .reception-breakfast { grid-column:2!important; grid-row:2!important; display:block!important; width:auto!important; padding:0!important; background:transparent!important; border:0!important; border-radius:0!important; font-size:12px!important; color:var(--ui-muted)!important; text-align:left!important; }
+#ambassador-ui[data-app-role="reception"] .reception-remark { grid-column:3!important; grid-row:2!important; display:block!important; overflow:hidden!important; text-overflow:ellipsis!important; white-space:nowrap!important; max-width:100%!important; font-size:12px!important; color:var(--ui-muted)!important; }
+#ambassador-ui[data-app-role="reception"] :is(.reception-arrival,.reception-departure) { display:none!important; }
+#ambassador-ui[data-app-role="reception"] .room-row[data-reception-selected] { background:#edf5f5!important; box-shadow:inset 3px 0 var(--ui-petrol)!important; }
+#ambassador-ui[data-app-role="reception"] .reception-table-head { position:sticky!important; top:0!important; display:grid!important; grid-template-columns:44px minmax(0,1fr) 48px!important; gap:8px!important; padding:10px 8px!important; background:#fff!important; color:var(--ui-muted)!important; font-size:11px!important; font-weight:600!important; border-bottom:1px solid var(--ui-line)!important; z-index:1; }
+#ambassador-ui[data-app-role="reception"] .reception-table-head span:nth-child(n+4) { display:none!important; }
+#ambassador-ui[data-app-role="reception"] .modal-layer:has(> .guest-edit-modal) { position:fixed!important; inset:160px 0 0 var(--reception-list)!important; width:auto!important; height:auto!important; padding:0!important; display:flex!important; align-items:stretch!important; justify-content:stretch!important; background:transparent!important; backdrop-filter:none!important; }
+#ambassador-ui[data-app-role="reception"] .guest-edit-modal { width:100%!important; max-width:none!important; height:100%!important; max-height:none!important; margin:0!important; border:0!important; border-left:1px solid var(--ui-line)!important; border-radius:0!important; box-shadow:none!important; }
+#ambassador-ui[data-app-role="reception"] .guest-edit-grid { display:grid!important; grid-template-columns:repeat(2,minmax(0,1fr))!important; gap:20px 16px!important; padding:0!important; }
+#ambassador-ui .guest-edit-grid > .wide, #ambassador-ui .reception-breakfast-choice { grid-column:1/-1!important; }
+#ambassador-ui .guest-edit-grid > label:has(input[type="date"]) { grid-column:auto!important; }
+#ambassador-ui .guest-edit-grid label > span { font-size:12px!important; font-weight:600!important; color:var(--ui-muted)!important; }
+#ambassador-ui .guest-edit-modal :is(input,textarea) { min-width:0!important; width:100%!important; padding:10px 12px!important; min-height:46px!important; border:1px solid var(--ui-line)!important; border-radius:10px!important; background:#fff!important; box-shadow:none!important; font-size:14px!important; }
+#ambassador-ui .guest-edit-modal textarea { height:auto!important; min-height:72px!important; }
+#ambassador-ui .guest-edit-modal input[type="date"] { font-size:14px!important; }
+#ambassador-ui .reception-breakfast-choice > div { display:grid!important; grid-template-columns:repeat(2,minmax(0,1fr))!important; gap:10px!important; }
+#ambassador-ui .reception-breakfast-choice button { min-width:0!important; min-height:48px!important; border:1px solid var(--ui-line)!important; border-radius:10px!important; background:#fff!important; color:var(--ui-text)!important; font-size:14px!important; }
+#ambassador-ui .reception-breakfast-choice button.selected { background:var(--ui-petrol)!important; color:#fff!important; border-color:var(--ui-petrol)!important; }
+#ambassador-ui .remark-edit-summary { border:0!important; border-top:1px solid var(--ui-line)!important; border-radius:0!important; background:transparent!important; padding:20px 0!important; }
+#ambassador-ui .remark-preview { background:transparent!important; color:var(--ui-text)!important; }
+#ambassador-ui .remark-edit-open svg { display:none!important; }
+#ambassador-ui .reception-view-body, #ambassador-ui .reception-view-actions { display:none; }
+#ambassador-ui .reception-view-mode > :is(.modal-body,.modal-actions) { display:none!important; }
+#ambassador-ui .reception-view-mode > .reception-view-body { display:block; flex:1; min-height:0; overflow:auto; padding:24px; }
+#ambassador-ui .reception-view-body dl { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:24px; margin:0; }
+#ambassador-ui .reception-view-body dl > div { padding:0 0 20px; border-bottom:1px solid var(--ui-line); }
+#ambassador-ui .reception-view-body dt { margin-bottom:8px; font-size:12px; font-weight:600; color:var(--ui-muted); }
+#ambassador-ui .reception-view-body dd { margin:0; font-size:16px; font-weight:600; }
+#ambassador-ui .reception-view-remark { padding-top:24px; }
+#ambassador-ui .reception-view-remark h3 { font-size:14px; font-weight:600; }
+#ambassador-ui .reception-view-remark p { margin-top:12px; font-size:14px; line-height:1.6; white-space:pre-wrap; }
+#ambassador-ui .reception-view-mode > .reception-view-actions { display:flex; padding:16px 24px max(16px,env(safe-area-inset-bottom)); border-top:1px solid var(--ui-line); }
+#ambassador-ui .reception-view-actions button { min-height:48px; padding:12px 20px; border:1px solid var(--ui-petrol); border-radius:10px; font-size:15px; font-weight:600; }
+#ambassador-ui[data-app-role="reception"] .structured-menu-icon { display:none!important; }
+#ambassador-ui .structured-menu-item { border:0!important; border-bottom:1px solid var(--ui-line)!important; border-radius:0!important; box-shadow:none!important; background:#fff!important; }
+
+/* Existing empty-state content, kept within the workspace. */
+#ambassador-ui .workspace-empty-state { display:none; }
+#ambassador-ui .workspace-empty .workspace-empty-state { display:flex; flex-direction:column; gap:16px; padding:32px 0; max-width:600px; }
+#ambassador-ui .workspace-empty-state h2 { font-size:22px; }
+#ambassador-ui .workspace-empty-state p { font-size:14px; color:var(--ui-muted); }
+#ambassador-ui .workspace-import-button { min-height:48px; padding:12px 20px; background:var(--ui-petrol); color:#fff; border:0; border-radius:10px; align-self:flex-start; }
+#ambassador-ui .workspace-empty .content > :not(.workspace-empty-state), #ambassador-ui .workspace-empty .search-wrap, #ambassador-ui .workspace-empty .bottom-bar { display:none!important; }
+
+@media(min-width:1200px) {
+  #ambassador-ui[data-app-role="reception"] { --reception-list:69%; --ui-padding:28px; }
+  #ambassador-ui[data-app-role="reception"] .reception-actions button { height:38px!important; min-height:38px!important; }
+  #ambassador-ui[data-app-role="reception"] .reception-table-head, #ambassador-ui[data-app-role="reception"] .room-row { grid-template-columns:52px minmax(170px,1.8fr) 54px 92px 92px 112px minmax(64px,1fr)!important; gap:8px!important; }
+  #ambassador-ui[data-app-role="reception"] .room-row { grid-template-rows:1fr!important; height:46px!important; min-height:46px!important; max-height:46px!important; padding:8px!important; }
+  #ambassador-ui[data-app-role="reception"] .reception-table-head span:nth-child(n) { display:block!important; }
+  #ambassador-ui[data-app-role="reception"] .room-row > :is(.reception-arrival,.reception-departure) { display:block!important; font-size:13px!important; color:var(--ui-muted)!important; }
+  #ambassador-ui[data-app-role="reception"] .reception-arrival { grid-column:4!important; grid-row:1!important; }
+  #ambassador-ui[data-app-role="reception"] .reception-departure { grid-column:5!important; grid-row:1!important; }
+  #ambassador-ui[data-app-role="reception"] .reception-breakfast { grid-column:6!important; grid-row:1!important; font-size:13px!important; }
+  #ambassador-ui[data-app-role="reception"] .reception-remark { grid-column:7!important; grid-row:1!important; font-size:13px!important; }
+  #ambassador-ui[data-app-role="reception"] .room-number { font-size:14px!important; }
+  #ambassador-ui[data-app-role="reception"] .people { justify-self:start!important; }
+  #ambassador-ui[data-app-role="reception"] .guest-edit-modal :is(input,.reception-breakfast-choice button) { min-height:38px!important; }
+  #ambassador-ui[data-app-role="reception"] .guest-edit-modal .modal-action, #ambassador-ui .reception-view-actions button { min-height:40px!important; padding-block:10px!important; font-size:14px!important; }
 }
 @media(max-width:699px) {
-  .entry-screen.role-pending .role-selection { width:calc(100vw - 32px) !important; top:43% !important; }
-  .role-selection .role-logo { width:min(200px,54vw) !important; margin-bottom:23px !important; }
-  .role-selection .role-eyebrow { font-size:23px !important; }
-  .role-selection h1 { font-size:18px !important; }
-  .role-selection .role-date { margin-bottom:22px !important; }
-  .role-selection .role-options { grid-template-columns:1fr !important; gap:12px !important; }
-  .role-selection .role-options button { min-height:96px !important; padding:16px 20px !important; }
-  .entry-screen:not(.role-pending) .load-card { width:calc(100vw - 32px) !important; padding:18px 0 !important; }
-  .entry-screen:not(.role-pending) .load-actions { flex-direction:column !important; align-items:stretch !important; }
-  .entry-screen:not(.role-pending) .load-choice,
-  .entry-screen:not(.role-pending) .entry-secondary {
-    flex:0 0 auto !important;
-    width:100% !important;
-    min-height:60px !important;
-  }
-  body[data-app-role="service"] .room-row { min-height:76px !important; }
-  .checkin-choice-modal .table-picker button { min-height:42px !important; height:42px !important; }
+  #ambassador-ui { --ui-padding:16px; --ui-room-height:88px; }
+  #ambassador-ui[data-app-role="service"] .app-shell { grid-template-rows:68px auto 64px minmax(0,1fr) auto!important; }
+  #ambassador-ui .role-options { grid-template-columns:1fr!important; gap:12px!important; }
+  #ambassador-ui .role-options button { min-height:90px!important; padding:16px!important; }
+  #ambassador-ui .role-logo { width:210px!important; }
+  #ambassador-ui .topbar { height:68px!important; min-height:68px!important; gap:8px!important; }
+  #ambassador-ui .header-logo { width:108px!important; }
+  #ambassador-ui .page-title h1 { font-size:15px!important; }
+  #ambassador-ui .page-title p { font-size:11px!important; }
+  #ambassador-ui .header-actions { gap:6px!important; }
+  #ambassador-ui .header-actions button { min-width:40px!important; width:40px!important; height:42px!important; min-height:42px!important; }
+  #ambassador-ui[data-app-role="service"] .open-guests-phone { font-size:18px!important; line-height:1.25!important; letter-spacing:-.04em!important; white-space:nowrap!important; }
+  #ambassador-ui[data-app-role="service"] .open-guests-tablet { display:none!important; }
+  #ambassador-ui[data-app-role="service"] .open-filter-button { font-size:12px!important; padding-left:0!important; }
+  #ambassador-ui[data-app-role="service"] .ipad-room-overview { display:none!important; }
+  #ambassador-ui[data-app-role="service"] .room-grid { display:flex!important; flex-direction:column!important; gap:0!important; }
+  #ambassador-ui :is(.guest-edit-modal,.checkin-choice-modal,.special-guest-modal,.dialog-add-room,.import-modal) { width:100%!important; height:calc(100dvh - 8px)!important; max-height:calc(100dvh - 8px)!important; margin:8px 0 0!important; border-radius:16px 16px 0 0!important; }
+  #ambassador-ui .checkin-choice-body { display:flex!important; flex-direction:column!important; gap:16px!important; }
+  #ambassador-ui .checkin-count-block { order:0!important; flex:0 0 auto!important; }
+  #ambassador-ui .room-service-option { order:1!important; flex:0 0 auto!important; }
+  #ambassador-ui .group-link { order:2!important; flex:0 0 auto!important; }
+  #ambassador-ui .choice-separator { order:3!important; flex:0 0 auto!important; border-top:1px solid var(--ui-line)!important; padding-top:16px!important; }
+  #ambassador-ui .table-picker { order:4!important; grid-template-columns:repeat(6,minmax(0,1fr))!important; flex:0 0 auto!important; margin:0!important; }
+  #ambassador-ui .special-type-picker { grid-template-columns:1fr!important; }
+  #ambassador-ui .special-table-picker { grid-template-columns:repeat(6,minmax(0,1fr))!important; }
+  #ambassador-ui .special-count { gap:12px!important; }
+  #ambassador-ui[data-app-role="reception"] { --reception-list:100%; }
+  #ambassador-ui[data-app-role="reception"] .app-shell { grid-template-rows:68px auto 64px minmax(0,1fr)!important; }
+  #ambassador-ui[data-app-role="reception"] .reception-toolbar { flex-wrap:wrap!important; gap:16px!important; }
+  #ambassador-ui[data-app-role="reception"] .reception-actions { width:100%!important; }
+  #ambassador-ui[data-app-role="reception"] .reception-actions button { flex:1!important; padding:8px!important; }
+  #ambassador-ui[data-app-role="reception"] .modal-layer:has(> .guest-edit-modal) { inset:0!important; padding:0!important; background:#fff!important; }
+  #ambassador-ui[data-app-role="reception"] .guest-edit-modal { margin:0!important; height:100dvh!important; max-height:100dvh!important; border:0!important; border-radius:0!important; }
+  #ambassador-ui .reception-view-mode > .reception-view-body { padding:20px 16px; }
+  #ambassador-ui .reception-view-mode > .reception-view-actions { padding-inline:16px; }
 }
 
-/* Keep the complete action heading visible at the reception desk. */
-@media(min-width:1100px) {
-  body[data-app-role="reception"] .reception-table-head,
-  body[data-app-role="reception"] .room-row {
-    grid-template-columns:88px minmax(0,1.5fr) 80px 145px 110px 96px !important;
-  }
-}
-
-/* Final navigation: the two workspaces open directly from one compact chooser. */
-.entry-screen.role-pending .role-selection {
-  top:45% !important;
-  width:min(760px,calc(100vw - 40px)) !important;
-}
-.role-selection .role-logo { order:0 !important; margin-bottom:18px !important; }
-.role-selection .role-eyebrow { order:1 !important; font-size:25px !important; }
-.role-selection .role-date { order:2 !important; margin:10px 0 22px !important; }
-.role-selection h1 {
-  order:3 !important;
-  align-self:stretch !important;
-  margin:0 0 12px !important;
-  color:#747d7a !important;
-  font-size:12px !important;
-  font-weight:600 !important;
-  letter-spacing:.09em !important;
-  text-transform:uppercase !important;
-}
-.role-selection .role-options { order:4 !important; gap:12px !important; }
-.role-selection .role-options button { min-height:98px !important; padding:17px 20px !important; }
-
-/* Keep the existing app chrome and import input when there is no daily list. */
-.app-shell .workspace-empty-state { display:none; }
-.app-shell.workspace-empty .workspace-empty-state {
-  display:flex;
-  flex-direction:column;
-  align-items:flex-start;
-  width:min(680px,100%);
-  padding:42px 24px;
-  margin:0 auto;
-  background:#fff;
-}
-.workspace-empty-state > span {
-  margin-bottom:16px;
-  color:#747d7a;
-  font-size:12px;
-  font-weight:650;
-  letter-spacing:.08em;
-  text-transform:uppercase;
-}
-.workspace-empty-state h2 { margin:0 0 10px; color:#141918; font-size:25px; line-height:1.2; }
-.workspace-empty-state p { margin:0 0 23px; color:#747d7a; font-size:15px; line-height:1.5; }
-.workspace-import-button {
-  min-height:52px;
-  padding:0 24px;
-  color:#fff;
-  background:#1c777b;
-  border:1px solid #1c777b;
-  border-radius:10px;
-  font-size:14px;
-  font-weight:700;
-  cursor:pointer;
-}
-.workspace-import-button:focus-visible { outline:2px solid #141918; outline-offset:3px; }
-.app-shell.workspace-empty .content > :not(.workspace-empty-state),
-.app-shell.workspace-empty .search-wrap,
-.app-shell.workspace-empty .bottom-bar { display:none !important; }
-body[data-app-role="service"] .app-shell.workspace-empty .hero { display:none !important; }
-body[data-app-role="reception"] .app-shell.workspace-empty .reception-toolbar .reception-summary small,
-body[data-app-role="reception"] .app-shell.workspace-empty .reception-toolbar .reception-actions { display:none !important; }
-@media(max-width:699px) {
-  .entry-screen.role-pending .role-selection { top:45% !important; width:calc(100vw - 32px) !important; }
-  .role-selection .role-logo { margin-bottom:16px !important; }
-  .role-selection .role-date { margin-bottom:18px !important; }
-  .role-selection .role-options button { min-height:90px !important; }
-  .app-shell.workspace-empty .workspace-empty-state { padding:34px 20px max(34px,env(safe-area-inset-bottom)); }
-}
-
-/* Final shared room language: one fixed scan rhythm for the main and additional rooms. */
-body[data-app-role="service"] .room-row,
-body[data-app-role="service"] .room-row.included,
-body[data-app-role="service"] .room-row.present,
-body[data-app-role="service"] .room-row.partial,
-body[data-app-role="service"] .ipad-room-grid .room-row,
-body[data-app-role="service"] .ipad-room-grid .room-row.included,
-body[data-app-role="service"] .ipad-room-grid .room-row.present,
-body[data-app-role="service"] .ipad-room-grid .room-row.partial {
-  position:relative !important;
-  height:78px !important;
-  min-height:78px !important;
-  max-height:78px !important;
-  border:0 !important;
-  border-bottom:1px solid #dce3e1 !important;
-  border-radius:0 !important;
-  background:#fff !important;
-  box-sizing:border-box !important;
-  overflow:hidden !important;
-}
-body[data-app-role="service"] .room-row::before,
-body[data-app-role="service"] .ipad-room-grid .room-row::before {
-  content:"" !important;
-  display:block !important;
-  background:#cdd7d4 !important;
-}
-body[data-app-role="service"] .room-row.included:not(.present):not(.partial)::before,
-body[data-app-role="service"] .ipad-room-grid .room-row.included:not(.present):not(.partial)::before { background:#f3cf24 !important; }
-body[data-app-role="service"] .room-row.present::before,
-body[data-app-role="service"] .room-row.partial::before,
-body[data-app-role="service"] .ipad-room-grid .room-row.present::before,
-body[data-app-role="service"] .ipad-room-grid .room-row.partial::before { background:#1c777b !important; }
-
-/* The two guest types have equal visual weight; selection conveys the state. */
-.special-type-picker { display:grid !important; grid-template-columns:repeat(2,minmax(0,1fr)) !important; gap:10px !important; }
-.special-type-picker > button,
-.special-type-picker > button[data-special-type="opera"] {
-  display:flex !important;
-  align-items:center !important;
-  gap:12px !important;
-  width:100% !important;
-  min-width:0 !important;
-  min-height:76px !important;
-  padding:12px !important;
-  color:#141918 !important;
-  background:#fff !important;
-  border:1px solid #dce3e1 !important;
-  border-radius:12px !important;
-  box-shadow:none !important;
-  text-align:left !important;
-}
-.special-type-picker > button.selected { color:#fff !important; background:#1c777b !important; border-color:#1c777b !important; }
-.special-type-picker > button .special-guest-icon,
-.special-type-picker > button .special-guest-icon.opera-logo {
-  display:grid !important;
-  place-items:center !important;
-  flex:0 0 48px !important;
-  width:48px !important;
-  min-width:48px !important;
-  height:48px !important;
-  padding:5px !important;
-  background:#fff !important;
-  border:1px solid #dce3e1 !important;
-  border-radius:10px !important;
-}
-.special-type-picker > button .opera-choice-copy { display:block !important; min-width:0 !important; min-height:0 !important; }
-.special-type-picker > button strong { display:block !important; font-size:14px !important; line-height:1.25 !important; }
-.special-type-picker > button small { display:block !important; margin-top:3px !important; font-size:12px !important; line-height:1.3 !important; }
-.special-type-picker > button.selected small { color:rgba(255,255,255,.9) !important; }
-.special-type-picker > button .opera-logo img { max-width:100% !important; max-height:100% !important; object-fit:contain !important; }
-
-/* Shared fixed dialog footer: exactly two equally sized actions. */
-.modal-actions:has(> .modal-action:nth-child(2):last-child) {
-  display:grid !important;
-  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
-  gap:10px !important;
-}
-.modal-actions:has(> .modal-action:nth-child(2):last-child) > .modal-action {
-  width:100% !important;
-  min-width:0 !important;
-  min-height:48px !important;
-  border-radius:10px !important;
-}
-.special-guest-modal { display:flex !important; flex-direction:column !important; overflow:hidden !important; }
-.special-guest-modal > .modal-head,
-.special-guest-modal > .modal-actions { flex:0 0 auto !important; }
-.special-guest-modal > .modal-body { flex:1 1 auto !important; min-height:0 !important; overflow-y:auto !important; }
-.special-guest-modal > .modal-actions { position:relative !important; margin:0 !important; padding:12px 16px max(14px,env(safe-area-inset-bottom)) !important; background:#fff !important; border-top:1px solid #dce3e1 !important; }
-
-@media(max-width:699px) {
-  body[data-app-role="service"] .room-row,
-  body[data-app-role="service"] .room-row.included,
-  body[data-app-role="service"] .room-row.present,
-  body[data-app-role="service"] .room-row.partial,
-  body[data-app-role="service"] .ipad-room-grid .room-row,
-  body[data-app-role="service"] .ipad-room-grid .room-row.included,
-  body[data-app-role="service"] .ipad-room-grid .room-row.present,
-  body[data-app-role="service"] .ipad-room-grid .room-row.partial { height:76px !important; min-height:76px !important; max-height:76px !important; }
-  .special-type-picker { grid-template-columns:1fr !important; }
-  .guest-edit-modal { display:flex !important; flex-direction:column !important; overflow:hidden !important; }
-  .guest-edit-modal > .modal-head { flex:0 0 auto !important; }
-  .guest-edit-modal > .modal-body { flex:1 1 auto !important; min-height:0 !important; overflow-y:auto !important; padding-bottom:24px !important; }
-  .guest-edit-modal > .modal-actions { flex:0 0 auto !important; position:relative !important; margin:0 !important; padding:12px 16px max(14px,env(safe-area-inset-bottom)) !important; background:#fff !important; border-top:1px solid #dce3e1 !important; }
-}
-
-/* React renders each footer beside its body. Only the body scrolls. */
-.guest-edit-modal,
-.checkin-choice-modal {
-  display:flex !important;
-  flex-direction:column !important;
-  overflow:hidden !important;
-  max-height:calc(100dvh - 16px) !important;
-}
-.guest-edit-modal > .modal-head,
-.checkin-choice-modal > .modal-head,
-.guest-edit-modal > .modal-actions,
-.checkin-choice-modal > .modal-actions { flex:0 0 auto !important; }
-.guest-edit-modal > .modal-body,
-.checkin-choice-modal > .modal-body {
-  flex:1 1 auto !important;
-  min-height:0 !important;
-  overflow-y:auto !important;
-  overscroll-behavior:contain !important;
-  padding-bottom:24px !important;
-}
-.guest-edit-modal > .modal-actions,
-.checkin-choice-modal > .modal-actions {
-  position:relative !important;
-  grid-column:auto !important;
-  grid-row:auto !important;
-  width:100% !important;
-  margin:0 !important;
-  padding:12px 16px max(14px,env(safe-area-inset-bottom)) !important;
-  border-top:1px solid #dce3e1 !important;
-  background:#fff !important;
-}
-@media(max-width:699px) {
-  .guest-edit-modal,
-  .checkin-choice-modal { height:calc(100dvh - max(8px,env(safe-area-inset-top))) !important; }
-  .special-type-picker > button { min-height:76px !important; }
-}
+/* Existing two-action geometry also remains on the frozen confirmation/success views. */
+.modal-actions:has(> .modal-action:nth-child(2):last-child) { display:grid!important; grid-template-columns:repeat(2,minmax(0,1fr))!important; gap:10px!important; }
+.modal-actions:has(> .modal-action:nth-child(2):last-child) > .modal-action { width:100%!important; min-width:0!important; min-height:48px!important; border-radius:10px!important; }

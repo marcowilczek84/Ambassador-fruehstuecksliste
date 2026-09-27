@@ -1,4 +1,6 @@
 (() => {
+  // Presentation scope only: the recovered application and its business rules stay unchanged.
+  document.body.id = "ambassador-ui";
   let openOnly = false;
   let scheduled = false;
   const roleKey = "ambassador-work-area";
@@ -119,7 +121,7 @@
 
   function icon(name) {
     if (name === "reception") {
-      return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 17h16M6 17a6 6 0 0 1 12 0M12 8v3M10 7h4"/></svg>';
+      return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 13h16v8H4zM3 13h18M8 13v-2a4 4 0 0 1 8 0v2M9 17h6M12 3a2 2 0 1 0 0 4 2 2 0 0 0 0-4"/></svg>';
     }
     const paths = {
       guests: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>',
@@ -132,7 +134,7 @@
       globe: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/>'
     };
     if (paths[name]) return `<svg viewBox="0 0 24 24" aria-hidden="true">${paths[name]}</svg>`;
-    return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 9h12v7a4 4 0 0 1-4 4H9a4 4 0 0 1-4-4V9Zm12 2h1a3 3 0 0 1 0 6h-1M8 4v2m4-2v2m4-2v2"/></svg>';
+    return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h12v6a4 4 0 0 1-4 4H9a4 4 0 0 1-4-4V8Zm12 2h1a3 3 0 0 1 0 6h-1M3 21h18M8 3v2m4-2v2m4-2v2"/></svg>';
   }
 
   const menuItem = (action, iconName, title, subtitle = "") => `
@@ -381,7 +383,7 @@
       </div>
       <div class="reception-actions">
         <button type="button" class="reception-upload">${tr("Neue Mews-Liste laden")}</button>
-        <button type="button" class="reception-add">＋ ${tr("Zimmer hinzufügen")}</button>
+        <button type="button" class="reception-add">+ ${tr("Zimmer hinzufügen")}</button>
       </div>`;
     toolbar.querySelector(".reception-upload").addEventListener("click", () => {
       const fileInput = shell.querySelector('input[type="file"][accept*=".xlsx"]');
@@ -396,11 +398,12 @@
     if (!content || content.querySelector(".reception-table-head")) return;
     const head = document.createElement("div");
     head.className = "reception-table-head";
-    head.innerHTML = ["Zimmer", "Gast", "Gäste", "Frühstück", "Bemerkung", "Bearbeiten"].map((label) => `<span>${tr(label)}</span>`).join("");
+    head.innerHTML = ["Zimmer", "Gast", "Personen", "Anreise", "Abreise", "Frühstück", "Bemerkung"].map((label, index) => `<span class="reception-heading-${index}">${tr(label)}</span>`).join("");
     content.prepend(head);
   }
 
   function enhanceReceptionRows(shell) {
+    const displayRooms = readDailyState("ambassador-breakfast-rooms", "rooms", []);
     shell.querySelectorAll(".room-row").forEach((row) => {
       let breakfast = row.querySelector(".reception-breakfast");
       if (!breakfast) {
@@ -423,11 +426,22 @@
         remark.className = "reception-remark";
         row.append(remark);
       }
-      const hasRemark = Boolean(row.querySelector(".guest-info-indicator"));
-      remark.classList.toggle("has-remark", hasRemark);
-      remark.innerHTML = hasRemark
-        ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h9l4 4v14H6zM15 3v5h5M9 12h7M9 16h7"/></svg>'
-        : "–";
+      // Display the existing room values only; no lookup by guest name and no writes.
+      const room = displayRooms.find((item) => Number(item.room) === roomNumber);
+      const note = room?.note || "";
+      if (remark.textContent !== (note || "–")) remark.textContent = note || "–";
+      remark.title = note;
+      remark.classList.toggle("has-remark", Boolean(note));
+      for (const field of ["arrival", "departure"]) {
+        let value = row.querySelector(`.reception-${field}`);
+        if (!value) {
+          value = document.createElement("span");
+          value.className = `reception-${field}`;
+          row.append(value);
+        }
+        const text = vacant ? "–" : room?.[field] || "–";
+        if (value.textContent !== text) value.textContent = text;
+      }
     });
 
     const occupiedRooms = new Set(
@@ -444,6 +458,103 @@
         if (heading) heading.textContent = tr("Belegte Zimmer");
         if (count) count.textContent = String(occupiedRooms.size);
       }
+    });
+  }
+
+  // UI adapters never move React-owned nodes, change a handler, or persist state.
+  function alignFrozenRooms(shell) {
+    shell.querySelectorAll(".ipad-room-column").forEach((column, index) => {
+      const start = 20 + index * 10;
+      column.setAttribute("aria-label", `${start}–${start + 8}`);
+      if (start !== 50 || column.querySelector(".room-placeholder")) return;
+      const next = [...column.querySelectorAll(".room-row")].find((row) => Number(row.querySelector(".room-number")?.textContent) > 55);
+      const placeholder = document.createElement("div");
+      placeholder.className = "room-placeholder";
+      placeholder.setAttribute("aria-hidden", "true");
+      placeholder.setAttribute("inert", "");
+      column.insertBefore(placeholder, next || null);
+    });
+    if (document.body.dataset.appRole !== "service") return;
+    shell.querySelectorAll(".room-row").forEach((row) => {
+      const names = row.querySelector(".guest-names");
+      if (!names) return;
+      names.title = [...names.querySelectorAll("strong")].map((x) => x.textContent).join(" · ");
+      let note = names.querySelector(".frozen-breakfast-note");
+      const needsNote = !row.classList.contains("included") && !names.querySelector(".vacant");
+      if (needsNote && !note) {
+        note = document.createElement("small");
+        note.className = "frozen-breakfast-note";
+        names.append(note);
+      }
+      if (note) { note.hidden = !needsNote; if (note.textContent !== tr("nicht inklusive")) note.textContent = tr("nicht inklusive"); }
+    });
+  }
+
+  function receptionReadView(root) {
+    if (document.body.dataset.appRole !== "reception") return;
+    const modal = root.querySelector(".guest-edit-modal");
+    const selectedRoom = modal?.querySelector(".modal-kicker")?.textContent.match(/\d+/)?.[0] || "";
+    root.querySelectorAll(".room-row").forEach((row) => {
+      row.toggleAttribute("data-reception-selected", row.querySelector(".room-number")?.textContent.trim() === selectedRoom);
+    });
+    if (!modal) return;
+    modal.setAttribute("aria-modal", window.innerWidth >= 700 ? "false" : "true");
+    if (modal.dataset.viewRoom !== selectedRoom) {
+      modal.dataset.viewRoom = selectedRoom;
+      modal.dataset.uiEdit = "false";
+      modal.querySelector(".reception-view-body")?.remove();
+      modal.querySelector(".reception-view-actions")?.remove();
+    }
+    const editing = modal.dataset.uiEdit === "true";
+    if (modal.classList.contains("reception-view-mode") === editing) modal.classList.toggle("reception-view-mode", !editing);
+    const h2 = modal.querySelector(".modal-head h2"), subline = modal.querySelector(".modal-head p");
+    const names = modal.querySelector(".guest-edit-grid textarea")?.value || "";
+    const title = editing ? tr("Gast bearbeiten") : `${tr("Zimmer")} ${selectedRoom}`;
+    const subtitle = editing ? tr("Gast- und Aufenthaltsdaten anpassen") : names.split("\n").join(" · ");
+    if (h2 && h2.textContent !== title) h2.textContent = title;
+    if (subline && subline.textContent !== subtitle) subline.textContent = subtitle;
+    if (modal.querySelector(".reception-view-body")) return;
+    const body = document.createElement("div");
+    body.className = "reception-view-body";
+    const details = document.createElement("dl");
+    const dates = modal.querySelectorAll('input[type="date"]');
+    const values = [
+      ["Anreise", dates[0]?.value || "–"], ["Abreise", dates[1]?.value || "–"],
+      ["Personen", modal.querySelector('input[type="number"]')?.value || "–"],
+      ["Frühstück", tr(modal.querySelector('input[type="checkbox"]')?.checked ? "inklusive" : "nicht inklusive")]
+    ];
+    values.forEach(([label, value]) => {
+      const item = document.createElement("div"), dt = document.createElement("dt"), dd = document.createElement("dd");
+      dt.textContent = tr(label); dd.textContent = value; item.append(dt, dd); details.append(item);
+    });
+    const remark = document.createElement("section");
+    remark.className = "reception-view-remark";
+    const label = document.createElement("h3"), text = document.createElement("p");
+    label.textContent = tr("Bemerkung");
+    text.textContent = modal.querySelector(".remark-preview")?.textContent || tr("Keine Bemerkung gespeichert");
+    remark.append(label, text); body.append(details, remark);
+    const footer = document.createElement("div");
+    footer.className = "reception-view-actions";
+    const edit = document.createElement("button");
+    edit.type = "button"; edit.className = "modal-action primary"; edit.textContent = tr("Gast bearbeiten");
+    edit.addEventListener("click", () => {
+      modal.dataset.uiEdit = "true";
+      receptionReadView(document);
+      modal.querySelector(".guest-edit-grid textarea")?.focus();
+    });
+    footer.append(edit); modal.append(body, footer);
+  }
+
+  function checkinBreakfastDisplay(root) {
+    root.querySelectorAll(".checkin-choice-modal").forEach((modal) => {
+      const number = modal.querySelector(".modal-kicker")?.textContent.match(/\d+/)?.[0];
+      const row = [...document.querySelectorAll(".room-row")].find((item) => item.querySelector(".room-number")?.textContent.trim() === number);
+      if (!row) return;
+      let status = modal.querySelector(".frozen-checkin-breakfast");
+      if (!status) { status = document.createElement("small"); status.className = "frozen-checkin-breakfast"; modal.querySelector(".modal-head > div")?.append(status); }
+      const text = tr(row.classList.contains("included") ? "Frühstück inklusive" : "nicht inklusive");
+      if (status.textContent !== text) status.textContent = text;
+      status.classList.toggle("included", row.classList.contains("included"));
     });
   }
 
@@ -764,7 +875,7 @@
     if (title) {
       const compactHeader = window.matchMedia("(max-width: 560px)").matches;
       title.textContent = compactHeader
-        ? tr("Frühstücksliste")
+        ? tr(role === "reception" ? "Rezeption" : "Service")
         : role === "reception" ? `${tr("Frühstücksliste")} · ${tr("Rezeption")}` : `${tr("Frühstücksliste")} · ${tr("Service")}`;
     }
     const search = shell.querySelector('.search-box input');
@@ -1058,12 +1169,15 @@
     });
     if (shell) updateFilter(shell);
     if (shell) applyRoleView(shell);
+    if (shell) alignFrozenRooms(shell);
     if (shell) updateEmptyWorkspace(shell);
     if (shell) alignMobileInfoBadges(shell);
     if (shell) ensureReliableMenu(shell, sessionStorage.getItem(roleKey) || "service");
     if (shell) updateServiceOpenHeading(shell);
     if (shell) addIPadSpecialGuestShortcut(shell);
     enhanceReceptionModal(document);
+    receptionReadView(document);
+    checkinBreakfastDisplay(document);
     enhanceRoomUndo(document);
     if (shell) {
       const finished = Boolean(shell.querySelector(".bottom-button.finish.finished"));

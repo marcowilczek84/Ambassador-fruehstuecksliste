@@ -1,0 +1,18 @@
+# Frozen UI release — implementation and acceptance boundary
+
+Canonical instruction: complete 37-section specification supplied on 2026-09-28. Baseline branch `ambassador-final-uiux-20260927`, commit `81627e259252d6bf2dd8ba533af1619d492cfe26`.
+
+Before implementation, the preceding 71-screenshot audit was read: 25 PASS, four FAIL, one not applicable. Its app code matches the baseline commit; intervening commits only added audit scripts.
+
+| Prior finding | Required result | Presentation change |
+|---|---|---|
+| iPhone row geometry varied (76/94 px) | Same geometry for all states | One fixed row geometry, explicit child positions |
+| iPhone status lines touched | Positive measured gap | Per-row 4 px line with 8 px top/bottom insets |
+| iPad column 50–58 lacked room 55 gap | Empty, inert, equal-height placeholder | Empty presentation node before room 56 |
+| iPad reception click 21 blocked by another column | Normal clicks; stable list | Flatten column wrappers with `display: contents`; confine detail layer to right pane |
+
+The final CSS consolidates the permitted surfaces in one scoped presentation layer. Original Ambassador/Meili assets and the existing font remain. The read-only reception view displays the existing edit-form values; its Edit button reveals the original controls and handlers. No React-owned node is moved. The recovered application, database configuration, synchronization, parsing, persistence, translations and business handlers remain unchanged.
+
+The existing GitHub Actions workflow and Playwright audit path are retained. The workflow builds, resolves a successful non-production deployment for its exact commit, then tests 390×844, 1024×1366 and 1440×900. Screenshots use browser-local synthetic guests; all Supabase requests are blocked. No save, import acceptance, check-in, deletion or finish confirmation is submitted. Unreachable states are reported explicitly. Technical invariant failures fail the workflow.
+
+Acceptance remains pending until the final preview audit and external visual review. No Production deployment is authorized by this release task.

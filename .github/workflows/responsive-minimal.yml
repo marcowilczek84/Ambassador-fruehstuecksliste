@@ -1,33 +1,45 @@
 name: Ambassador responsive visual audit
-# Final read-only audit includes iPad reception click diagnostics.
+# Frozen release: exact-commit Preview, isolated fixtures, three CSS viewports.
 on:
   workflow_dispatch:
   push:
     branches:
       - ambassador-final-uiux-20260927
     paths:
+      - 'public/final-design.css'
+      - 'public/workflow-polish.js'
+      - '.github/scripts/**'
       - '.github/workflows/responsive-minimal.yml'
-
 permissions:
   contents: read
-
+  deployments: read
 jobs:
   audit:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Install test-only browser
+      - name: Build frozen application
         run: |
           npm ci
+          node .github/scripts/check-frozen-boundary.cjs
+          npm run build
+      - name: Install test-only browser
+        run: |
           npm install --no-save --ignore-scripts playwright@1.62.1
           npx playwright install --with-deps chromium
-      - name: Audit unchanged deployed preview at both CSS viewports
+      - name: Wait for this commit's Vercel Preview
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node .github/scripts/wait-for-preview.cjs
+      - name: Audit iPhone, iPad and reception desktop
         run: node .github/scripts/responsive-audit.cjs
-      - name: Upload private screenshots and audit reports
+      - name: Upload screenshots and audit reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
