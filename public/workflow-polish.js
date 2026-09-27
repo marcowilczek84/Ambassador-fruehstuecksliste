@@ -693,7 +693,7 @@
       <div class="modal-body">
         <span class="choice-label">GASTART</span>
         <div class="special-type-picker">
-          <button type="button" data-special-type="opera"><span class="special-guest-icon opera-logo"><img src="/opera-hotel-logo.webp" alt="Opera Hotel"></span><span class="opera-choice-copy"><small>Gäste aus dem Hotel Opera</small></span></button>
+          <button type="button" data-special-type="opera"><span class="special-guest-icon opera-logo"><img src="/opera-hotel-logo.webp" alt="Opera Hotel"></span><span class="opera-choice-copy"><strong>Opera Gäste</strong><small>Gäste aus dem Hotel Opera</small></span></button>
           <button type="button" data-special-type="external"><span class="special-guest-icon">${icon("service")}</span><span><strong>Externe Gäste</strong><small>Frühstück ohne Übernachtung</small></span></button>
         </div>
         <div data-special-guest-history>${specialGuestEntriesMarkup()}</div>
@@ -703,6 +703,8 @@
         <div class="modal-actions"><button class="modal-action" type="button" data-special-cancel>Abbrechen</button><button class="modal-action primary" type="button" data-special-save disabled>Ohne Tisch erfassen</button></div>
       </div>
     </section>`;
+    // Keep the action bar outside the scrollable content, as in the other dialogs.
+    layer.querySelector(".special-guest-modal").append(layer.querySelector(".special-guest-modal .modal-actions"));
     let type = "";
     let count = 1;
     let table = "";
