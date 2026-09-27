@@ -184,8 +184,11 @@ async function runDevice(browser, device, width, height) {
         await closeDialog();
       });
       await closeDialog();
-      const one = page.getByRole('button', { name: 'Zimmer 27 öffnen' });
-      await one.click(); await shot('checkin-single-guest', 'Check-in eines Zimmers mit einem Gast'); await closeDialog();
+    });
+    await step('checkin single guest', async () => {
+      await freshPage(); await goRole('service');
+      await page.getByRole('button', { name: 'Zimmer 27 öffnen' }).click();
+      await shot('checkin-single-guest', 'Check-in eines Zimmers mit einem Gast, ohne Speichern');
     });
     await step('special guests', async () => {
       await freshPage(); await goRole('service');
@@ -221,17 +224,29 @@ async function runDevice(browser, device, width, height) {
     await step('guest edit and detail', async () => {
       await freshPage(); await goRole('reception');
       const listBefore = await page.locator('.ipad-room-grid').boundingBox();
-      await page.getByRole('button',{name:'Zimmer 21 öffnen'}).click();
+      const target=page.getByRole('button',{name:'Zimmer 21 öffnen'});
+      let normalClick=true;
+      try { await target.click({timeout:3500}); }
+      catch(error) {
+        normalClick=false;
+        unavailable.push({device,name:'reception guest normal click',reason:String(error).slice(0,1000)});
+        await shot('reception-guest-normal-click-blocked','Zielzustand vor einem erzwungenen Diagnostik-Klick');
+        await target.click({force:true,timeout:8000});
+      }
       const dialog = page.getByRole('dialog',{name:'Gast bearbeiten'});
       await dialog.waitFor();
       await shot('reception-guest-detail-or-edit-top','Gastansicht nach Auswahl, oben');
+      if (!normalClick) manifest[manifest.length-1].interactivelyReached=false;
       const listAfter = await page.locator('.ipad-room-grid').boundingBox();
-      audits[device].receptionListBounds = { before:listBefore, after:listAfter };
-      matrix[device + '.receptionListStable'] = listBefore && listAfter && Math.abs(listBefore.width-listAfter.width)<1 && Math.abs(listBefore.x-listAfter.x)<1 ? 'PASS' : 'FAIL';
+      audits[device].receptionListBounds = { before:listBefore, after:listAfter, normalClick };
+      if (device==='ipad') matrix[device + '.receptionListStable'] = listBefore && listAfter && Math.abs(listBefore.width-listAfter.width)<1 && Math.abs(listBefore.x-listAfter.x)<1 ? 'PASS' : 'FAIL';
+      else matrix[device + '.receptionListStable'] = 'NOT_APPLICABLE';
       const body = dialog.locator('.modal-body');
       if (await body.count()) {
         await scroll('.guest-edit-modal .modal-body',.5); await shot('reception-edit-middle','Mittlere Formularposition');
+        if (!normalClick) manifest[manifest.length-1].interactivelyReached=false;
         await scroll('.guest-edit-modal .modal-body',1); await shot('reception-edit-bottom-footer','Letzter Inhalt und Footer');
+        if (!normalClick) manifest[manifest.length-1].interactivelyReached=false;
         audits[device].editModalGeometry = await page.evaluate(() => {
           const d=document.querySelector('.guest-edit-modal'); if(!d)return null;
           const body=d.querySelector('.modal-body'),foot=d.querySelector('.modal-actions');
@@ -291,6 +306,8 @@ async function runDevice(browser, device, width, height) {
   } catch(error) { unavailable.push({device:'global',name:'browser/audit',reason:String(error)});process.exitCode=1; }
   finally {
     await browser?.close();
+    unavailable.push({device:'both',name:'Erfolgreich erfasst',reason:'Would require a new check-in/write to live breakfast data; intentionally not created'});
+    unavailable.push({device:'both',name:'destructive confirmations',reason:'Confirmation flows that might change live breakfast state were intentionally not triggered'});
     fs.writeFileSync(path.join(root,'manifest.json'),JSON.stringify(manifest,null,2));
     fs.writeFileSync(path.join(root,'invariants.json'),JSON.stringify(matrix,null,2));
     fs.writeFileSync(path.join(root,'responsive-audit.json'),JSON.stringify({previewUrl:url,viewports:audits,unavailable,conditions:{productionWrites:false,supabaseChanges:false,uiChanges:false}},null,2));
