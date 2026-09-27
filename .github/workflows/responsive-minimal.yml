@@ -1,4 +1,5 @@
 name: Ambassador responsive visual audit
+# Rerun after correcting test-only mobile navigation and dialog cleanup.
 on:
   workflow_dispatch:
   push:
