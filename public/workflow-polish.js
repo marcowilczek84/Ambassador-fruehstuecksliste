@@ -1040,14 +1040,6 @@
     });
   }
 
-  function keepDialogFootersOutsideScroll(root) {
-    root.querySelectorAll(".checkin-choice-modal, .guest-edit-modal").forEach((modal) => {
-      const body = modal.querySelector(":scope > .modal-body");
-      const actions = body?.querySelector(":scope > .modal-actions");
-      if (actions) modal.append(actions);
-    });
-  }
-
   function apply() {
     scheduled = false;
     const entry = document.querySelector(".entry-screen");
@@ -1059,7 +1051,6 @@
     removeDepartureControls(document);
     classifyDialogs(document);
     standardizeModalChrome(document);
-    keepDialogFootersOutsideScroll(document);
     updateCheckinDialog(document);
     document.querySelectorAll(".room-state").forEach((state) => {
       const label = normalize(state.textContent || "").toLocaleLowerCase("de-CH");
