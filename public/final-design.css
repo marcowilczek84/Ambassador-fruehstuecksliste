@@ -349,3 +349,40 @@ body[data-app-role="service"] .ipad-room-grid .room-row.partial::before { backgr
   .guest-edit-modal > .modal-body { flex:1 1 auto !important; min-height:0 !important; overflow-y:auto !important; padding-bottom:24px !important; }
   .guest-edit-modal > .modal-actions { flex:0 0 auto !important; position:relative !important; margin:0 !important; padding:12px 16px max(14px,env(safe-area-inset-bottom)) !important; background:#fff !important; border-top:1px solid #dce3e1 !important; }
 }
+
+/* React renders each footer beside its body. Only the body scrolls. */
+.guest-edit-modal,
+.checkin-choice-modal {
+  display:flex !important;
+  flex-direction:column !important;
+  overflow:hidden !important;
+  max-height:calc(100dvh - 16px) !important;
+}
+.guest-edit-modal > .modal-head,
+.checkin-choice-modal > .modal-head,
+.guest-edit-modal > .modal-actions,
+.checkin-choice-modal > .modal-actions { flex:0 0 auto !important; }
+.guest-edit-modal > .modal-body,
+.checkin-choice-modal > .modal-body {
+  flex:1 1 auto !important;
+  min-height:0 !important;
+  overflow-y:auto !important;
+  overscroll-behavior:contain !important;
+  padding-bottom:24px !important;
+}
+.guest-edit-modal > .modal-actions,
+.checkin-choice-modal > .modal-actions {
+  position:relative !important;
+  grid-column:auto !important;
+  grid-row:auto !important;
+  width:100% !important;
+  margin:0 !important;
+  padding:12px 16px max(14px,env(safe-area-inset-bottom)) !important;
+  border-top:1px solid #dce3e1 !important;
+  background:#fff !important;
+}
+@media(max-width:699px) {
+  .guest-edit-modal,
+  .checkin-choice-modal { height:calc(100dvh - max(8px,env(safe-area-inset-top))) !important; }
+  .special-type-picker > button { min-height:76px !important; }
+}
