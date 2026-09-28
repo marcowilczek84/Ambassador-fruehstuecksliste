@@ -345,7 +345,7 @@
   position:relative!important; display:flex!important; flex-direction:column!important;
   flex:0 1 auto!important; width:100%!important; max-width:980px!important; min-height:0!important;
   max-height:100%!important; margin:0!important; padding:0!important; box-sizing:border-box!important;
-  border-radius:16px!important; clip-path:none!important; overflow:hidden!important; box-shadow:none!important;
+  border-radius:16px!important; clip-path:none!important; -webkit-mask-image:none!important; mask-image:none!important; overflow:hidden!important; box-shadow:none!important;
 }
 #ambassador-ui[data-app-role="service"] :is(.checkin-choice-modal,.special-guest-modal) { height:100%!important; }
 #ambassador-ui[data-app-role="service"] :is(.checkin-choice-modal,.special-guest-modal,.checkin-card) > :is(.modal-head,.service-success-head) { position:static!important; inset:auto!important; flex:0 0 auto!important; }
