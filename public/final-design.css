@@ -329,3 +329,36 @@
 @media(max-width:699px) {
   #ambassador-ui .role-selection > .role-app-logo { width:52px; height:52px; }
 }
+
+/* Service work dialogs: one outer surface above the unchanged Service screen. */
+#ambassador-ui[data-app-role="service"] .modal-layer:has(> :is(.checkin-choice-modal,.special-guest-modal,.checkin-card)) {
+  --service-dialog-top:max(80px,calc(env(safe-area-inset-top) + 80px));
+  --service-dialog-bottom:max(12px,env(safe-area-inset-bottom));
+  position:fixed!important; inset:0!important; width:100%!important; height:100dvh!important;
+  display:flex!important; flex-direction:column!important; align-items:center!important; justify-content:flex-start!important;
+  padding:var(--service-dialog-top) max(12px,env(safe-area-inset-right)) var(--service-dialog-bottom) max(12px,env(safe-area-inset-left))!important;
+  box-sizing:border-box!important; overflow:hidden!important; overscroll-behavior:contain!important;
+  background:rgba(20,30,28,.22)!important; -webkit-backdrop-filter:blur(1px)!important; backdrop-filter:blur(1px)!important;
+  z-index:100!important; pointer-events:auto!important;
+}
+#ambassador-ui[data-app-role="service"] :is(.checkin-choice-modal,.special-guest-modal,.checkin-card) {
+  position:relative!important; display:flex!important; flex-direction:column!important;
+  flex:0 1 auto!important; width:100%!important; max-width:980px!important; min-height:0!important;
+  max-height:100%!important; margin:0!important; padding:0!important; box-sizing:border-box!important;
+  border-radius:16px!important; clip-path:none!important; overflow:hidden!important; box-shadow:none!important;
+}
+#ambassador-ui[data-app-role="service"] :is(.checkin-choice-modal,.special-guest-modal) { height:100%!important; }
+#ambassador-ui[data-app-role="service"] :is(.checkin-choice-modal,.special-guest-modal,.checkin-card) > :is(.modal-head,.service-success-head) { position:static!important; inset:auto!important; flex:0 0 auto!important; }
+#ambassador-ui[data-app-role="service"] :is(.checkin-choice-modal,.special-guest-modal,.checkin-card) > :is(.modal-body,.service-success-body) { flex:1 1 auto!important; min-height:0!important; overflow-y:auto!important; overscroll-behavior:contain!important; }
+#ambassador-ui[data-app-role="service"] :is(.checkin-choice-modal,.special-guest-modal,.checkin-card) > :is(.modal-actions,.service-success-footer) { position:static!important; flex:0 0 auto!important; padding-bottom:16px!important; }
+#ambassador-ui[data-app-role="service"] .modal-layer:has(> .checkin-card) { justify-content:center!important; }
+#ambassador-ui[data-app-role="service"] .checkin-card { height:auto!important; max-width:580px!important; }
+#ambassador-ui[data-app-role="service"] .service-success-head { display:flex; flex-direction:column; padding:26px 20px 0; }
+#ambassador-ui[data-app-role="service"] .service-success-head > p { color:var(--muted); margin:0; }
+#ambassador-ui[data-app-role="service"] .service-success-body { padding:0 20px; }
+#ambassador-ui[data-app-role="service"] .service-success-footer { padding:16px 20px; border-top:1px solid var(--ui-line); }
+#ambassador-ui[data-app-role="service"] .service-success-footer > button { position:static!important; margin:0!important; width:100%!important; }
+@media(min-width:700px) {
+  #ambassador-ui[data-app-role="service"] .modal-layer:has(> :is(.checkin-choice-modal,.special-guest-modal,.checkin-card)) { --service-dialog-bottom:max(24px,env(safe-area-inset-bottom)); padding-inline:max(24px,env(safe-area-inset-left))!important; justify-content:center!important; }
+  #ambassador-ui[data-app-role="service"] :is(.checkin-choice-modal,.special-guest-modal) { height:auto!important; }
+}

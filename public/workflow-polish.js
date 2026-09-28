@@ -1191,6 +1191,40 @@
     });
   }
 
+  function structureServiceSuccess(root) {
+    if (document.body.dataset.appRole !== "service") return;
+    const card = root.querySelector(".checkin-card");
+    if (!card || card.querySelector(".service-success-body")) return;
+    const children = [...card.children];
+    const bodyStart = children.findIndex((node) => node.matches(".checkin-facts"));
+    const action = children.find((node) => node.matches("button.modal-action"));
+    if (bodyStart < 0 || !action) return;
+    const head = document.createElement("header");
+    const body = document.createElement("div");
+    const footer = document.createElement("footer");
+    head.className = "service-success-head";
+    body.className = "service-success-body";
+    footer.className = "service-success-footer";
+    children.forEach((node, index) => (node === action ? footer : index < bodyStart ? head : body).append(node));
+    card.append(head, body, footer);
+    card.setAttribute("role", "dialog");
+    card.setAttribute("aria-modal", "true");
+    card.setAttribute("aria-label", head.querySelector(".modal-kicker")?.textContent || "");
+  }
+
+  function lockServiceDialogBackground(root) {
+    const active = document.body.dataset.appRole === "service" && root.querySelector(".modal-layer > :is(.checkin-choice-modal,.special-guest-modal,.checkin-card)");
+    root.querySelectorAll(".app-shell > :is(.topbar,.hero,.search-wrap,.content,.bottom-bar)").forEach((node) => {
+      if (active && !node.inert) {
+        node.dataset.serviceDialogInert = "true";
+        node.inert = true;
+      } else if (!active && node.dataset.serviceDialogInert === "true") {
+        node.inert = false;
+        delete node.dataset.serviceDialogInert;
+      }
+    });
+  }
+
   function serviceEntryTransition(shell) {
     if (document.body.dataset.appRole !== "service") return;
     if (sessionStorage.getItem("ambassador-service-entry-transition") !== "pending") return;
@@ -1236,6 +1270,8 @@
     checkinBreakfastDisplay(document);
     settleServiceEditScroll(document);
     quietSuccessRemark(document);
+    structureServiceSuccess(document);
+    lockServiceDialogBackground(document);
     if (shell) serviceEntryTransition(shell);
     enhanceRoomUndo(document);
     if (shell) {
