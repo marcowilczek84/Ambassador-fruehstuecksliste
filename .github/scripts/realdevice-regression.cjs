@@ -7,7 +7,7 @@ const url=process.env.PREVIEW_URL;
 if(!url)throw Error('PREVIEW_URL required');
 const output=path.join(process.env.AUDIT_OUTPUT||'responsive-audit-output','realdevice-restfix');
 fs.mkdirSync(output,{recursive:true});
-const matrix={},evidence={},screenshots=[],errors=[],blockedRequests=[];
+const matrix={},evidence={},screenshots=[],errors=[],isolationErrors=[],blockedRequests=[];
 const check=(key,condition,data)=>{matrix[key]=condition?'PASS':'FAIL';if(data!==undefined)evidence[key]=data;console.log(key+' '+matrix[key]);};
 
 async function run(browser,engine,device,width,height){
@@ -17,8 +17,8 @@ async function run(browser,engine,device,width,height){
   await context?.close();context=await browser.newContext({viewport:{width,height},deviceScaleFactor:1,hasTouch:device!=='desktop',locale:'de-CH',timezoneId:'Europe/Zurich',reducedMotion});
   if(fixture)await context.addInitScript(seed);
   await context.addInitScript(()=>{window.__uiRestfixTrace=[];new MutationObserver(()=>{const e=document.querySelector('.service-entry-transition');if(e&&!window.__uiRestfixTrace.length)window.__uiRestfixTrace.push({time:performance.now(),text:e.textContent,pointerEvents:getComputedStyle(e).pointerEvents});if(!e&&window.__uiRestfixTrace.length&&!window.__uiRestfixTransitionEnd)window.__uiRestfixTransitionEnd=performance.now();}).observe(document,{childList:true,subtree:true,attributes:true,attributeFilter:['class']});});
-  await context.route('**/*',route=>{if(/supabase/i.test(route.request().url())){blockedRequests.push({engine,device,method:route.request().method()});return route.abort();}return route.continue();});
-  page=await context.newPage();page.setDefaultTimeout(10000);page.on('pageerror',e=>errors.push({engine,device,message:e.message}));mutated=false;
+  await context.route('**/*',route=>{if(new URL(route.request().url()).hostname==='vercel.live')return route.abort();if(/supabase/i.test(route.request().url())){blockedRequests.push({engine,device,method:route.request().method()});return route.abort();}return route.continue();});
+  page=await context.newPage();page.setDefaultTimeout(10000);page.on('pageerror',e=>{const item={engine,device,message:e.message,stack:e.stack};if(/supabase\.co/.test(e.message)&&/access control checks/.test(e.message))isolationErrors.push(item);else errors.push(item);});mutated=false;
   await page.goto(url,{waitUntil:'domcontentloaded'});await page.locator('.role-selection').waitFor();
  }
  async function role(name,wait=true){await page.locator('.role-selection [data-role="'+name+'"]').click();await page.locator('body[data-app-role="'+name+'"] .app-shell').waitFor();if(wait)await page.locator('.service-entry-transition').waitFor({state:'detached'});}
@@ -28,7 +28,7 @@ async function run(browser,engine,device,width,height){
   screenshots.push({file,engine,device,state:name,requestedViewport:[page.viewportSize().width,page.viewportSize().height],referenceViewport:[width,height],metrics,interactivelyReached:true,dataMutation:mutated,realDataMutation:false,dataSource:'disposable synthetic browser fixture; Supabase blocked'});
   check(prefix+'.overflow.'+name,metrics.scrollWidth<=metrics.width);
  }
- async function test(name,fn){try{await fn();}catch(e){check(prefix+'.'+name,false,{error:String(e)});}}
+ async function test(name,fn){try{await fn();}catch(e){check(prefix+'.'+name,false,{error:String(e),body:await page.locator('body').innerText().catch(()=>''),roomState:await page.evaluate(()=>localStorage.getItem('ambassador-breakfast-rooms')).catch(()=>null)});await shot('FAIL-'+name).catch(()=>{});}}
  try{
  await test('01-direct-reception',async()=>{
   await fresh();await role('reception');await page.getByRole('button',{name:'Zimmer 21 öffnen'}).waitFor();
@@ -42,6 +42,7 @@ async function run(browser,engine,device,width,height){
   const menu=await page.locator('.structured-menu-item').evaluateAll(es=>es.map(e=>{const t=e.querySelector('span:not(.structured-menu-icon)'),r=e.getBoundingClientRect(),b=t.getBoundingClientRect();return{rowWidth:r.width,textWidth:b.width,titleHeight:t.querySelector('strong').getBoundingClientRect().height,titleLine:parseFloat(getComputedStyle(t.querySelector('strong')).lineHeight)};}));
   check(prefix+'.04-reception-menu',menu.length===2&&menu.every(m=>m.textWidth>=m.rowWidth-30&&m.titleHeight<=m.titleLine*2+1),menu);await shot('04-reception-menu');await page.getByRole('button',{name:'Menü schließen'}).click();
   await page.getByRole('button',{name:'Zimmer 21 öffnen'}).click();
+  await page.locator('.reception-view-body dd').first().waitFor();
   const dates=await page.locator('.reception-view-body dd').allTextContents();
   const raw=await page.locator('.guest-edit-modal input[type="date"]').evaluateAll(es=>es.map(e=>e.value));
   check(prefix+'.05-german-view-dates',dates[0]==='26.09.2026'&&dates[1]==='30.09.2026'&&raw.join(',')==='2026-09-26,2026-09-30',{dates,storedInputValues:raw});await shot('05-reception-dates');
@@ -84,7 +85,7 @@ async function run(browser,engine,device,width,height){
   await page.locator('.guest-edit-modal .modal-body').evaluate(e=>e.scrollTop=0);await page.locator('.guest-edit-grid textarea').first().focus();top=await geometry();check(prefix+'.06-return-to-top',top.label.top>=top.header.bottom+12,top);await shot('06-service-edit-top-restored');
  });
  await test('07-success-remark',async()=>{
-  await fresh();await role('service');await page.getByRole('button',{name:'Zimmer 21 öffnen'}).click();await page.locator('.checkin-choice-modal').getByRole('button',{name:'17',exact:true}).click();await page.locator('.checkin-choice-modal .modal-actions .primary').click();mutated=true;
+  await fresh();await role('service');await page.getByRole('button',{name:'Zimmer 21 öffnen'}).click();await page.locator('.checkin-choice-modal').getByRole('button',{name:'17',exact:true}).click();await page.locator('.checkin-choice-modal .table-picker button.selected').filter({hasText:/^17$/}).waitFor();await page.locator('.checkin-choice-modal .modal-actions .primary').filter({hasText:'17'}).click();mutated=true;
   await page.locator('.checkin-card .important-note').waitFor();
   await page.waitForFunction(()=>document.querySelector('.checkin-card .important-note strong')?.textContent==='Bemerkung');
   const note=await page.locator('.checkin-card .important-note').evaluate(e=>({text:e.querySelector('p').textContent,heading:e.querySelector('strong').textContent,background:getComputedStyle(e).backgroundColor,iconVisible:[...e.querySelectorAll('svg')].some(x=>x.getBoundingClientRect().height>0)}));
@@ -102,7 +103,7 @@ async function run(browser,engine,device,width,height){
   }catch(e){check(engine+'.runner',false,{error:String(e)});}finally{await browser?.close();}
  }
  check('runtimeErrors',errors.length===0,errors);
- fs.writeFileSync(path.join(output,'results.json'),JSON.stringify({url,commit:process.env.SOURCE_SHA,matrix,evidence,screenshots,errors,blockedRequests,conditions:{realDeviceRetest:false,supabaseWrites:false,productionWrites:false,syntheticLocalSubmissions:true}},null,2));
+ fs.writeFileSync(path.join(output,'results.json'),JSON.stringify({url,commit:process.env.SOURCE_SHA,matrix,evidence,screenshots,errors,isolationErrors,blockedRequests,conditions:{realDeviceRetest:false,supabaseWrites:false,productionWrites:false,syntheticLocalSubmissions:true,vercelFeedbackToolbarBlocked:true}},null,2));
  if(Object.values(matrix).includes('FAIL'))process.exitCode=1;
  console.log(JSON.stringify({screenshots:screenshots.length,pass:Object.values(matrix).filter(x=>x==='PASS').length,fail:Object.values(matrix).filter(x=>x==='FAIL').length}));
 })();
