@@ -1,0 +1,52 @@
+name: Ambassador branding real-device evidence
+on:
+  workflow_dispatch:
+  push:
+    branches: [ambassador-final-uiux-20260927]
+    paths:
+      - 'public/index-live.html'
+      - 'public/final-design.css'
+      - 'public/favicon.svg'
+      - 'public/apple-touch-icon.png'
+      - '.github/scripts/branding-realdevice.cjs'
+      - '.github/workflows/branding-realdevice.yml'
+permissions:
+  contents: read
+  deployments: read
+jobs:
+  evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Build and enforce frozen source boundary
+        run: |
+          npm ci
+          node .github/scripts/check-frozen-boundary.cjs
+          npm run build
+      - name: Install WebKit and PNG reader
+        run: |
+          npm install --no-save --ignore-scripts playwright@1.62.1 pngjs@7.0.0
+          npx playwright install --with-deps webkit
+      - name: Resolve exact-commit Preview
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node .github/scripts/wait-for-preview.cjs
+      - name: Capture actual Preview SVGs, loaded assets, focus and regressions
+        env:
+          BASELINE_PREVIEW_URL: https://ambassador-fruehstuecksliste-nufrk0ypk-restaurant-silk.vercel.app/index-live.html
+        run: node .github/scripts/branding-realdevice.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ambassador-branding-realdevice
+          path: |
+            branding-audit-output/
+            responsive-audit-output/deployment.json
+            responsive-audit-output/frozen-boundary.json
+          retention-days: 7

@@ -1,8 +1,12 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <rect width="512" height="512" rx="112" fill="#1c777b"/>
-  <g fill="none" stroke="#fff" stroke-width="24" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M155 205h203v112c0 59-41 98-99 98s-104-39-104-98V205Z"/>
-    <path d="M358 235h22c48 0 69 30 69 63s-25 61-72 61h-31"/>
-    <path d="M207 99v48M261 99v48M315 99v48"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <rect width="64" height="64" fill="#1c777b"/>
+  <g transform="translate(32 32) scale(0.83) translate(-32 -32)">
+  <g fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" id="steam">
+    <path d="M25 13v7"/>
+    <path d="M34 13v7"/>
+  </g>
+  <path d="M40 25h6a10 10 0 0 1 0 20h-6v-5h6a5 5 0 0 0 0-10h-6Z" fill="#ffffff"/>
+  <path d="M15 24h28v12c0 7-5 12-12 12h-4c-7 0-12-5-12-12Z" fill="#ffffff"/>
+  <rect x="12" y="51" width="42" height="4" rx="1" fill="#ffffff"/>
   </g>
 </svg>

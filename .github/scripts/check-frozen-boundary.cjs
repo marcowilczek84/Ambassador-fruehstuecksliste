@@ -1,29 +1,42 @@
-const fs=require('node:fs');
-const {execFileSync}=require('node:child_process');
-const ts=require('typescript'),crypto=require('node:crypto');
-const baseline='5c62497c3647854a1356d0a20eac5a0205ee2b74';
-const sourcePath='public/workflow-polish.js';
-const previous=p=>execFileSync('git',['show',baseline+':'+p],{encoding:'utf8'});
-const before=previous(sourcePath),after=fs.readFileSync(sourcePath,'utf8');
-function functions(source){const found=new Map(),tree=ts.createSourceFile(sourcePath,source,ts.ScriptTarget.Latest,true,ts.ScriptKind.JS);function visit(n){if(ts.isFunctionDeclaration(n)&&n.name)found.set(n.name.text,n.getText(tree));ts.forEachChild(n,visit);}visit(tree);return found;}
-const oldFunctions=functions(before),newFunctions=functions(after),protectedFunctions=[];
-for(const [name,body]of oldFunctions){
- const restored=name==='renderRoleSelection'?newFunctions.get(name).replaceAll('roleSelectionIcon("service")','icon("service")').replaceAll('roleSelectionIcon("reception")','icon("reception")'):newFunctions.get(name);
- if(restored!==body)throw Error('Frozen function changed: '+name);
- protectedFunctions.push({name,sha256:crypto.createHash('sha256').update(body).digest('hex'),exception:name==='renderRoleSelection'?'two presentation-only SVG calls':null});
-}
-const introduced=[...newFunctions.keys()].filter(n=>!oldFunctions.has(n));
-if(introduced.join(',')!=='roleSelectionIcon')throw Error('Unexpected added function');
-const comment='  // Approved Hybrid C: 32-unit vector geometry, displayed in the existing 26px role slots.\n  // Source: Ambassador_Icon_Entscheidungstest, page 8; functional app icons stay unchanged.\n';
-const restored=after.replace(comment+'  '+newFunctions.get('roleSelectionIcon')+'\n\n','').replaceAll('roleSelectionIcon("service")','icon("service")').replaceAll('roleSelectionIcon("reception")','icon("reception")');
-if(restored!==before)throw Error('Unexpected JavaScript delta outside chooser icons');
-const cssBefore=previous('public/final-design.css'),cssAfter=fs.readFileSync('public/final-design.css','utf8');
-const expectedCss='\n/* Approved post-III delta: Hybrid C glyphs only; existing slots stay 26px. */\n#ambassador-ui .role-options .role-hybrid-icon { stroke-width:2!important; stroke-linecap:round!important; stroke-linejoin:round!important; }\n@media(max-width:699px) {\n  #ambassador-ui[data-app-role="reception"] .dialog-add-room .form-grid { align-content:start!important; row-gap:20px!important; }\n  #ambassador-ui[data-app-role="reception"] .dialog-add-room .form-grid > label:not(.check-field) { align-content:start!important; gap:8px!important; }\n}\n';
-if(cssAfter!==cssBefore+expectedCss)throw Error('Unexpected CSS delta');
+const fs=require('node:fs'),crypto=require('node:crypto'),{execFileSync}=require('node:child_process');
+const baseline='5d4b35b75d1aaa734c476310f80365cdb0eab1f1';
+const old=p=>execFileSync('git',['show',baseline+':'+p]);
+const hash=b=>crypto.createHash('sha256').update(b).digest('hex');
+const allowed=new Set(['public/index-live.html','public/final-design.css','public/favicon.svg','public/apple-touch-icon.png','.github/scripts/check-frozen-boundary.cjs','.github/scripts/branding-realdevice.cjs','.github/workflows/branding-realdevice.yml','docs/frozen-ui-release/branding-realdevice-baseline.md']);
 const changed=execFileSync('git',['diff','--name-only',baseline],{encoding:'utf8'}).trim().split('\n').filter(Boolean);
-const allowed=new Set([sourcePath,'public/final-design.css','.github/scripts/check-frozen-boundary.cjs','.github/scripts/delta-hybrid-regression.cjs','.github/workflows/delta-hybrid.yml','docs/frozen-ui-release/delta-hybrid-baseline.md']);
-if(changed.some(p=>!allowed.has(p)))throw Error('File outside delta scope changed: '+changed.filter(p=>!allowed.has(p)).join(', '));
-for(const file of ['public/breakfast-app-logo.svg','.github/workflows/responsive-minimal.yml',...fs.readdirSync('.github/scripts').filter(n=>!['check-frozen-boundary.cjs','delta-hybrid-regression.cjs'].includes(n)).map(n=>'.github/scripts/'+n)])if(fs.readFileSync(file,'utf8')!==previous(file))throw Error('Frozen asset / existing test changed: '+file);
-const report={baseline,result:'PASS',changedFiles:changed,protectedExistingFunctions:protectedFunctions,scope:'hybrid-C-and-mobile-add-room-only',allExistingHandlersByteIdentical:true,existingCssByteIdentical:true,existingRegressionScriptsByteIdentical:true,filledAppLogoUnchanged:true,animationLifecycleAndDurationUnchanged:true,recoveredApplicationChanged:false,translationsChanged:false,supabaseConfigurationChanged:false};
-fs.mkdirSync('responsive-audit-output',{recursive:true});fs.writeFileSync('responsive-audit-output/frozen-boundary.json',JSON.stringify(report,null,2));console.log('PASS: frozen 5c62497 baseline preserved; only two chooser SVG calls and mobile field grouping changed.');
+if(changed.some(p=>!allowed.has(p)))throw Error('Out-of-scope change: '+changed.filter(p=>!allowed.has(p)));
+const protectedFiles=execFileSync('git',['ls-tree','-r','--name-only',baseline],{encoding:'utf8'}).trim().split('\n').filter(p=>!allowed.has(p));
+for(const p of protectedFiles)if(!fs.readFileSync(p).equals(old(p)))throw Error('Frozen file changed: '+p);
+const css=fs.readFileSync('public/final-design.css','utf8'),beforeCss=old('public/final-design.css').toString();
+if(!css.startsWith(beforeCss))throw Error('Existing CSS changed');
+const cssDelta=css.slice(beforeCss.length);
+const expected=`
+/* Physical-iPhone branding restfix: reuse the approved cup; retain splash box/timing. */
+.breakfast-splash-mark {
+  background:#1c777b url("/breakfast-app-logo.svg?v=${hash(fs.readFileSync('public/breakfast-app-logo.svg')).slice(0,16)}") center / 100% 100% no-repeat border-box!important;
+  border-color:transparent!important;
+}
+.breakfast-splash-mark > svg { visibility:hidden!important; }
+/* One accessible contour, merged with the field edge; no second glow/ring. */
+#ambassador-ui .dialog-add-room textarea:focus,
+#ambassador-ui .dialog-add-room textarea:focus-visible {
+  border-color:var(--ui-petrol)!important;
+  box-shadow:none!important;
+  outline:2px solid var(--ui-petrol)!important;
+  outline-offset:-1px!important;
+}
+`;
+if(cssDelta!==expected)throw Error('Unexpected CSS delta');
+let expectedHtml=old('public/index-live.html').toString();
+for(const [file,version]of [['workflow-polish.js','8.39.2'],['final-design.css','20260927'],['favicon.svg','8.39.2'],['apple-touch-icon.png','8.39.2']]){
+ const v=hash(fs.readFileSync('public/'+file)).slice(0,16);
+ expectedHtml=expectedHtml.replaceAll('/'+file+'?v='+version,'/'+file+'?v='+v);
+ if(file==='favicon.svg')expectedHtml=expectedHtml.replaceAll('/favicon.svg\\"','/favicon.svg?v='+v+'\\"');
+}
+if(expectedHtml!==fs.readFileSync('public/index-live.html','utf8'))throw Error('HTML changed beyond active asset versions');
+const logo=fs.readFileSync('public/breakfast-app-logo.svg','utf8'),white=logo.slice(logo.indexOf('  <g'),logo.lastIndexOf('</svg>'));
+const system='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">\n  <rect width="64" height="64" fill="#1c777b"/>\n  <g transform="translate(32 32) scale(0.83) translate(-32 -32)">\n'+white+'  </g>\n</svg>\n';
+if(system!==fs.readFileSync('public/favicon.svg','utf8'))throw Error('System cup contour changed');
+const report={baseline,result:'PASS',changedFiles:changed,protectedFiles:protectedFiles.map(p=>({path:p,sha256:hash(old(p))})),workflowJavaScriptByteIdentical:true,filledAppLogoByteIdentical:true,recoveredApplicationByteIdentical:true,allExistingTestsByteIdentical:true,existingCssByteIdentical:true,animation4700msUnchanged:true,scope:'branding-assets-delivery-and-add-room-textarea-focus-only'};
+fs.mkdirSync('responsive-audit-output',{recursive:true});fs.writeFileSync('responsive-audit-output/frozen-boundary.json',JSON.stringify(report,null,2));console.log('PASS: 5d4b35b frozen source verified; '+protectedFiles.length+' files byte-identical.');
 if(process.env.GITHUB_OUTPUT)fs.appendFileSync(process.env.GITHUB_OUTPUT,'branding_only=false\n');

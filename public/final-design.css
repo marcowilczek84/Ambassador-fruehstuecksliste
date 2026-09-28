@@ -443,3 +443,18 @@
   #ambassador-ui[data-app-role="reception"] .dialog-add-room .form-grid { align-content:start!important; row-gap:20px!important; }
   #ambassador-ui[data-app-role="reception"] .dialog-add-room .form-grid > label:not(.check-field) { align-content:start!important; gap:8px!important; }
 }
+
+/* Physical-iPhone branding restfix: reuse the approved cup; retain splash box/timing. */
+.breakfast-splash-mark {
+  background:#1c777b url("/breakfast-app-logo.svg?v=9fad9e2153192248") center / 100% 100% no-repeat border-box!important;
+  border-color:transparent!important;
+}
+.breakfast-splash-mark > svg { visibility:hidden!important; }
+/* One accessible contour, merged with the field edge; no second glow/ring. */
+#ambassador-ui .dialog-add-room textarea:focus,
+#ambassador-ui .dialog-add-room textarea:focus-visible {
+  border-color:var(--ui-petrol)!important;
+  box-shadow:none!important;
+  outline:2px solid var(--ui-petrol)!important;
+  outline-offset:-1px!important;
+}
