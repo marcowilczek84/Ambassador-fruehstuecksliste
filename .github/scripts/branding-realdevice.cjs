@@ -80,7 +80,12 @@ async function run(browser,device,width,height){
     if(device==='iphone'){
      check(key('splash-existing-filled-asset'),rec.splash.background.includes('data:image/svg+xml;base64,'+fs.readFileSync('public/breakfast-app-logo.svg').toString('base64'))&&rec.splash.svgVisibility==='hidden'&&rec.splash.backgroundColor==='rgb(28, 119, 123)',rec.splash);
      check(key('splash-frozen-geometry'),same(rec.splash.box,records.before.splash.box)&&same(rec.splash.others,records.before.splash.others));
-     check(key('splash-outside-logo-zero-pixels'),(rec.splashDiff=diff(records.before.splashFile,rec.splashFile,[rec.splash.box],path.join(folder,'splash-difference.png'))).outsideChangedPixels===0&&rec.splashDiff.insideChangedPixels>0,rec.splashDiff);
+     rec.splashStrictDiff=diff(records.before.splashFile,rec.splashFile,[rec.splash.box],path.join(folder,'splash-strict-css-box-difference.png'));
+     // WebKit's fractional-y border paints an antialiased raster edge one pixel above the CSS box.
+     // Retain the strict result and include only this measured painted top edge, with zero color tolerance.
+     const box=rec.splash.box,rasterBox={x:box.x,y:Math.floor(box.y)-1,width:box.width,height:Math.ceil(box.y+box.height)-(Math.floor(box.y)-1)};
+     rec.splashDiff=diff(records.before.splashFile,rec.splashFile,[rasterBox],path.join(folder,'splash-difference.png'));
+     check(key('splash-outside-logo-zero-pixels'),rec.splashDiff.outsideChangedPixels===0&&rec.splashDiff.insideChangedPixels>0,{...rec.splashDiff,cssBox:box,strictCssBoxOutside:rec.splashStrictDiff.outsideChangedPixels,rasterEdge:'One top pixel row; no general color tolerance or other mask expansion'});
     }
    }
    await p.locator('.role-options [data-role=reception]').click();await p.locator('.reception-actions').waitFor();await p.locator('.work-area-entry-transition').waitFor({state:'detached'});rec.reception=await shot('05-reception');
