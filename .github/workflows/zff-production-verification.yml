@@ -1,0 +1,38 @@
+name: Verify exact ZFF Production without data writes
+on:
+  push:
+    branches: [zff-production-verification-20260929]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  production-verification:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      PREVIEW_URL: https://ambassador-fruehstuecksliste.vercel.app/index-live.html
+      SOURCE_SHA: bfd767f4dcc7221b30ce80eb3d8415a8472ec9a5
+      ZFF_OUTPUT: zff-production-output
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: bfd767f4dcc7221b30ce80eb3d8415a8472ec9a5
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install isolated WebKit verifier
+        run: |
+          test "$(git rev-parse HEAD)" = "bfd767f4dcc7221b30ce80eb3d8415a8472ec9a5"
+          npm ci
+          npm install --no-save --ignore-scripts playwright@1.62.1
+          npx playwright install --with-deps webkit
+      - name: Verify live HTML, active ZFF bundle and frozen assets
+        run: GITHUB_SHA=bfd767f4dcc7221b30ce80eb3d8415a8472ec9a5 node .github/scripts/zff-wait-production.cjs
+      - name: Verify actual Production navigation and full XLSX flow with all network writes blocked
+        run: node .github/scripts/zff-browser-test.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ambassador-zff-live-proof
+          path: zff-production-output/
+          retention-days: 14
