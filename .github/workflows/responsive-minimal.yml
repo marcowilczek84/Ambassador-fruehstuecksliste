@@ -32,13 +32,15 @@ jobs:
       - name: Install test-only browser
         run: |
           npm install --no-save --ignore-scripts playwright@1.62.1
-          npx playwright install --with-deps chromium
+          npx playwright install --with-deps chromium webkit
       - name: Wait for this commit's Vercel Preview
         env:
           GITHUB_TOKEN: ${{ github.token }}
         run: node .github/scripts/wait-for-preview.cjs
       - name: Audit iPhone, iPad and reception desktop
         run: node .github/scripts/responsive-audit.cjs
+      - name: Targeted real-device findings in Chromium and WebKit
+        run: node .github/scripts/realdevice-regression.cjs
       - name: Upload screenshots and audit reports
         if: always()
         uses: actions/upload-artifact@v4

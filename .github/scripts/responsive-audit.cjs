@@ -103,6 +103,7 @@ async function runDevice(browser, device, width, height) {
     await page.getByRole('button', { name: role === 'service' ? /Service Frühstück/ : /Rezeption Gästeliste/ }).click();
     await page.locator(`body[data-app-role="${role}"]`).waitFor({ state: 'attached', timeout: 25000 });
     await page.locator('.room-row').first().waitFor({ state: 'attached', timeout: 25000 });
+    await page.locator('.service-entry-transition').waitFor({state:'detached'});
   }
 
   const response = await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 });

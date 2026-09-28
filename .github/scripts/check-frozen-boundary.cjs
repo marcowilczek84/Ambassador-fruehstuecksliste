@@ -2,11 +2,11 @@ const fs=require('node:fs');
 const {execFileSync}=require('node:child_process');
 const ts=require('typescript');
 const crypto=require('node:crypto');
-const baseline='81627e259252d6bf2dd8ba533af1619d492cfe26';
+const baseline='2486e21c11b4212b3904655244a20f9959f51907';
 const sourcePath='public/workflow-polish.js';
 const before=execFileSync('git',['show',baseline+':'+sourcePath],{encoding:'utf8'});
 const after=fs.readFileSync(sourcePath,'utf8');
-const allowedFunctions=new Set(['icon','buildReceptionToolbar','buildReceptionTable','enhanceReceptionRows','applyRoleView','apply','clickMenuAction']);
+const allowedFunctions=new Set(['buildReceptionToolbar','receptionReadView','updateEmptyWorkspace','apply']);
 function functions(source) {
  const found=new Map(),tree=ts.createSourceFile(sourcePath,source,ts.ScriptTarget.Latest,true,ts.ScriptKind.JS);
  function visit(node){if(ts.isFunctionDeclaration(node)&&node.name)found.set(node.name.text,node.getText(tree));ts.forEachChild(node,visit);}visit(tree);return found;

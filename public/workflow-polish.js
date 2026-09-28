@@ -365,7 +365,7 @@
 
   function buildReceptionToolbar(shell) {
     const hero = shell.querySelector(".hero");
-    if (!hero || hero.querySelector(".reception-toolbar")) return;
+    if (!hero) return;
     const uniqueRooms = new Map();
     [...shell.querySelectorAll(".room-row")]
       .filter((row) => !row.querySelector(".vacant"))
@@ -380,6 +380,14 @@
       const match = normalize(node?.textContent || "").match(/\d+/);
       return total + (match ? Number(match[0]) : 0);
     }, 0);
+    const existing = hero.querySelector(".reception-toolbar");
+    if (existing) {
+      const counts = existing.querySelectorAll(".reception-summary small b");
+      [rooms, guests].forEach((value, index) => {
+        if (counts[index] && counts[index].textContent !== String(value)) counts[index].textContent = String(value);
+      });
+      return;
+    }
     const toolbar = document.createElement("div");
     toolbar.className = "reception-toolbar";
     toolbar.innerHTML = `
@@ -496,6 +504,14 @@
     });
   }
 
+  function receptionDisplayDate(value) {
+    const parts = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value || "");
+    if (!parts) return value || "–";
+    return new Intl.DateTimeFormat(activeLanguage === "EN" ? "en-GB" : activeLanguage === "VI" ? "vi-VN" : "de-CH", {
+      day: "2-digit", month: "2-digit", year: "numeric"
+    }).format(new Date(Number(parts[1]), Number(parts[2]) - 1, Number(parts[3])));
+  }
+
   function receptionReadView(root) {
     if (document.body.dataset.appRole !== "reception") return;
     const modal = root.querySelector(".guest-edit-modal");
@@ -525,7 +541,7 @@
     const details = document.createElement("dl");
     const dates = modal.querySelectorAll('input[type="date"]');
     const values = [
-      ["Anreise", dates[0]?.value || "–"], ["Abreise", dates[1]?.value || "–"],
+      ["Anreise", receptionDisplayDate(dates[0]?.value)], ["Abreise", receptionDisplayDate(dates[1]?.value)],
       ["Personen", modal.querySelector('input[type="number"]')?.value || "–"],
       ["Frühstück", tr(modal.querySelector('input[type="checkbox"]')?.checked ? "inklusive" : "nicht inklusive")]
     ];
@@ -906,7 +922,7 @@
     const hasGuests = [...shell.querySelectorAll(".room-row")].some((row) => !row.querySelector(".vacant"));
     const empty = !savedRooms.length && !hasGuests;
     if (shell.classList.contains("workspace-empty") !== empty) shell.classList.toggle("workspace-empty", empty);
-    if (!empty) return;
+    if (!empty) { shell.querySelector(".workspace-empty-state")?.remove(); return; }
 
     const content = shell.querySelector(".content");
     if (!content) return;
@@ -918,7 +934,7 @@
     }
     const html = role === "service"
       ? `<h2>${tr("Noch keine Frühstücksliste")}</h2><p>${tr("Die Rezeption hat noch keine heutige Liste bereitgestellt.")}</p>`
-      : `<span>${tr("Heutige Liste")}</span><h2>${tr("Noch keine Liste geladen")}</h2><p>${tr("Lade den aktuellen Mews-Export, um den heutigen Arbeitstag zu beginnen.")}</p><button type="button" class="workspace-import-button">${tr("Mews-Liste auswählen")}</button>`;
+      : `<h2>${activeLanguage === "DE" ? "Für heute ist noch keine Frühstücksliste geladen." : tr("Noch keine Liste geladen")}</h2><p>${activeLanguage === "DE" ? "Lade die aktuelle Mews-Liste, um zu beginnen." : tr("Lade den aktuellen Mews-Export, um den heutigen Arbeitstag zu beginnen.")}</p>`;
     if (state.innerHTML !== html) {
       state.innerHTML = html;
       state.querySelector("button")?.addEventListener("click", () => shell.querySelector('input[type="file"][accept*=".xlsx"]')?.click());
@@ -1157,6 +1173,39 @@
     });
   }
 
+  const initializedServiceEditors = new WeakSet();
+  function settleServiceEditScroll(root) {
+    if (document.body.dataset.appRole !== "service") return;
+    const modal = root.querySelector(".guest-edit-modal");
+    if (!modal || initializedServiceEditors.has(modal)) return;
+    initializedServiceEditors.add(modal);
+    const body = modal.querySelector(".modal-body");
+    if (body) body.scrollTop = 0;
+  }
+
+  function quietSuccessRemark(root) {
+    root.querySelectorAll(".checkin-card .important-note.info-note").forEach((note) => {
+      const label = note.querySelector("strong");
+      if (label && label.textContent !== tr("Bemerkung")) label.textContent = tr("Bemerkung");
+    });
+  }
+
+  function serviceEntryTransition(shell) {
+    if (document.body.dataset.appRole !== "service") return;
+    if (sessionStorage.getItem("ambassador-service-entry-transition") !== "pending") return;
+    const rooms = readDailyState("ambassador-breakfast-rooms", "rooms", []);
+    sessionStorage.removeItem("ambassador-service-entry-transition");
+    if (!rooms.some((room) => Number(room.people || 0) > 0)) return;
+    showSharedListReadyAnimation();
+    const layer = document.querySelector(".success-overlay");
+    if (!layer) return;
+    layer.classList.add("service-entry-transition");
+    layer.querySelector(".entry-eyebrow").textContent = tr("Service");
+    layer.querySelector("h2").textContent = tr("Frühstücksliste");
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    window.setTimeout(() => layer.remove(), reduced ? 80 : 650);
+  }
+
   function apply() {
     scheduled = false;
     const entry = document.querySelector(".entry-screen");
@@ -1184,6 +1233,9 @@
     enhanceReceptionModal(document);
     receptionReadView(document);
     checkinBreakfastDisplay(document);
+    settleServiceEditScroll(document);
+    quietSuccessRemark(document);
+    if (shell) serviceEntryTransition(shell);
     enhanceRoomUndo(document);
     if (shell) {
       const finished = Boolean(shell.querySelector(".bottom-button.finish.finished"));
@@ -1210,6 +1262,9 @@
   });
 
   document.addEventListener("click", (event) => {
+    if (event.target instanceof Element && event.target.closest('.role-selection [data-role="service"]')) {
+      sessionStorage.setItem("ambassador-service-entry-transition", "pending");
+    }
     const entryOpen = event.target instanceof Element ? event.target.closest(".entry-screen[data-role='service'] .entry-secondary") : null;
     if (entryOpen && !entryOpen.dataset.sharedAnimationTriggered) {
       entryOpen.dataset.sharedAnimationTriggered = "true";
