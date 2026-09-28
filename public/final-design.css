@@ -436,3 +436,10 @@
   #ambassador-ui[data-app-role="reception"] .reception-actions { display:grid!important; grid-template-columns:repeat(2,minmax(0,1fr))!important; gap:8px!important; margin:0!important; min-width:0!important; }
   #ambassador-ui[data-app-role="reception"] .reception-actions button { width:100%!important; margin:0!important; }
 }
+
+/* Approved post-III delta: Hybrid C glyphs only; existing slots stay 26px. */
+#ambassador-ui .role-options .role-hybrid-icon { stroke-width:2!important; stroke-linecap:round!important; stroke-linejoin:round!important; }
+@media(max-width:699px) {
+  #ambassador-ui[data-app-role="reception"] .dialog-add-room .form-grid { align-content:start!important; row-gap:20px!important; }
+  #ambassador-ui[data-app-role="reception"] .dialog-add-room .form-grid > label:not(.check-field) { align-content:start!important; gap:8px!important; }
+}

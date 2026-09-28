@@ -185,6 +185,16 @@
     window.setTimeout(() => layer.remove(), window.matchMedia("(prefers-reduced-motion: reduce)").matches ? workAreaTransition.reducedDuration : duration);
   }
 
+  // Approved Hybrid C: 32-unit vector geometry, displayed in the existing 26px role slots.
+  // Source: Ambassador_Icon_Entscheidungstest, page 8; functional app icons stay unchanged.
+  function roleSelectionIcon(role) {
+    const head = (cx) => `<circle cx="${cx}" cy="6.5" r="3.4"/>`;
+    const glyph = role === "service"
+      ? `${head(11.8)}<path d="M17.1 14C15.7 13 13.8 12.8 11.5 12.8H9C5.4 12.8 3.1 15.5 3.1 19v2.9c0 1.6 1 2.6 2.6 2.6l11 .6"/><path d="M20.3 15.2h8.1c.7 0 1 .5.7 1.2l-3.8 11.1c-.2.7-.6 1.1-1.4 1.1h-8c-.7 0-1-.5-.7-1.2L19 16.3c.3-.8.6-1.1 1.3-1.1Z"/>`
+      : `${head(16)}<path d="M8.8 18c.3-3.3 2.7-5.2 7.2-5.2s6.9 1.9 7.2 5.2"/><rect x="4" y="20.5" width="24" height="8.1" rx="1"/><path d="M2.8 20.5h26.4"/>`;
+    return `<svg class="role-hybrid-icon" viewBox="0 0 32 32" aria-hidden="true" data-role-symbol="${role === "service" ? "person-tablet" : "person-counter"}">${glyph}</svg>`;
+  }
+
   function renderRoleSelection(entry) {
     if (!entry.querySelector(".load-card")) return;
     const role = sessionStorage.getItem(roleKey);
@@ -214,11 +224,11 @@
       <p class="role-date">${displayDate}</p>
       <div class="role-options">
         <button type="button" data-role="service">
-          <span class="role-icon">${icon("service")}</span>
+          <span class="role-icon">${roleSelectionIcon("service")}</span>
           <span><strong>${tr("Service")}</strong><small>${tr("Frühstück & Check-in")}</small></span>
         </button>
         <button type="button" data-role="reception">
-          <span class="role-icon">${icon("reception")}</span>
+          <span class="role-icon">${roleSelectionIcon("reception")}</span>
           <span><strong>${tr("Rezeption")}</strong><small>${tr("Gästeliste & Verwaltung")}</small></span>
         </button>
       </div>`;

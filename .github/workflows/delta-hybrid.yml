@@ -1,0 +1,52 @@
+name: Ambassador Hybrid C delta audit
+on:
+  workflow_dispatch:
+  push:
+    branches: [ambassador-final-uiux-20260927]
+    paths:
+      - 'public/workflow-polish.js'
+      - 'public/final-design.css'
+      - '.github/scripts/delta-hybrid-regression.cjs'
+      - '.github/scripts/check-frozen-boundary.cjs'
+      - '.github/workflows/delta-hybrid.yml'
+permissions:
+  contents: read
+  deployments: read
+jobs:
+  delta:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Build and verify strict 5c62497 delta boundary
+        run: |
+          npm ci
+          node .github/scripts/check-frozen-boundary.cjs
+          npm run build
+      - name: Install test-only WebKit and pixel reader
+        run: |
+          npm install --no-save --ignore-scripts playwright@1.62.1 pngjs@7.0.0
+          npx playwright install --with-deps chromium webkit
+      - name: Resolve this exact commit Preview
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node .github/scripts/wait-for-preview.cjs
+      - name: Verify Hybrid C, pixel boundaries, mobile groups and focused scroll
+        env:
+          BASELINE_PREVIEW_URL: https://ambassador-fruehstuecksliste-ddnucj3ck-restaurant-silk.vercel.app/index-live.html
+        run: node .github/scripts/delta-hybrid-regression.cjs
+      - name: Upload actual Preview screenshots, pixel maps and measurements
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ambassador-hybrid-C-delta
+          path: |
+            delta-audit-output/
+            responsive-audit-output/frozen-boundary.json
+            responsive-audit-output/deployment.json
+          retention-days: 7
