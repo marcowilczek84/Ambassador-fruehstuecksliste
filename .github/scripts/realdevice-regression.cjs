@@ -68,6 +68,8 @@ async function run(browser,engine,device,width,height){
   await fresh();await role('service',false);
   await page.waitForFunction(()=>window.__uiRestfixTrace?.length>0);
   await page.waitForFunction(()=>{const panel=document.querySelector('.service-entry-transition .success-panel');return panel&&Number(getComputedStyle(panel).opacity)>.9;});
+  const checkmark=await page.locator('.service-entry-transition .success-check svg').evaluate(e=>({fill:getComputedStyle(e).fill,stroke:getComputedStyle(e).stroke}));
+  check(prefix+'.08-transition-outline',checkmark.fill==='none'&&checkmark.stroke==='rgb(28, 119, 123)',checkmark);
   await shot('08-service-transition');
   await page.locator('.service-entry-transition').waitFor({state:'detached'});
   const data=await page.evaluate(()=>({trace:window.__uiRestfixTrace,elapsed:(window.__uiRestfixTransitionEnd||performance.now())-window.__uiRestfixTrace[0].time}));

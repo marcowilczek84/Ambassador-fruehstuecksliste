@@ -310,6 +310,7 @@
 #ambassador-ui .checkin-card .important-note.info-note strong { font-size:12px!important; font-weight:500!important; color:var(--ui-muted)!important; }
 #ambassador-ui .checkin-card .important-note.info-note p { margin:6px 0 0!important; color:var(--ui-text)!important; }
 #ambassador-ui .success-overlay.service-entry-transition { pointer-events:none!important; animation-duration:650ms!important; }
+#ambassador-ui .service-entry-transition .success-check svg { fill:none!important; stroke:var(--ui-petrol)!important; stroke-linecap:round!important; stroke-linejoin:round!important; }
 #ambassador-ui .service-entry-transition :is(.success-panel,.success-check,.ring-value) { animation-duration:500ms!important; animation-delay:0ms!important; }
 @media(prefers-reduced-motion:reduce) {
   #ambassador-ui .success-overlay.service-entry-transition, #ambassador-ui .service-entry-transition :is(.success-panel,.success-check,.ring-value) { animation:none!important; }
