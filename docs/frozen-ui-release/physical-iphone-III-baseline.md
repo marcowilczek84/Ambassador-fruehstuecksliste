@@ -24,3 +24,5 @@ Vor Änderungen am 28.09.2026 geprüft:
 Die bisherige Service-Transitionsprüfung `<1200 ms` beschreibt den ausdrücklich zu ersetzenden 650-ms-Ablauf und wird gezielt auf die gemeinsame Referenzdauer aktualisiert. Alle übrigen bisherigen Assertions bleiben erhalten. Keine Geschäfts-, Daten-, Rollen-, Übersetzungs-, Import- oder Syncänderung. Physische Safari-Abnahme weiterhin offen.
 
 Prüfpräzisierung vor endgültiger Abnahme: CSS-Grid kann gleiche Spalten auf iPad um 1/64 CSS px runden; Gleichheit wird deshalb mit <0,5 px Toleranz gemessen. Der Erfolgsdialog erhält ausschließlich im Testbrowser einen längeren synthetischen Hinweis, damit auf 390×844 tatsächlich gescrollt werden muss. Kein Produktcode hierfür.
+
+Die neue Modal-Regression wartet wie die bereits bestandene Service-Modal-Suite auf den tatsächlichen inert-Renderzustand, statt diesen im selben Tick wie das Öffnen abzufragen. Statische Zusatzscreens verwenden reduzierte Bewegung; die dedizierten Animationsmessungen und Videos verwenden ausdrücklich normale Bewegung. Die 582 vorhandenen Assertions bleiben erneut aktiv.
