@@ -31,13 +31,14 @@ async function run(browser,device,width,height){
     await startupContext.route('**/*',r=>new URL(r.request().url()).origin===previewOrigin?r.continue():r.abort());
     const startup=await startupContext.newPage();startup.setDefaultTimeout(20000);
     try{
-     await startup.goto(url,{waitUntil:'load'});await startup.locator('.breakfast-splash-mark').waitFor();await settled(startup);
+     console.log(key('startup.load'));await startup.goto(url,{waitUntil:'load'});await startup.locator('.breakfast-splash-mark').waitFor();console.log(key('startup.loaded'));
+     // JS-disabled WebKit does not execute requestAnimationFrame callbacks. The load event already settles the static asset requests.
      rec.splash=await startup.locator('.breakfast-splash-mark').evaluate(e=>({box:e.getBoundingClientRect().toJSON(),background:getComputedStyle(e).backgroundImage,backgroundColor:getComputedStyle(e).backgroundColor,svgVisibility:getComputedStyle(e.querySelector('svg')).visibility,html:e.outerHTML,others:[...document.querySelectorAll('.breakfast-splash-content > img,.breakfast-splash-content > strong,.breakfast-splash-content > small,.breakfast-splash > .entry-meili-footer')].map(e=>({html:e.outerHTML,box:e.getBoundingClientRect().toJSON()}))}));
-     rec.splashFile=path.join(folder,'01-start-splash.png');await startup.screenshot({path:rec.splashFile,animations:'disabled'});screenshots.push({file:rec.splashFile,url,device,version,state:'server-rendered-startup',scriptsDisabledForStartupCapture:true});
+     rec.splashFile=path.join(folder,'01-start-splash.png');await startup.screenshot({path:rec.splashFile,animations:'disabled',timeout:20000});console.log(key('startup.captured'));screenshots.push({file:rec.splashFile,url,device,version,state:'server-rendered-startup',scriptsDisabledForStartupCapture:true});
      check(key('splash-overflow'),await startup.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
     }finally{await startupContext.close();}
    }
-   await p.goto(url,{waitUntil:'domcontentloaded'});
+   console.log(key('normal-navigation'));await p.goto(url,{waitUntil:'domcontentloaded'});
    await p.locator('.role-selection').waitFor();await settled(p);
    rec.chooser=await p.locator('.role-selection').evaluate(e=>({html:e.outerHTML,box:e.getBoundingClientRect().toJSON(),icons:[...e.querySelectorAll('.role-icon svg')].map(s=>({html:s.outerHTML,box:s.getBoundingClientRect().toJSON(),viewBox:s.getAttribute('viewBox'),stroke:getComputedStyle(s).stroke,weight:getComputedStyle(s).strokeWidth,shapes:[...s.children].map(c=>({tag:c.tagName,attrs:[...c.attributes].map(a=>[a.name,a.value])})),before:getComputedStyle(s.parentElement,'::before').content,after:getComputedStyle(s.parentElement,'::after').content})),geometry:[...e.querySelectorAll('img,h1,p,button,strong,small')].map(n=>({text:n.textContent,box:n.getBoundingClientRect().toJSON()}))}));
    rec.chooserFile=await shot('02-bereichswahl');
