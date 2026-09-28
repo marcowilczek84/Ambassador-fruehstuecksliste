@@ -380,6 +380,9 @@
 #ambassador-ui[data-app-role="service"] .guest-edit-modal > .modal-head { background:#fff!important; border-bottom:1px solid var(--ui-line)!important; box-shadow:none!important; }
 #ambassador-ui[data-app-role="service"] .guest-edit-modal > .modal-actions { border-top:1px solid var(--ui-line)!important; box-shadow:none!important; }
 @media(max-width:699px) {
+  /* Redistribute the former empty 16px grid row-gap equally above/below
+     the shared row, preserving the approved intrinsic outer height. */
+  #ambassador-ui .role-options button { padding-block:24px!important; }
   #ambassador-ui[data-app-role="reception"] .reception-toolbar { gap:10px!important; }
   #ambassador-ui[data-app-role="reception"] .reception-actions { align-items:center!important; gap:8px!important; }
   #ambassador-ui[data-app-role="reception"] .reception-actions button { display:flex!important; align-items:center!important; justify-content:center!important; height:44px!important; min-height:44px!important; padding:6px 8px!important; line-height:1.2!important; }
