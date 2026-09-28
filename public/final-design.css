@@ -362,3 +362,29 @@
   #ambassador-ui[data-app-role="service"] .modal-layer:has(> :is(.checkin-choice-modal,.special-guest-modal,.checkin-card)) { --service-dialog-bottom:max(24px,env(safe-area-inset-bottom)); padding-inline:max(24px,env(safe-area-inset-left))!important; justify-content:center!important; }
   #ambassador-ui[data-app-role="service"] :is(.checkin-choice-modal,.special-guest-modal) { height:auto!important; }
 }
+
+/* Physical iPhone findings: shared alignment/separators and narrowly scoped views. */
+#ambassador-ui .role-options button { grid-template-columns:38px minmax(0,1fr)!important; grid-template-rows:1fr!important; column-gap:22px!important; align-items:center!important; }
+#ambassador-ui .role-options .role-icon { grid-column:1!important; grid-row:1!important; width:38px!important; height:38px!important; margin:0!important; display:flex!important; align-items:center!important; justify-content:center!important; }
+#ambassador-ui .role-options button > span:not(.role-icon) { grid-column:2!important; grid-row:1!important; min-width:0!important; align-self:center!important; }
+#ambassador-ui .structured-menu-scroll > section + section { border-top:1px solid var(--ui-line)!important; }
+#ambassador-ui .structured-menu-item:last-child { border-bottom:0!important; }
+#ambassador-ui .structured-app-menu > footer { border-top:1px solid var(--ui-line)!important; }
+#ambassador-ui[data-app-role="service"] .empty-stats > .lucide-calendar-days { width:22px!important; height:22px!important; color:var(--ui-petrol)!important; stroke-width:2!important; fill:none!important; background:none!important; border:0!important; }
+#ambassador-ui[data-app-role="service"] .guest-modal:not(.guest-edit-modal) .guest-info-live { border:0!important; border-radius:0!important; background:transparent!important; box-shadow:none!important; padding:16px 0!important; margin:0 20px!important; border-bottom:1px solid var(--ui-line)!important; }
+#ambassador-ui[data-app-role="service"] .guest-modal:not(.guest-edit-modal) .stay-strip { background:transparent!important; border:0!important; border-radius:0!important; padding:0 0 16px!important; margin:0!important; box-shadow:none!important; }
+#ambassador-ui[data-app-role="service"] .guest-modal:not(.guest-edit-modal) .detail-grid { display:block!important; gap:0!important; }
+#ambassador-ui[data-app-role="service"] .guest-modal:not(.guest-edit-modal) .detail-item { display:flex!important; align-items:center!important; justify-content:space-between!important; gap:16px!important; padding:16px 0!important; border:0!important; border-top:1px solid var(--ui-line)!important; border-radius:0!important; background:transparent!important; box-shadow:none!important; }
+#ambassador-ui[data-app-role="service"] .guest-modal:not(.guest-edit-modal) > .modal-actions:has(> button:only-child) { grid-template-columns:minmax(0,1fr)!important; }
+#ambassador-ui[data-app-role="service"] .guest-modal:not(.guest-edit-modal) > .modal-actions > button:only-child { width:100%!important; }
+#ambassador-ui[data-app-role="service"] .guest-edit-modal > .modal-head { background:#fff!important; border-bottom:1px solid var(--ui-line)!important; box-shadow:none!important; }
+#ambassador-ui[data-app-role="service"] .guest-edit-modal > .modal-actions { border-top:1px solid var(--ui-line)!important; box-shadow:none!important; }
+@media(max-width:699px) {
+  #ambassador-ui[data-app-role="reception"] .reception-toolbar { gap:10px!important; }
+  #ambassador-ui[data-app-role="reception"] .reception-actions { align-items:center!important; gap:8px!important; }
+  #ambassador-ui[data-app-role="reception"] .reception-actions button { display:flex!important; align-items:center!important; justify-content:center!important; height:44px!important; min-height:44px!important; padding:6px 8px!important; line-height:1.2!important; }
+  #ambassador-ui[data-app-role="reception"] .reception-remark:not(.has-remark) { display:none!important; }
+  #ambassador-ui[data-app-role="reception"] .room-row:has(.reception-remark.has-remark) { height:82px!important; min-height:82px!important; max-height:82px!important; grid-template-rows:21px 18px 18px!important; }
+  #ambassador-ui[data-app-role="reception"] .reception-remark.has-remark { grid-column:2!important; grid-row:3!important; width:100%!important; min-width:0!important; text-align:left!important; }
+  #ambassador-ui[data-app-role="reception"] .reception-remark.has-remark::before { content:attr(data-mobile-label); }
+}

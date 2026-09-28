@@ -54,6 +54,10 @@ jobs:
         run: node .github/scripts/branding-regression.cjs
       - name: Verify Service modal geometry and visible background header
         run: node .github/scripts/service-modal-regression.cjs
+      - name: Verify nine physical iPhone findings with WebKit and regression viewports
+        env:
+          BASELINE_PREVIEW_URL: https://ambassador-fruehstuecksliste-nc34ggbin-restaurant-silk.vercel.app/index-live.html
+        run: node .github/scripts/physical-iphone-regression.cjs
       - name: Upload screenshots and audit reports
         if: always()
         uses: actions/upload-artifact@v4

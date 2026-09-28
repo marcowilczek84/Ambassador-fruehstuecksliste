@@ -1174,6 +1174,46 @@
     });
   }
 
+  function labelMobileReceptionRemarks(root) {
+    if (document.body.dataset.appRole !== "reception") return;
+    root.querySelectorAll(".reception-remark.has-remark").forEach((remark) => {
+      const label = `${tr("Bemerkung")} · `;
+      if (remark.dataset.mobileLabel !== label) remark.dataset.mobileLabel = label;
+    });
+  }
+
+  let previousServiceDetailRoom = null;
+  const serviceEditorReturns = new WeakSet();
+  function settleServiceEditorContext(root) {
+    if (document.body.dataset.appRole !== "service") return;
+    const detail = root.querySelector(".guest-modal:not(.guest-edit-modal)");
+    if (detail) previousServiceDetailRoom = normalize(detail.querySelector(".modal-kicker")?.textContent || "").match(/\d+/)?.[0] || null;
+    const editor = root.querySelector(".guest-edit-modal");
+    if (!editor) return;
+    // A picker requested in read-only detail is rendered later by the native editor.
+    // Close it through its existing React handler BEFORE the legacy field cleanup.
+    // Never remove a picker child and leave an empty, intercepting backdrop behind.
+    editor.querySelectorAll(".guest-info-picker-layer").forEach((layer) => layer.click());
+    if (serviceEditorReturns.has(editor)) return;
+    serviceEditorReturns.add(editor);
+    const room = normalize(editor.querySelector(".modal-kicker")?.textContent || "").match(/\d+/)?.[0];
+    const returnRoom = previousServiceDetailRoom;
+    previousServiceDetailRoom = null;
+    if (!room || room !== returnRoom) return;
+    editor.querySelectorAll(":scope > .modal-head .close-button, :scope > .modal-actions .modal-action:not(.primary)").forEach((button) => {
+      button.addEventListener("click", () => requestAnimationFrame(() => {
+        if (root.querySelector(".guest-edit-modal")) return;
+        // Restore only the previous presentation context using existing controls.
+        const editToggle = root.querySelector('.bottom-bar .bottom-button[aria-pressed="true"]');
+        editToggle?.click();
+        requestAnimationFrame(() => {
+          const row = [...root.querySelectorAll(".room-row")].find((candidate) => candidate.offsetWidth && normalize(candidate.querySelector(".room-number")?.textContent || "") === room);
+          row?.click();
+        });
+      }));
+    });
+  }
+
   const initializedServiceEditors = new WeakSet();
   function settleServiceEditScroll(root) {
     if (document.body.dataset.appRole !== "service") return;
@@ -1265,7 +1305,9 @@
     if (shell) ensureReliableMenu(shell, sessionStorage.getItem(roleKey) || "service");
     if (shell) updateServiceOpenHeading(shell);
     if (shell) addIPadSpecialGuestShortcut(shell);
+    settleServiceEditorContext(document);
     enhanceReceptionModal(document);
+    labelMobileReceptionRemarks(document);
     receptionReadView(document);
     checkinBreakfastDisplay(document);
     settleServiceEditScroll(document);
