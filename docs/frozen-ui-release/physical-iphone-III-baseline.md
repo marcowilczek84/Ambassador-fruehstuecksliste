@@ -22,3 +22,5 @@ Vor Änderungen am 28.09.2026 geprüft:
 | Mobile Aktionen | Gruppe x31..389, Suche x16..374 bei 390 px | Gemeinsame Inhaltsachse x16..374, zwei gleich breite Spalten, Höhe 44 px |
 
 Die bisherige Service-Transitionsprüfung `<1200 ms` beschreibt den ausdrücklich zu ersetzenden 650-ms-Ablauf und wird gezielt auf die gemeinsame Referenzdauer aktualisiert. Alle übrigen bisherigen Assertions bleiben erhalten. Keine Geschäfts-, Daten-, Rollen-, Übersetzungs-, Import- oder Syncänderung. Physische Safari-Abnahme weiterhin offen.
+
+Prüfpräzisierung vor endgültiger Abnahme: CSS-Grid kann gleiche Spalten auf iPad um 1/64 CSS px runden; Gleichheit wird deshalb mit <0,5 px Toleranz gemessen. Der Erfolgsdialog erhält ausschließlich im Testbrowser einen längeren synthetischen Hinweis, damit auf 390×844 tatsächlich gescrollt werden muss. Kein Produktcode hierfür.
