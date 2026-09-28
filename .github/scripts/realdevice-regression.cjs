@@ -25,7 +25,7 @@ async function run(browser,engine,device,width,height){
  async function shot(name){
   const file=path.join(dir,name+'.png');await page.screenshot({path:file,animations:name==='08-service-transition'?'allow':'disabled'});
   const metrics=await page.evaluate(()=>({width:innerWidth,height:innerHeight,dpr:devicePixelRatio,scrollWidth:document.documentElement.scrollWidth}));
-  screenshots.push({file,engine,device,state:name,requestedViewport:[width,height],metrics,interactivelyReached:true,dataMutation:mutated,realDataMutation:false,dataSource:'disposable synthetic browser fixture; Supabase blocked'});
+  screenshots.push({file,engine,device,state:name,requestedViewport:[page.viewportSize().width,page.viewportSize().height],referenceViewport:[width,height],metrics,interactivelyReached:true,dataMutation:mutated,realDataMutation:false,dataSource:'disposable synthetic browser fixture; Supabase blocked'});
   check(prefix+'.overflow.'+name,metrics.scrollWidth<=metrics.width);
  }
  async function test(name,fn){try{await fn();}catch(e){check(prefix+'.'+name,false,{error:String(e)});}}
