@@ -204,17 +204,18 @@
     chooser.setAttribute("aria-label", "Arbeitsbereich auswählen");
     chooser.innerHTML = `
       <img class="role-logo" src="/ambassador-logo.svg?v=confirmed-20260816-0517" alt="Ambassador Hotel Zürich">
+      <img class="role-app-logo" src="/breakfast-app-logo.svg" width="60" height="60" alt="" aria-hidden="true">
       <span class="role-eyebrow">Frühstücksliste</span>
       <h1>${tr("Arbeitsbereich")}</h1>
       <p class="role-date">${displayDate}</p>
       <div class="role-options">
         <button type="button" data-role="service">
           <span class="role-icon">${icon("service")}</span>
-          <span><strong>${tr("Service")}</strong><small>${tr("Frühstück & Check-in")}</small></span><b>›</b>
+          <span><strong>${tr("Service")}</strong><small>${tr("Frühstück & Check-in")}</small></span>
         </button>
         <button type="button" data-role="reception">
           <span class="role-icon">${icon("reception")}</span>
-          <span><strong>${tr("Rezeption")}</strong><small>${tr("Gästeliste & Verwaltung")}</small></span><b>›</b>
+          <span><strong>${tr("Rezeption")}</strong><small>${tr("Gästeliste & Verwaltung")}</small></span>
         </button>
       </div>`;
     chooser.querySelectorAll("[data-role]").forEach((button) => {

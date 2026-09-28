@@ -17,7 +17,7 @@
 #ambassador-ui .role-date { order:2!important; margin:10px 0 32px!important; font-size:14px!important; color:var(--ui-muted)!important; }
 #ambassador-ui .role-selection h1 { order:3!important; margin:0 0 14px!important; font-size:12px!important; font-weight:600!important; letter-spacing:.12em!important; color:var(--ui-muted)!important; text-transform:uppercase!important; }
 #ambassador-ui .role-options { order:4!important; display:grid!important; grid-template-columns:repeat(2,minmax(0,1fr))!important; gap:16px!important; width:100%!important; }
-#ambassador-ui .role-options button { display:grid!important; grid-template-columns:36px minmax(0,1fr) 16px!important; gap:16px!important; min-height:98px!important; padding:20px!important; border:1px solid var(--ui-line)!important; border-radius:12px!important; background:#fff!important; box-shadow:none!important; }
+#ambassador-ui .role-options button { display:grid!important; grid-template-columns:36px minmax(0,1fr)!important; gap:16px!important; min-height:98px!important; padding:20px!important; border:1px solid var(--ui-line)!important; border-radius:12px!important; background:#fff!important; box-shadow:none!important; }
 #ambassador-ui .role-options strong { font-size:18px!important; font-weight:600!important; color:var(--ui-text)!important; }
 #ambassador-ui .role-options small { font-size:13px!important; color:var(--ui-muted)!important; line-height:1.4!important; }
 #ambassador-ui .role-icon { width:32px!important; height:32px!important; color:var(--ui-petrol)!important; }
@@ -322,4 +322,10 @@
   #ambassador-ui[data-app-role="reception"] .people { text-align:right!important; }
   #ambassador-ui[data-app-role="reception"] .guest-names { max-width:100%!important; }
   #ambassador-ui[data-app-role="service"] .modal-layer:has(> .guest-edit-modal) { padding:0!important; overflow:hidden!important; height:100dvh!important; }
+}
+
+/* Product identity on the role chooser only. */
+#ambassador-ui .role-selection > .role-app-logo { display:block; order:0; align-self:center; flex:none; width:60px; height:60px; margin:0 0 16px; border:0; background:none; box-shadow:none; }
+@media(max-width:699px) {
+  #ambassador-ui .role-selection > .role-app-logo { width:52px; height:52px; }
 }
