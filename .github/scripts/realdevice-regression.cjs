@@ -23,6 +23,7 @@ async function run(browser,engine,device,width,height){
  }
  async function role(name,wait=true){await page.locator('.role-selection [data-role="'+name+'"]').click();await page.locator('body[data-app-role="'+name+'"] .app-shell').waitFor();if(wait)await page.locator('.service-entry-transition').waitFor({state:'detached'});}
  async function shot(name){
+  if(!name.endsWith('transition'))await page.locator('.work-area-entry-transition').waitFor({state:'detached'});
   const file=path.join(dir,name+'.png');await page.screenshot({path:file,animations:name.endsWith('transition')?'allow':'disabled'});
   const metrics=await page.evaluate(()=>({width:innerWidth,height:innerHeight,dpr:devicePixelRatio,scrollWidth:document.documentElement.scrollWidth}));
   screenshots.push({file,engine,device,state:name,requestedViewport:[page.viewportSize().width,page.viewportSize().height],referenceViewport:[width,height],metrics,interactivelyReached:true,dataMutation:mutated,realDataMutation:false,dataSource:'disposable synthetic browser fixture; Supabase blocked'});
@@ -73,7 +74,7 @@ async function run(browser,engine,device,width,height){
   await shot('08-service-transition');
   await page.locator('.service-entry-transition').waitFor({state:'detached'});
   const data=await page.evaluate(()=>({trace:window.__uiRestfixTrace,elapsed:(window.__uiRestfixTransitionEnd||performance.now())-window.__uiRestfixTrace[0].time}));
-  check(prefix+'.08-service-transition',data.trace.length===1&&data.trace[0].pointerEvents==='none'&&data.elapsed<1200,data);await shot('08-service-ready');
+  check(prefix+'.08-service-transition',data.trace.length===1&&data.trace[0].pointerEvents==='none'&&data.elapsed>=4600&&data.elapsed<5200,data);await shot('08-service-ready');
   if(device==='iphone'){await fresh(true,'reduce');await role('service');const reduced=await page.evaluate(()=>({seen:window.__uiRestfixTrace.length,duration:(window.__uiRestfixTransitionEnd||performance.now())-window.__uiRestfixTrace[0]?.time}));check(prefix+'.08-reduced-motion',reduced.seen===1&&reduced.duration<500,reduced);}
  });
  await test('06-service-editor',async()=>{

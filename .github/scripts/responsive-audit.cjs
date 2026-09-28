@@ -54,6 +54,7 @@ async function runDevice(browser, device, width, height) {
     horizontalOverflow: document.documentElement.scrollWidth > window.innerWidth
   }));
   async function shot(label, description) {
+    await page.locator('.work-area-entry-transition').waitFor({state:'detached'});
     const filename = `${String(++count).padStart(2, '0')}-${label}.png`;
     const file = path.join(dir, filename);
     await page.screenshot({ path: file, fullPage: false, animations: 'disabled', timeout:30000 });
@@ -73,7 +74,7 @@ async function runDevice(browser, device, width, height) {
   }
   async function inspectFooter(selector, key) {
     const geometry = await page.evaluate(sel => {
-      const root=document.querySelector(sel), body=root?.querySelector('.import-list') || root?.querySelector('.modal-body'), footer=root?.querySelector('.modal-actions');
+      const root=document.querySelector(sel), body=root?.querySelector('.modal-body'), footer=root?.querySelector('.modal-actions');
       if (!root || !body || !footer) return null;
       const b=body.getBoundingClientRect(), f=footer.getBoundingClientRect();
       return { bodyBottom:b.bottom, footerTop:f.top, footerBottom:f.bottom,
@@ -363,7 +364,7 @@ async function runDevice(browser, device, width, height) {
       audits[device].importPreviewOnly = true;
       if(await page.locator('.import-modal').count()) {
         await inspectFooter('.import-modal','importFooter');
-        await scroll('.import-modal .import-list',1);await shot('reception-import-control-bottom','Importkontrolle bis zum Ende; nicht übernommen');
+        await scroll('.import-modal .modal-body',1);await shot('reception-import-control-bottom','Importkontrolle bis zum Ende; nicht übernommen');
       }
     });
     await step('reception menu', async () => {

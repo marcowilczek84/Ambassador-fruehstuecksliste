@@ -46,7 +46,7 @@ async function run(browser,engine,device,width,height){
    const button=page.locator('.role-options [data-role="'+role+'"]');const b=await button.boundingBox();
    await button.click({position:{x:side==='left'?12:b.width-12,y:b.height/2}});
    await page.locator('body[data-app-role="'+role+'"] .app-shell').waitFor();
-   await page.locator('.service-entry-transition').waitFor({state:'detached'});
+   await page.locator('.work-area-entry-transition').waitFor({state:'detached'});
    check(prefix+'.'+role+'-'+side+'-edge-navigation',await page.locator('.entry-screen,.role-selection,.role-app-logo').count()===0&&await page.locator('.room-row').count()>0);
   }catch(e){check(prefix+'.'+role+'-'+side,false,{error:String(e)});await page.screenshot({path:path.join(output,prefix+'-'+role+'-'+side+'-FAIL.png')}).catch(()=>{});}
   finally{await context.close();}

@@ -144,11 +144,14 @@
     </button>`;
 
   function selectRole(role) {
+    sessionStorage.setItem("ambassador-service-entry-transition", "pending");
     sessionStorage.setItem(roleKey, role);
     location.reload();
   }
 
-  function showSharedListReadyAnimation() {
+  const workAreaTransition = Object.freeze({ duration: 4700, reducedDuration: 80 });
+
+  function showSharedListReadyAnimation(duration = workAreaTransition.duration) {
     document.querySelector(".success-overlay")?.remove();
     const rooms = readDailyState("ambassador-breakfast-rooms", "rooms", []);
     const occupied = rooms.filter((room) => room && !room.vacant && Number(room.people || room.guests || 0) > 0);
@@ -178,7 +181,8 @@
       </div>
     </div>`;
     document.body.append(layer);
-    window.setTimeout(() => layer.remove(), window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 80 : 4700);
+    layer.style.setProperty("--entry-transition-duration", `${duration}ms`);
+    window.setTimeout(() => layer.remove(), window.matchMedia("(prefers-reduced-motion: reduce)").matches ? workAreaTransition.reducedDuration : duration);
   }
 
   function renderRoleSelection(entry) {
@@ -1266,7 +1270,8 @@
   }
 
   function serviceEntryTransition(shell) {
-    if (document.body.dataset.appRole !== "service") return;
+    const role = document.body.dataset.appRole;
+    if (role !== "service" && role !== "reception") return;
     if (sessionStorage.getItem("ambassador-service-entry-transition") !== "pending") return;
     const rooms = readDailyState("ambassador-breakfast-rooms", "rooms", []);
     sessionStorage.removeItem("ambassador-service-entry-transition");
@@ -1274,11 +1279,28 @@
     showSharedListReadyAnimation();
     const layer = document.querySelector(".success-overlay");
     if (!layer) return;
-    layer.classList.add("service-entry-transition");
-    layer.querySelector(".entry-eyebrow").textContent = tr("Service");
+    layer.classList.add("work-area-entry-transition");
+    if (role === "service") layer.classList.add("service-entry-transition");
+    layer.dataset.workArea = role;
+    layer.querySelector(".entry-eyebrow").textContent = tr(role === "service" ? "Service" : "Rezeption");
     layer.querySelector("h2").textContent = tr("Frühstücksliste");
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    window.setTimeout(() => layer.remove(), reduced ? 80 : 650);
+  }
+
+  function structureImportReview(root) {
+    const modal = root.querySelector(".import-modal");
+    const body = modal?.querySelector(":scope > .modal-body");
+    const footer = body?.querySelector(":scope > .modal-actions");
+    if (footer) modal.append(footer);
+    if (document.body.dataset.appRole !== "reception") return;
+    root.querySelectorAll(".app-shell > :is(.topbar,.hero,.search-wrap,.content,.bottom-bar)").forEach((node) => {
+      if (modal && !node.inert) {
+        node.dataset.importDialogInert = "true";
+        node.inert = true;
+      } else if (!modal && node.dataset.importDialogInert === "true") {
+        node.inert = false;
+        delete node.dataset.importDialogInert;
+      }
+    });
   }
 
   function apply() {
@@ -1313,6 +1335,7 @@
     settleServiceEditScroll(document);
     quietSuccessRemark(document);
     structureServiceSuccess(document);
+    structureImportReview(document);
     lockServiceDialogBackground(document);
     if (shell) serviceEntryTransition(shell);
     enhanceRoomUndo(document);

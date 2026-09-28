@@ -58,11 +58,23 @@ jobs:
         env:
           BASELINE_PREVIEW_URL: https://ambassador-fruehstuecksliste-nc34ggbin-restaurant-silk.vercel.app/index-live.html
         run: node .github/scripts/physical-iphone-regression.cjs
+      - name: Verify physical iPhone III modals, date inputs, footers and equal transition timing
+        run: node .github/scripts/physical-iphone-III.cjs
       - name: Upload screenshots and audit reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: ambassador-responsive-visual-audit
-          path: responsive-audit-output/
+          path: |
+            responsive-audit-output/
+            !responsive-audit-output/physical-iphone-III/**
+          retention-days: 7
+          if-no-files-found: warn
+      - name: Upload physical iPhone III screenshots, timing and videos
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ambassador-physical-iphone-III
+          path: responsive-audit-output/physical-iphone-III/
           retention-days: 7
           if-no-files-found: warn
