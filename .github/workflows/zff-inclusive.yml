@@ -1,0 +1,48 @@
+name: Ambassador ZFF import and frozen UI verification
+on:
+  push:
+    branches: [zff-inclusive-20260928]
+  workflow_dispatch:
+permissions:
+  contents: read
+  deployments: read
+jobs:
+  zff:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Test actual XLSX handler and frozen source, then build
+        run: |
+          npm ci
+          node .github/scripts/zff-import-test.cjs --prepared
+          node .github/scripts/zff-import-test.cjs
+          npm run build
+      - name: Install test-only WebKit
+        run: |
+          npm install --no-save --ignore-scripts playwright@1.62.1 pngjs@7.0.0
+          npx playwright install --with-deps webkit
+      - name: Resolve exact commit Preview
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node .github/scripts/wait-for-preview.cjs
+      - name: Test actual file upload, review, cancel, accept and check-in in isolated WebKit
+        run: node .github/scripts/zff-browser-test.cjs
+      - name: Preserve branding, layout, focus, navigation and mobile controls
+        env:
+          BASELINE_PREVIEW_URL: https://ambassador-fruehstuecksliste-ixikgw5kd-restaurant-silk.vercel.app/index-live.html
+        run: node .github/scripts/branding-realdevice.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ambassador-zff-proof
+          path: |
+            zff-audit-output/
+            branding-audit-output/
+            responsive-audit-output/deployment.json
+          retention-days: 7
