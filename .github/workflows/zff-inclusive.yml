@@ -46,3 +46,31 @@ jobs:
             branding-audit-output/
             responsive-audit-output/deployment.json
           retention-days: 7
+  production-smoke:
+    needs: zff
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install isolated browser verifier
+        run: |
+          npm ci
+          npm install --no-save --ignore-scripts playwright@1.62.1
+          npx playwright install --with-deps webkit
+      - name: Wait read-only for approved exact release on Production
+        run: node .github/scripts/zff-wait-production.cjs
+      - name: Verify live UI with fresh synthetic storage and every network write blocked
+        env:
+          PREVIEW_URL: https://ambassador-fruehstuecksliste.vercel.app/index-live.html
+          SOURCE_SHA: ${{ github.sha }}
+          ZFF_OUTPUT: zff-production-output
+        run: node .github/scripts/zff-browser-test.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ambassador-zff-production-proof
+          path: zff-production-output/
+          retention-days: 7
