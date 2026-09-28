@@ -2,6 +2,7 @@
 const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto');
 const {webkit}=require('playwright'),{PNG}=require('pngjs'),seed=require('./ui-fixture.cjs');
 const current=process.env.PREVIEW_URL,baseline=process.env.BASELINE_PREVIEW_URL;
+const frozenRegression=process.env.FROZEN_UI_REGRESSION==='1';
 if(!current||!baseline)throw Error('Exact Preview URLs required');
 const dir='branding-audit-output';fs.mkdirSync(dir,{recursive:true});
 const matrix={},evidence={},screenshots=[],errors=[],requests=[];
@@ -85,11 +86,14 @@ async function run(browser,device,width,height){
      // Retain the strict result and include only this measured painted top edge, with zero color tolerance.
      const box=rec.splash.box,rasterBox={x:box.x,y:Math.floor(box.y)-1,width:box.width,height:Math.ceil(box.y+box.height)-(Math.floor(box.y)-1)};
      rec.splashDiff=diff(records.before.splashFile,rec.splashFile,[rasterBox],path.join(folder,'splash-difference.png'));
-     check(key('splash-outside-logo-zero-pixels'),rec.splashDiff.outsideChangedPixels===0&&rec.splashDiff.insideChangedPixels>0,{...rec.splashDiff,cssBox:box,strictCssBoxOutside:rec.splashStrictDiff.outsideChangedPixels,rasterEdge:'One top pixel row; no general color tolerance or other mask expansion'});
+     check(key('splash-outside-logo-zero-pixels'),rec.splashDiff.outsideChangedPixels===0&&(frozenRegression?rec.splashDiff.insideChangedPixels===0:rec.splashDiff.insideChangedPixels>0),{...rec.splashDiff,cssBox:box,strictCssBoxOutside:rec.splashStrictDiff.outsideChangedPixels,rasterEdge:'One top pixel row; no general color tolerance or other mask expansion'});
     }
    }
    await p.locator('.role-options [data-role=reception]').click();await p.locator('.reception-actions').waitFor();await p.locator('.work-area-entry-transition').waitFor({state:'detached'});rec.reception=await shot('05-reception');
-   await p.locator('.reception-add').click();await p.locator('.dialog-add-room').waitFor();await settled(p);rec.form=await form(p);rec.formFile=await shot('06-add-room');
+   await p.locator('.reception-add').click();await p.locator('.dialog-add-room').waitFor();
+   // Normalize the pointer left by the opening click before comparing native select rendering.
+   if(frozenRegression){await p.mouse.move(0,0);await p.waitForTimeout(200);}
+   await settled(p);rec.form=await form(p);rec.formFile=await shot('06-add-room');
    await p.locator('.dialog-add-room textarea').click();await settled(p);rec.focus=await form(p);rec.focusFile=await shot('07-name-focused');
    if(version==='after'){
     check(key('form-geometry-unchanged'),['modal','head','grid','footer','close','fields','checkbox'].every(k=>same(rec.form[k],records.before.form[k])),{before:records.before.form,after:rec.form});
@@ -112,4 +116,4 @@ async function run(browser,device,width,height){
  }
  evidence[device+'.records']=records;
 }
-(async()=>{let b;try{b=await webkit.launch();for(const v of [['iphone',390,844],['ipad',1024,1366],['desktop',1440,900]])await run(b,...v);}finally{await b?.close();}check('runtime-errors',errors.length===0,errors);const result={commit:process.env.SOURCE_SHA,baselineCommit:'5d4b35b75d1aaa734c476310f80365cdb0eab1f1',url:current,baselineUrl:baseline,matrix,evidence,screenshots,requests,errors,notes:{startup:'Native startup with JavaScript and original animation enabled, captured during computed-opacity=1 plateau. Screenshot uses animations=allow. Painted cup pixel samples reject empty or missing brand captures. No UI, assets or timings replaced.',nativeKeyboard:'NOT_RUN: Linux WebKit cannot show native iOS keyboard; 390x500 is explicitly a reduced-height surrogate.',physicalOldIcons:'Not reproduced in a fresh baseline browser. Device-cache explanation remains unproven. Content-versioned loaded assets and exact DOM paths recorded.',data:'Browser-local synthetic fixture; strict Preview-origin allowlist; every external request blocked before network access.'}};fs.writeFileSync(path.join(dir,'results.json'),JSON.stringify(result,null,2));console.log(JSON.stringify({pass:Object.values(matrix).filter(x=>x==='PASS').length,fail:Object.values(matrix).filter(x=>x==='FAIL').length}));if(Object.values(matrix).includes('FAIL'))process.exitCode=1;})();
+(async()=>{let b;try{b=await webkit.launch();for(const v of [['iphone',390,844],['ipad',1024,1366],['desktop',1440,900]])await run(b,...v);}finally{await b?.close();}check('runtime-errors',errors.length===0,errors);const result={commit:process.env.SOURCE_SHA,baselineCommit:process.env.BASELINE_COMMIT||'5d4b35b75d1aaa734c476310f80365cdb0eab1f1',url:current,baselineUrl:baseline,matrix,evidence,screenshots,requests,errors,notes:{startup:'Native startup with JavaScript and original animation enabled, captured during computed-opacity=1 plateau. Screenshot uses animations=allow. Painted cup pixel samples reject empty or missing brand captures. No UI, assets or timings replaced.',nativeKeyboard:'NOT_RUN: Linux WebKit cannot show native iOS keyboard; 390x500 is explicitly a reduced-height surrogate.',physicalOldIcons:'Not reproduced in a fresh baseline browser. Device-cache explanation remains unproven. Content-versioned loaded assets and exact DOM paths recorded.',data:'Browser-local synthetic fixture; strict Preview-origin allowlist; every external request blocked before network access.'}};fs.writeFileSync(path.join(dir,'results.json'),JSON.stringify(result,null,2));console.log(JSON.stringify({pass:Object.values(matrix).filter(x=>x==='PASS').length,fail:Object.values(matrix).filter(x=>x==='FAIL').length}));if(Object.values(matrix).includes('FAIL'))process.exitCode=1;})();

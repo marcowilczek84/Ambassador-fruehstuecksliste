@@ -35,6 +35,8 @@ jobs:
         run: node .github/scripts/zff-browser-test.cjs
       - name: Preserve branding, layout, focus, navigation and mobile controls
         env:
+          FROZEN_UI_REGRESSION: '1'
+          BASELINE_COMMIT: a2dfa94994e066ad39f43c4977cc39dc4985d8d5
           BASELINE_PREVIEW_URL: https://ambassador-fruehstuecksliste-ixikgw5kd-restaurant-silk.vercel.app/index-live.html
         run: node .github/scripts/branding-realdevice.cjs
       - uses: actions/upload-artifact@v4
@@ -60,6 +62,16 @@ jobs:
           npm ci
           npm install --no-save --ignore-scripts playwright@1.62.1
           npx playwright install --with-deps webkit
+      - uses: actions/download-artifact@v4
+        with:
+          name: ambassador-zff-proof
+          path: tested-proof
+      - name: Promote only the exact tested Preview with existing CI credential
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          test -n "$VERCEL_TOKEN" || { echo 'PRODUCTION BLOCKED: no VERCEL_TOKEN configured in this repository. No deployment attempted.'; exit 1; }
+          node .github/scripts/zff-promote-tested.cjs
       - name: Wait read-only for approved exact release on Production
         run: node .github/scripts/zff-wait-production.cjs
       - name: Verify live UI with fresh synthetic storage and every network write blocked
