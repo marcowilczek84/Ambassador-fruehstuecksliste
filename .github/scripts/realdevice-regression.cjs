@@ -23,7 +23,7 @@ async function run(browser,engine,device,width,height){
  }
  async function role(name,wait=true){await page.locator('.role-selection [data-role="'+name+'"]').click();await page.locator('body[data-app-role="'+name+'"] .app-shell').waitFor();if(wait)await page.locator('.service-entry-transition').waitFor({state:'detached'});}
  async function shot(name){
-  const file=path.join(dir,name+'.png');await page.screenshot({path:file,animations:name==='08-service-transition'?'allow':'disabled'});
+  const file=path.join(dir,name+'.png');await page.screenshot({path:file,animations:name.endsWith('transition')?'allow':'disabled'});
   const metrics=await page.evaluate(()=>({width:innerWidth,height:innerHeight,dpr:devicePixelRatio,scrollWidth:document.documentElement.scrollWidth}));
   screenshots.push({file,engine,device,state:name,requestedViewport:[page.viewportSize().width,page.viewportSize().height],referenceViewport:[width,height],metrics,interactivelyReached:true,dataMutation:mutated,realDataMutation:false,dataSource:'disposable synthetic browser fixture; Supabase blocked'});
   check(prefix+'.overflow.'+name,metrics.scrollWidth<=metrics.width);
@@ -57,6 +57,7 @@ async function run(browser,engine,device,width,height){
   await page.locator('input[type="file"]').first().setInputFiles({name:'synthetic-restfix.xlsx',mimeType:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',buffer:XLSX.write(wb,{type:'buffer',bookType:'xlsx'})});
   await page.locator('.import-modal').waitFor();await page.locator('.import-modal').getByRole('button',{name:'Liste übernehmen'}).click();mutated=true;
   await page.locator('.success-overlay:not(.service-entry-transition)').waitFor();
+  await page.waitForFunction(()=>{const panel=document.querySelector('.success-overlay .success-panel');return panel&&Number(getComputedStyle(panel).opacity)>.9;});
   check(prefix+'.08-import-animation-preserved',await page.locator('.success-overlay h2').isVisible());await shot('08-import-transition');
   await page.locator('.success-overlay').waitFor({state:'detached',timeout:10000});
   const after=await page.evaluate(()=>({sameWorkspace:window.__receptionWorkspace===document.querySelector('.app-shell'),entry:!!document.querySelector('.entry-screen'),summary:document.querySelector('.reception-summary small').innerText,empty:!!document.querySelector('.workspace-empty-state')}));
@@ -66,7 +67,8 @@ async function run(browser,engine,device,width,height){
  await test('08-service-transition',async()=>{
   await fresh();await role('service',false);
   await page.waitForFunction(()=>window.__uiRestfixTrace?.length>0);
-  if(await page.locator('.service-entry-transition').count())await shot('08-service-transition');
+  await page.waitForFunction(()=>{const panel=document.querySelector('.service-entry-transition .success-panel');return panel&&Number(getComputedStyle(panel).opacity)>.9;});
+  await shot('08-service-transition');
   await page.locator('.service-entry-transition').waitFor({state:'detached'});
   const data=await page.evaluate(()=>({trace:window.__uiRestfixTrace,elapsed:(window.__uiRestfixTransitionEnd||performance.now())-window.__uiRestfixTrace[0].time}));
   check(prefix+'.08-service-transition',data.trace.length===1&&data.trace[0].pointerEvents==='none'&&data.elapsed<1200,data);await shot('08-service-ready');
