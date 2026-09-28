@@ -13,7 +13,7 @@ const cssDelta=css.slice(beforeCss.length);
 const expected=`
 /* Physical-iPhone branding restfix: reuse the approved cup; retain splash box/timing. */
 .breakfast-splash-mark {
-  background:#1c777b url("/breakfast-app-logo.svg?v=${hash(fs.readFileSync('public/breakfast-app-logo.svg')).slice(0,16)}") center / 100% 100% no-repeat border-box!important;
+  background:#1c777b url("data:image/svg+xml;base64,${fs.readFileSync('public/breakfast-app-logo.svg').toString('base64')}") center / 100% 100% no-repeat border-box!important;
   border-color:transparent!important;
 }
 .breakfast-splash-mark > svg { visibility:hidden!important; }

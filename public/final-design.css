@@ -446,7 +446,7 @@
 
 /* Physical-iPhone branding restfix: reuse the approved cup; retain splash box/timing. */
 .breakfast-splash-mark {
-  background:#1c777b url("/breakfast-app-logo.svg?v=9fad9e2153192248") center / 100% 100% no-repeat border-box!important;
+  background:#1c777b url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCIgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0Ij4KICA8cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxNCIgZmlsbD0iIzFjNzc3YiIvPgogIDxnIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmZmZmZiIgc3Ryb2tlLXdpZHRoPSIzIiBzdHJva2UtbGluZWNhcD0icm91bmQiIGlkPSJzdGVhbSI+CiAgICA8cGF0aCBkPSJNMjUgMTN2NyIvPgogICAgPHBhdGggZD0iTTM0IDEzdjciLz4KICA8L2c+CiAgPHBhdGggZD0iTTQwIDI1aDZhMTAgMTAgMCAwIDEgMCAyMGgtNnYtNWg2YTUgNSAwIDAgMCAwLTEwaC02WiIgZmlsbD0iI2ZmZmZmZiIvPgogIDxwYXRoIGQ9Ik0xNSAyNGgyOHYxMmMwIDctNSAxMi0xMiAxMmgtNGMtNyAwLTEyLTUtMTItMTJaIiBmaWxsPSIjZmZmZmZmIi8+CiAgPHJlY3QgeD0iMTIiIHk9IjUxIiB3aWR0aD0iNDIiIGhlaWdodD0iNCIgcng9IjEiIGZpbGw9IiNmZmZmZmYiLz4KPC9zdmc+Cg==") center / 100% 100% no-repeat border-box!important;
   border-color:transparent!important;
 }
 .breakfast-splash-mark > svg { visibility:hidden!important; }

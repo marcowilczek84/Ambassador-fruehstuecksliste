@@ -20,16 +20,17 @@ async function run(browser,device,width,height){
   const p=await ctx.newPage();p.setDefaultTimeout(20000);p.on('pageerror',e=>{if(!/supabase.*access control checks/i.test(e.message))errors.push({device,version,message:e.message});});
   p.on('response',r=>{if(/workflow-polish|final-design|breakfast-app-logo|favicon|apple-touch/.test(r.url()))requests.push({device,version,url:r.url(),status:r.status()});});
   async function shot(name){await settled(p);const file=path.join(folder,name+'.png');await p.screenshot({path:file,animations:'disabled',caret:'hide'});const m=await p.evaluate(()=>({width:innerWidth,height:innerHeight,scrollWidth:document.documentElement.scrollWidth}));check(key('overflow.'+name),m.scrollWidth<=m.width,m);screenshots.push({file,url,device,version,viewport:m,state:name,synthetic:true});return file;}
+  let releaseStartup=()=>{};
   try{
    // Hold only boot JS while recording the real server-rendered startup frame; no DOM/assets edited.
-   let release;const gate=new Promise(r=>release=r);
+   const gate=new Promise(r=>releaseStartup=r);
    if(device==='iphone')await p.route('**/_next/static/chunks/0nkyeaxka~cd7-meili-v9.js',async r=>{await gate;await r.continue();});
    await p.goto(url,{waitUntil:'domcontentloaded'});
    const rec=records[version]={};
    if(device==='iphone'){
     await p.locator('.breakfast-splash-mark').waitFor();await settled(p);
     rec.splash=await p.locator('.breakfast-splash-mark').evaluate(e=>({box:e.getBoundingClientRect().toJSON(),background:getComputedStyle(e).backgroundImage,backgroundColor:getComputedStyle(e).backgroundColor,svgVisibility:getComputedStyle(e.querySelector('svg')).visibility,html:e.outerHTML,others:[...document.querySelectorAll('.breakfast-splash-content > img,.breakfast-splash-content > strong,.breakfast-splash-content > small,.breakfast-splash > .entry-meili-footer')].map(e=>({html:e.outerHTML,box:e.getBoundingClientRect().toJSON()}))}));
-    rec.splashFile=await shot('01-start-splash');release();await p.unroute('**/_next/static/chunks/0nkyeaxka~cd7-meili-v9.js');
+    rec.splashFile=await shot('01-start-splash');releaseStartup();
    }
    await p.locator('.role-selection').waitFor();await settled(p);
    rec.chooser=await p.locator('.role-selection').evaluate(e=>({html:e.outerHTML,box:e.getBoundingClientRect().toJSON(),icons:[...e.querySelectorAll('.role-icon svg')].map(s=>({html:s.outerHTML,box:s.getBoundingClientRect().toJSON(),viewBox:s.getAttribute('viewBox'),stroke:getComputedStyle(s).stroke,weight:getComputedStyle(s).strokeWidth,shapes:[...s.children].map(c=>({tag:c.tagName,attrs:[...c.attributes].map(a=>[a.name,a.value])})),before:getComputedStyle(s.parentElement,'::before').content,after:getComputedStyle(s.parentElement,'::after').content})),geometry:[...e.querySelectorAll('img,h1,p,button,strong,small')].map(n=>({text:n.textContent,box:n.getBoundingClientRect().toJSON()}))}));
@@ -57,7 +58,7 @@ async function run(browser,device,width,height){
     const loaded={};
     for(const name of ['workflow-polish.js','final-design.css','breakfast-app-logo.svg','favicon.svg','apple-touch-icon.png']){
      const sources=[...rec.assets.scripts,...rec.assets.styles,rec.assets.logo,...rec.assets.links.map(l=>l.href)];
-     if(name==='breakfast-app-logo.svg'&&rec.splash?.background){const m=rec.splash.background.match(/url\("?([^"\)]+)/);if(m)sources.push(m[1]);}
+     
      const u=sources.find(x=>new URL(x).pathname==='/'+name);const response=await ctx.request.get(u);const body=await response.body();const expected=sha(fs.readFileSync('public/'+name));
      loaded[name]={url:u,status:response.status(),sha256:sha(body),expected};check(key('loaded-asset.'+name),response.ok()&&sha(body)===expected,loaded[name]);
      if(['workflow-polish.js','final-design.css'].includes(name))check(key('content-version.'+name),new URL(u).searchParams.get('v')===expected.slice(0,16));
@@ -67,7 +68,7 @@ async function run(browser,device,width,height){
     check(key('all-system-links-versioned'),rec.assets.links.filter(x=>x.rel!=='manifest').every(x=>new URL(x.href).searchParams.get('v')===sha(fs.readFileSync('public/'+new URL(x.href).pathname.split('/').pop())).slice(0,16)),rec.assets.links);
     check(key('no-active-manifest-added'),rec.assets.links.filter(x=>x.rel==='manifest').length===records.before.assets.links.filter(x=>x.rel==='manifest').length,rec.assets.links);
     if(device==='iphone'){
-     check(key('splash-existing-filled-asset'),/breakfast-app-logo.svg/.test(rec.splash.background)&&rec.splash.svgVisibility==='hidden'&&rec.splash.backgroundColor==='rgb(28, 119, 123)',rec.splash);
+     check(key('splash-existing-filled-asset'),rec.splash.background.includes('data:image/svg+xml;base64,'+fs.readFileSync('public/breakfast-app-logo.svg').toString('base64'))&&rec.splash.svgVisibility==='hidden'&&rec.splash.backgroundColor==='rgb(28, 119, 123)',rec.splash);
      check(key('splash-frozen-geometry'),same(rec.splash.box,records.before.splash.box)&&same(rec.splash.others,records.before.splash.others));
      check(key('splash-outside-logo-zero-pixels'),(rec.splashDiff=diff(records.before.splashFile,rec.splashFile,[rec.splash.box],path.join(folder,'splash-difference.png'))).outsideChangedPixels===0,rec.splashDiff);
     }
@@ -92,7 +93,7 @@ async function run(browser,device,width,height){
    // Native role chooser service navigation, without changing persistence implementation.
    await p.evaluate(()=>sessionStorage.removeItem('ambassador-work-area'));await p.reload();await p.locator('.role-selection [data-role=service]').click();await p.locator('body[data-app-role=service] .app-shell').waitFor();await p.locator('.work-area-entry-transition').waitFor({state:'detached'});rec.service=await shot('10-service');check(key('service-opens'),await p.locator('.room-row').count()>0);
    if(version==='after')check(key('reception-frozen-pixels'),diff(records.before.reception,rec.reception,[],path.join(folder,'reception-difference.png')).outsideChangedPixels===0);
-  }catch(e){check(key('scenario'),false,{error:String(e)});await p.screenshot({path:path.join(folder,'FAIL.png')}).catch(()=>{});}finally{await ctx.close();}
+  }catch(e){check(key('scenario'),false,{error:String(e)});await p.screenshot({path:path.join(folder,'FAIL.png')}).catch(()=>{});}finally{releaseStartup();await ctx.close();}
  }
  evidence[device+'.records']=records;
 }

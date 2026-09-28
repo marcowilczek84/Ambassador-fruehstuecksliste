@@ -39,3 +39,10 @@ shadow; preserve focus behavior and keyboard accessibility.
 | Field groups/footer | Approved | Byte-identical existing rules; geometry regression |
 | Animation | 4700 ms standard / 80 reduced | No code change |
 | Recovered app/backend | Frozen | Byte-identical; all test data browser-local, Supabase blocked |
+
+## Startup asset delivery follow-up
+
+A natural first-load probe on the first new Preview captured a briefly empty petrol
+splash tile before the external SVG arrived. The splash now embeds the exact existing
+SVG bytes as a data URL in CSS, removing that extra download race. The in-app source
+asset, splash dimensions, content and transition lifecycle remain unchanged.
