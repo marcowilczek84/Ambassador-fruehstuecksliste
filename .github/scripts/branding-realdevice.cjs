@@ -25,16 +25,19 @@ async function run(browser,device,width,height){
   try{
    const rec=records[version]={};
    if(device==='iphone'){
-    // Freeze only the real server-rendered startup state with scripts disabled.
-    // All subsequent navigation and form checks use the normal JavaScript-enabled context.
-    const startupContext=await browser.newContext({viewport:{width,height},deviceScaleFactor:1,isMobile:true,hasTouch:true,locale:'de-CH',timezoneId:'Europe/Zurich',javaScriptEnabled:false});
+    // Capture the real native startup during its fully opaque plateau; do not alter its timing.
+    const startupContext=await browser.newContext({viewport:{width,height},deviceScaleFactor:1,isMobile:true,hasTouch:true,locale:'de-CH',timezoneId:'Europe/Zurich',reducedMotion:'no-preference'});
     await startupContext.route('**/*',r=>new URL(r.request().url()).origin===previewOrigin?r.continue():r.abort());
     const startup=await startupContext.newPage();startup.setDefaultTimeout(20000);
     try{
-     console.log(key('startup.load'));await startup.goto(url,{waitUntil:'load'});await startup.locator('.breakfast-splash-mark').waitFor();console.log(key('startup.loaded'));
-     // JS-disabled WebKit does not execute requestAnimationFrame callbacks. The load event already settles the static asset requests.
+     console.log(key('startup.load'));await startup.goto(url,{waitUntil:'domcontentloaded'});
+     await startup.waitForFunction(()=>{const e=document.querySelector('.breakfast-splash'),c=e?.querySelector('.breakfast-splash-content');return e&&c&&getComputedStyle(e).opacity==='1'&&getComputedStyle(c).opacity==='1'&&[...e.querySelectorAll('img')].every(i=>i.complete&&i.naturalWidth>0);});console.log(key('startup.opaque'));
      rec.splash=await startup.locator('.breakfast-splash-mark').evaluate(e=>({box:e.getBoundingClientRect().toJSON(),background:getComputedStyle(e).backgroundImage,backgroundColor:getComputedStyle(e).backgroundColor,svgVisibility:getComputedStyle(e.querySelector('svg')).visibility,html:e.outerHTML,others:[...document.querySelectorAll('.breakfast-splash-content > img,.breakfast-splash-content > strong,.breakfast-splash-content > small,.breakfast-splash > .entry-meili-footer')].map(e=>({html:e.outerHTML,box:e.getBoundingClientRect().toJSON()}))}));
-     rec.splashFile=path.join(folder,'01-start-splash.png');await startup.screenshot({path:rec.splashFile,animations:'disabled',timeout:20000});console.log(key('startup.captured'));screenshots.push({file:rec.splashFile,url,device,version,state:'server-rendered-startup',scriptsDisabledForStartupCapture:true});
+     rec.splashFile=path.join(folder,'01-start-splash.png');await startup.screenshot({path:rec.splashFile,animations:'allow',timeout:20000});console.log(key('startup.captured'));screenshots.push({file:rec.splashFile,url,device,version,state:'native-startup-opaque-plateau',scriptsDisabledForStartupCapture:false});
+     const painted=PNG.sync.read(fs.readFileSync(rec.splashFile));const pixel=(dx,dy)=>{const x=Math.floor(rec.splash.box.x+dx),y=Math.floor(rec.splash.box.y+dy),i=(y*painted.width+x)*4;return [...painted.data.slice(i,i+3)];};
+     rec.splash.pixels={body:pixel(28,36),saucer:pixel(32,53),steam1:pixel(25,16),steam2:pixel(34,16),petrol:pixel(8,32)};
+     check(key('startup-not-blank'),[...painted.data].some((v,i)=>i%4!==3&&v<200));
+     if(version==='after')check(key('filled-cup-painted-pixels'),Object.entries(rec.splash.pixels).every(([k,v])=>same(v,k==='petrol'?[28,119,123]:[255,255,255])),rec.splash.pixels);
      check(key('splash-overflow'),await startup.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
     }finally{await startupContext.close();}
    }
@@ -77,7 +80,7 @@ async function run(browser,device,width,height){
     if(device==='iphone'){
      check(key('splash-existing-filled-asset'),rec.splash.background.includes('data:image/svg+xml;base64,'+fs.readFileSync('public/breakfast-app-logo.svg').toString('base64'))&&rec.splash.svgVisibility==='hidden'&&rec.splash.backgroundColor==='rgb(28, 119, 123)',rec.splash);
      check(key('splash-frozen-geometry'),same(rec.splash.box,records.before.splash.box)&&same(rec.splash.others,records.before.splash.others));
-     check(key('splash-outside-logo-zero-pixels'),(rec.splashDiff=diff(records.before.splashFile,rec.splashFile,[rec.splash.box],path.join(folder,'splash-difference.png'))).outsideChangedPixels===0,rec.splashDiff);
+     check(key('splash-outside-logo-zero-pixels'),(rec.splashDiff=diff(records.before.splashFile,rec.splashFile,[rec.splash.box],path.join(folder,'splash-difference.png'))).outsideChangedPixels===0&&rec.splashDiff.insideChangedPixels>0,rec.splashDiff);
     }
    }
    await p.locator('.role-options [data-role=reception]').click();await p.locator('.reception-actions').waitFor();await p.locator('.work-area-entry-transition').waitFor({state:'detached'});rec.reception=await shot('05-reception');
@@ -104,4 +107,4 @@ async function run(browser,device,width,height){
  }
  evidence[device+'.records']=records;
 }
-(async()=>{let b;try{b=await webkit.launch();for(const v of [['iphone',390,844],['ipad',1024,1366],['desktop',1440,900]])await run(b,...v);}finally{await b?.close();}check('runtime-errors',errors.length===0,errors);const result={commit:process.env.SOURCE_SHA,baselineCommit:'5d4b35b75d1aaa734c476310f80365cdb0eab1f1',url:current,baselineUrl:baseline,matrix,evidence,screenshots,requests,errors,notes:{startup:'JavaScript disabled only for screenshot of actual server-rendered startup HTML/CSS; no UI or assets replaced. Every navigation/form test uses normal JavaScript-enabled context.',nativeKeyboard:'NOT_RUN: Linux WebKit cannot show native iOS keyboard; 390x500 is explicitly a reduced-height surrogate.',physicalOldIcons:'Not reproduced in a fresh baseline browser. Device-cache explanation remains unproven. Content-versioned loaded assets and exact DOM paths recorded.',data:'Browser-local synthetic fixture; strict Preview-origin allowlist; every external request blocked before network access.'}};fs.writeFileSync(path.join(dir,'results.json'),JSON.stringify(result,null,2));console.log(JSON.stringify({pass:Object.values(matrix).filter(x=>x==='PASS').length,fail:Object.values(matrix).filter(x=>x==='FAIL').length}));if(Object.values(matrix).includes('FAIL'))process.exitCode=1;})();
+(async()=>{let b;try{b=await webkit.launch();for(const v of [['iphone',390,844],['ipad',1024,1366],['desktop',1440,900]])await run(b,...v);}finally{await b?.close();}check('runtime-errors',errors.length===0,errors);const result={commit:process.env.SOURCE_SHA,baselineCommit:'5d4b35b75d1aaa734c476310f80365cdb0eab1f1',url:current,baselineUrl:baseline,matrix,evidence,screenshots,requests,errors,notes:{startup:'Native startup with JavaScript and original animation enabled, captured during computed-opacity=1 plateau. Screenshot uses animations=allow. Painted cup pixel samples reject empty or missing brand captures. No UI, assets or timings replaced.',nativeKeyboard:'NOT_RUN: Linux WebKit cannot show native iOS keyboard; 390x500 is explicitly a reduced-height surrogate.',physicalOldIcons:'Not reproduced in a fresh baseline browser. Device-cache explanation remains unproven. Content-versioned loaded assets and exact DOM paths recorded.',data:'Browser-local synthetic fixture; strict Preview-origin allowlist; every external request blocked before network access.'}};fs.writeFileSync(path.join(dir,'results.json'),JSON.stringify(result,null,2));console.log(JSON.stringify({pass:Object.values(matrix).filter(x=>x==='PASS').length,fail:Object.values(matrix).filter(x=>x==='FAIL').length}));if(Object.values(matrix).includes('FAIL'))process.exitCode=1;})();
