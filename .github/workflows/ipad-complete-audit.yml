@@ -2,6 +2,7 @@ name: Complete iPad UI audit - unchanged Production, isolated local data
 on:
   push:
     branches: [ipad-full-regression-20260929]
+    paths: [".github/scripts/ipad-complete*.cjs"]
   workflow_dispatch:
 permissions:
   contents: read

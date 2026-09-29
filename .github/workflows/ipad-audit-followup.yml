@@ -1,0 +1,36 @@
+name: iPad targeted audit follow-up - isolated local fixtures
+on:
+  push:
+    branches: [ipad-full-regression-20260929]
+    paths: ['.github/scripts/ipad-audit-followup.cjs', '.github/workflows/ipad-audit-followup.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      PREVIEW_URL: https://ambassador-fruehstuecksliste.vercel.app/index-live.html
+      SOURCE_SHA: 59ef3efdd2d6b849b955cb08712e81ed939b1c99
+      IPAD_WIDTH: 1194
+      IPAD_HEIGHT: 810
+      AUDIT_OUTPUT: ipad-targeted-followup
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - name: Assert application unchanged; install existing test dependencies
+        run: |
+          test -z "$(git diff "$SOURCE_SHA" HEAD -- public app src next.config.ts package.json package-lock.json)"
+          npm ci
+          npm install --no-save --ignore-scripts playwright@1.62.1
+          npx playwright install --with-deps webkit
+      - run: node .github/scripts/ipad-audit-followup.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ipad-targeted-followup
+          path: ipad-targeted-followup/
+          retention-days: 7
