@@ -1,0 +1,55 @@
+name: Complete iPad UI audit - unchanged Production, isolated local data
+on:
+  push:
+    branches: [ipad-full-regression-20260929]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  ipad:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        viewport:
+          - { width: 1194, height: 810 }
+          - { width: 1024, height: 748 }
+          - { width: 1024, height: 1366 }
+    env:
+      PREVIEW_URL: https://ambassador-fruehstuecksliste.vercel.app/index-live.html
+      SOURCE_SHA: 59ef3efdd2d6b849b955cb08712e81ed939b1c99
+      IPAD_WIDTH: ${{ matrix.viewport.width }}
+      IPAD_HEIGHT: ${{ matrix.viewport.height }}
+      AUDIT_OUTPUT: ipad-audit-${{ matrix.viewport.width }}x${{ matrix.viewport.height }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify unchanged application and build
+        run: |
+          test -z "$(git diff "$SOURCE_SHA" HEAD -- public app src next.config.ts package.json package-lock.json)"
+          npm ci
+          npm run build
+      - name: Test-only WebKit
+        run: npm install --no-save --ignore-scripts playwright@1.62.1 && npx playwright install --with-deps webkit
+      - name: Complete preserved UI walkthrough
+        id: complete
+        continue-on-error: true
+        run: node .github/scripts/ipad-complete-audit.cjs
+      - name: Full remaining state coverage and layout measurement
+        id: extra
+        continue-on-error: true
+        run: node .github/scripts/ipad-complete-extra.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ipad-complete-${{ matrix.viewport.width }}x${{ matrix.viewport.height }}
+          path: ipad-audit-${{ matrix.viewport.width }}x${{ matrix.viewport.height }}/
+          retention-days: 7
+      - name: Report actual audit outcome without masking findings
+        if: always()
+        run: test '${{ steps.complete.outcome }}' = success && test '${{ steps.extra.outcome }}' = success
