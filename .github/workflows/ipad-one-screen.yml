@@ -1,0 +1,58 @@
+name: Urgent iPad one-screen Production gate
+on:
+  push:
+    branches: [ipad-service-one-screen-20260929]
+  workflow_dispatch:
+permissions:
+  contents: read
+  deployments: read
+jobs:
+  preview-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm ci && npm run build
+      - run: npm install --no-save --ignore-scripts playwright@1.62.1 && npx playwright install --with-deps webkit
+      - name: Exact Preview
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node .github/scripts/wait-for-preview.cjs
+      - run: node .github/scripts/ipad-one-screen.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ipad-preview-proof
+          path: |
+            ipad-smoke-output/
+            responsive-audit-output/deployment.json
+  live-smoke:
+    needs: preview-smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm ci && npm install --no-save --ignore-scripts playwright@1.62.1 && npx playwright install --with-deps webkit
+      - name: Wait read-only for exact manually promoted CSS
+        run: |
+          node - <<'JS'
+          const fs=require('fs'),expected=fs.readFileSync('public/final-design.css','utf8');
+          (async()=>{for(let i=0;i<90;i++){try{if(await(await fetch('https://ambassador-fruehstuecksliste.vercel.app/final-design.css?gate='+Date.now())).text()===expected)return;}catch{} await new Promise(r=>setTimeout(r,10000));}throw Error('Production not promoted; no live PASS');})().catch(e=>{console.error(e);process.exitCode=1});
+          JS
+      - name: Live isolated iPad check
+        env:
+          PREVIEW_URL: https://ambassador-fruehstuecksliste.vercel.app/index-live.html
+          SOURCE_SHA: ${{ github.sha }}
+          IPAD_OUTPUT: ipad-live-output
+        run: node .github/scripts/ipad-one-screen.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ipad-live-proof
+          path: ipad-live-output/
