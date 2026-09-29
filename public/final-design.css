@@ -486,8 +486,8 @@
   #ambassador-ui[data-app-role="service"] .guest-names strong { font-size:12px!important; line-height:14px!important; }
   #ambassador-ui[data-app-role="service"] :is(.meta-line,.frozen-breakfast-note) { top:30px!important; line-height:14px!important; }
   #ambassador-ui[data-app-role="service"] .table-badge { top:auto!important; bottom:3px!important; left:10px!important; right:auto!important; min-height:12px!important; line-height:12px!important; }
-  #ambassador-ui[data-app-role="service"] .room-state:not(.redundant-open-status) { top:4px!important; bottom:auto!important; right:6px!important; min-height:14px!important; height:14px!important; line-height:14px!important; }
-  #ambassador-ui[data-app-role="service"] .room-row:has(.room-state:not(.redundant-open-status)) .guest-names strong:first-of-type { padding-right:44px!important; }
+  #ambassador-ui[data-app-role="service"] .room-state:not(.redundant-open-status) { top:18px!important; bottom:auto!important; right:6px!important; min-height:14px!important; height:14px!important; line-height:14px!important; }
+  #ambassador-ui[data-app-role="service"] .room-row:has(.room-state:not(.redundant-open-status)) .guest-names strong:nth-of-type(2) { padding-right:88px!important; }
   #ambassador-ui[data-app-role="service"] .bottom-bar { min-height:56px!important; padding-block:6px max(6px,env(safe-area-inset-bottom))!important; }
   #ambassador-ui[data-app-role="service"] .bottom-button { min-height:44px!important; height:44px!important; }
 }
