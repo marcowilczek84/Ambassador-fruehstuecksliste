@@ -1,0 +1,66 @@
+name: Approved iPad Service design preview
+on:
+  push:
+    branches: [ipad-service-approved-20261003]
+  workflow_dispatch:
+permissions:
+  contents: read
+  deployments: read
+jobs:
+  preview-acceptance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Build and verify unchanged business assets
+        run: |
+          npm ci
+          npm run build
+          node --check public/workflow-polish.js
+          git diff --exit-code 364dd2113497ad74248cf9230b0a2721e05cdb54 -- app public/recovered package.json package-lock.json
+      - name: Test browsers
+        run: |
+          npm install --no-save --ignore-scripts playwright@1.62.1 pngjs
+          npx playwright install --with-deps webkit chromium
+      - name: Resolve exact Preview only
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node .github/scripts/wait-for-preview.cjs
+      - name: WebKit layout and pixel regression
+        id: webkit
+        continue-on-error: true
+        env:
+          TEST_ENGINE: webkit
+          DESIGN_OUTPUT: ipad-service-design-evidence/webkit
+        run: node .github/scripts/ipad-service-design.cjs
+      - name: Chromium layout and pixel regression
+        id: chromium
+        continue-on-error: true
+        env:
+          TEST_ENGINE: chromium
+          DESIGN_OUTPUT: ipad-service-design-evidence/chromium
+        run: node .github/scripts/ipad-service-design.cjs
+      - name: Existing P1 workflows
+        id: workflows
+        continue-on-error: true
+        env:
+          TEST_ENGINE: webkit
+          TEST_ONLY: 'P1|roles|mews'
+          AUDIT_OUTPUT: ipad-service-design-evidence/workflows
+        run: node .github/scripts/consolidated-acceptance.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ambassador-ipad-service-design-proof
+          path: |
+            ipad-service-design-evidence/
+            responsive-audit-output/deployment.json
+          retention-days: 14
+      - name: Require all acceptance runs
+        if: always()
+        run: test '${{ steps.webkit.outcome }}' = success && test '${{ steps.chromium.outcome }}' = success && test '${{ steps.workflows.outcome }}' = success

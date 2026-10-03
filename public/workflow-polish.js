@@ -529,6 +529,10 @@
       const names = row.querySelector(".guest-names");
       if (!names) return;
       names.title = [...names.querySelectorAll("strong")].map((x) => x.textContent).join(" · ");
+      // Presentation text for the approved landscape strip; native text/handlers
+      // remain available unchanged in every other viewport and in dialogs.
+      const breakfastLabel = names.querySelector(".meta-line");
+      if (breakfastLabel) breakfastLabel.dataset.landscapeBreakfast = tr("inklusive");
       let note = names.querySelector(".frozen-breakfast-note");
       const needsNote = !row.classList.contains("included") && !names.querySelector(".vacant");
       if (needsNote && !note) {
