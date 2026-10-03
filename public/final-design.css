@@ -493,7 +493,7 @@
 }
 
 /* Consolidated landscape/front-desk correction. Phone geometry stays inherited. */
-#ambassador-ui .search-empty-state { margin:24px 0; color:var(--ui-muted); font-size:14px; line-height:1.5; }
+#ambassador-ui .search-empty-state { display:none; margin:24px 0; color:var(--ui-muted); font-size:14px; line-height:1.5; }
 #ambassador-ui .search-empty-state[hidden], #ambassador-ui .reception-detail-empty[hidden] { display:none!important; }
 #ambassador-ui .reception-detail-empty { display:none; }
 #ambassador-ui[data-app-role="service"] .guest-edit-grid :is(input,textarea)[readonly] { background:var(--ui-soft,#f7f8f8)!important; color:var(--ui-text)!important; cursor:default; }
@@ -506,6 +506,7 @@
   #ambassador-ui[data-app-role="service"] .search-box input { height:100%!important; }
 }
 @media(min-width:700px) {
+  #ambassador-ui .search-empty-state { display:block; }
   #ambassador-ui[data-app-role="reception"] .hero { width:var(--reception-list)!important; margin:0!important; padding:16px 16px 8px var(--ui-padding)!important; box-sizing:border-box!important; }
   #ambassador-ui[data-app-role="reception"] .reception-toolbar { flex-direction:column!important; align-items:stretch!important; gap:16px!important; }
   #ambassador-ui[data-app-role="reception"] .reception-actions { display:grid!important; grid-template-columns:repeat(2,minmax(0,1fr))!important; gap:8px!important; }
