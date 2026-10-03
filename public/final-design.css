@@ -491,3 +491,66 @@
   #ambassador-ui[data-app-role="service"] .bottom-bar { min-height:56px!important; padding-block:6px max(6px,env(safe-area-inset-bottom))!important; }
   #ambassador-ui[data-app-role="service"] .bottom-button { min-height:44px!important; height:44px!important; }
 }
+
+/* Consolidated landscape/front-desk correction. Phone geometry stays inherited. */
+#ambassador-ui .search-empty-state { margin:24px 0; color:var(--ui-muted); font-size:14px; line-height:1.5; }
+#ambassador-ui .search-empty-state[hidden], #ambassador-ui .reception-detail-empty[hidden] { display:none!important; }
+#ambassador-ui .reception-detail-empty { display:none; }
+#ambassador-ui[data-app-role="service"] .guest-edit-grid :is(input,textarea)[readonly] { background:var(--ui-soft,#f7f8f8)!important; color:var(--ui-text)!important; cursor:default; }
+#ambassador-ui[data-app-role="service"] .reception-breakfast-choice button:disabled { opacity:1; cursor:default; }
+@media(min-width:1000px) and (max-width:1400px) and (orientation:landscape) {
+  #ambassador-ui[data-app-role="service"] .app-shell { grid-template-rows:60px 88px 60px minmax(0,1fr) auto!important; }
+  #ambassador-ui[data-app-role="service"] .search-wrap { height:60px!important; padding:8px 24px!important; }
+  #ambassador-ui[data-app-role="service"] .search-row { width:100%!important; max-width:none!important; height:44px!important; margin:0!important; display:flex!important; align-items:center!important; gap:16px!important; }
+  #ambassador-ui[data-app-role="service"] .search-box { flex:1 1 0!important; width:auto!important; min-width:0!important; max-width:none!important; margin:0!important; height:44px!important; min-height:44px!important; }
+  #ambassador-ui[data-app-role="service"] .search-box input { height:100%!important; }
+}
+@media(min-width:700px) {
+  #ambassador-ui[data-app-role="reception"] .hero { width:var(--reception-list)!important; margin:0!important; padding:16px 16px 8px var(--ui-padding)!important; box-sizing:border-box!important; }
+  #ambassador-ui[data-app-role="reception"] .reception-toolbar { flex-direction:column!important; align-items:stretch!important; gap:16px!important; }
+  #ambassador-ui[data-app-role="reception"] .reception-actions { display:grid!important; grid-template-columns:repeat(2,minmax(0,1fr))!important; gap:8px!important; }
+  #ambassador-ui[data-app-role="reception"] .reception-actions button { width:100%!important; padding:8px 10px!important; height:46px!important; min-height:46px!important; font-size:13px!important; line-height:1.2!important; }
+  #ambassador-ui[data-app-role="reception"] .search-wrap { height:64px!important; padding-top:8px!important; padding-bottom:10px!important; }
+  #ambassador-ui[data-app-role="reception"] .modal-layer:has(> .guest-edit-modal) { top:var(--reception-detail-top,72px)!important; }
+  #ambassador-ui[data-app-role="reception"] .reception-detail-empty { position:fixed; display:flex; flex-direction:column; justify-content:center; align-items:center; gap:8px; text-align:center; top:var(--reception-detail-top,72px); bottom:0; left:var(--reception-list); right:0; padding:32px; border-left:1px solid var(--ui-line); color:var(--ui-muted); pointer-events:none; }
+  #ambassador-ui .reception-detail-empty strong { font-size:16px; color:var(--ui-text); font-weight:600; }
+  #ambassador-ui .reception-detail-empty p { max-width:280px; font-size:14px; line-height:1.5; margin:0; }
+  #ambassador-ui[data-app-role="reception"] .workspace-empty .content { grid-row:3!important; align-self:start!important; }
+}
+/* Prioritized touch list: note preview belongs to the guest, never the count. */
+@media(min-width:700px) and (max-width:1199px), (min-width:1200px) and (max-width:1400px) and (pointer:coarse) {
+  #ambassador-ui[data-app-role="reception"] { --reception-list:44%; }
+  #ambassador-ui[data-app-role="reception"] .reception-table-head,
+  #ambassador-ui[data-app-role="reception"] .room-row { grid-template-columns:56px minmax(0,1fr) 72px!important; gap:2px 10px!important; }
+  #ambassador-ui[data-app-role="reception"] .room-row { grid-template-rows:21px 18px!important; height:64px!important; min-height:64px!important; max-height:64px!important; padding:10px 8px!important; }
+  #ambassador-ui[data-app-role="reception"] .reception-table-head span:nth-child(n+4),
+  #ambassador-ui[data-app-role="reception"] .room-row > :is(.reception-arrival,.reception-departure) { display:none!important; }
+  #ambassador-ui[data-app-role="reception"] .reception-breakfast { grid-column:2!important; grid-row:2!important; font-size:12px!important; }
+  #ambassador-ui[data-app-role="reception"] .people { justify-self:end!important; }
+  #ambassador-ui[data-app-role="reception"] .reception-remark { display:none!important; }
+  #ambassador-ui[data-app-role="reception"] .room-row:has(.has-remark) { grid-template-rows:21px 18px 16px!important; height:82px!important; min-height:82px!important; max-height:82px!important; }
+  #ambassador-ui[data-app-role="reception"] .reception-remark.has-remark { display:block!important; grid-column:2!important; grid-row:3!important; min-width:0!important; width:100%!important; font-size:11px!important; }
+  #ambassador-ui[data-app-role="reception"] .reception-remark.has-remark::before { content:attr(data-mobile-label); }
+}
+/* Fine-pointer desktop: compact list toolbar and a permanent detail workspace. */
+@media(min-width:1200px) and (hover:hover) and (pointer:fine) {
+  #ambassador-ui[data-app-role="reception"] { --reception-list:calc(100% - clamp(360px,28vw,440px)); --ui-padding:24px; }
+  #ambassador-ui[data-app-role="reception"] .app-shell { grid-template-rows:72px auto 54px minmax(0,1fr)!important; }
+  #ambassador-ui[data-app-role="reception"] .hero { padding-top:12px!important; padding-bottom:8px!important; }
+  #ambassador-ui[data-app-role="reception"] .reception-toolbar { flex-direction:row!important; align-items:center!important; gap:16px!important; }
+  #ambassador-ui[data-app-role="reception"] .reception-actions { display:flex!important; flex:0 0 auto!important; }
+  #ambassador-ui[data-app-role="reception"] .reception-actions button { height:38px!important; min-height:38px!important; width:auto!important; padding:8px 12px!important; }
+  #ambassador-ui[data-app-role="reception"] .search-wrap { height:54px!important; padding-top:6px!important; padding-bottom:10px!important; }
+  #ambassador-ui[data-app-role="reception"] .search-box { height:38px!important; min-height:38px!important; }
+  #ambassador-ui[data-app-role="reception"] .search-box input { height:100%!important; font-size:14px!important; }
+  #ambassador-ui[data-app-role="reception"] .reception-table-head,
+  #ambassador-ui[data-app-role="reception"] .room-row { grid-template-columns:56px minmax(150px,1.8fr) 72px 84px 84px 106px minmax(70px,1fr)!important; column-gap:8px!important; }
+  #ambassador-ui[data-app-role="reception"] .reception-table-head { padding:8px!important; }
+  #ambassador-ui[data-app-role="reception"] .room-row { height:42px!important; min-height:42px!important; max-height:42px!important; padding:6px 8px!important; }
+  #ambassador-ui[data-app-role="reception"] .guest-edit-modal > .modal-head { padding:16px 20px!important; }
+  #ambassador-ui[data-app-role="reception"] .guest-edit-modal > :is(.modal-body,.reception-view-body) { padding:20px!important; }
+  #ambassador-ui[data-app-role="reception"] .reception-view-body dl { gap:16px!important; }
+  #ambassador-ui[data-app-role="reception"] .reception-view-body dl > div { padding-bottom:14px!important; }
+  #ambassador-ui[data-app-role="reception"] .reception-view-body dd { font-size:14px!important; }
+  #ambassador-ui[data-app-role="reception"] .reception-view-remark { padding-top:18px!important; }
+}

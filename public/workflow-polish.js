@@ -319,7 +319,14 @@
     if (!trigger || document.body.dataset.reliableMenuHandler === "true") return;
     document.body.dataset.reliableMenuHandler = "true";
 
-    const closeMenu = () => document.querySelector(".reliable-app-menu-layer")?.remove();
+    let menuContext = null;
+    const closeMenu = () => {
+      document.querySelector(".reliable-app-menu-layer")?.remove();
+      if (!menuContext) return;
+      menuContext.background.forEach(([element, inert]) => { element.inert = inert; });
+      if (menuContext.trigger.isConnected) menuContext.trigger.focus({ preventScroll: true });
+      menuContext = null;
+    };
     document.addEventListener("click", (event) => {
       const currentTrigger = event.target instanceof Element ? event.target.closest(".header-actions .icon-button") : null;
       if (!currentTrigger) return;
@@ -328,7 +335,7 @@
       event.stopImmediatePropagation();
       const existing = document.querySelector(".reliable-app-menu-layer");
       if (existing) {
-        existing.remove();
+        closeMenu();
         return;
       }
 
@@ -374,7 +381,21 @@
         if (label === "special-guests") window.setTimeout(openSpecialGuestDialog, 20);
         else if (label) window.setTimeout(() => clickMenuAction(shell, label), 20);
       });
+      menuContext = {
+        trigger: currentTrigger,
+        background: [...document.body.children].filter((element) => !element.matches("script,style,link")).map((element) => [element, element.inert])
+      };
+      menuContext.background.forEach(([element]) => { element.inert = true; });
       document.body.append(layer);
+      layer.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") { event.preventDefault(); closeMenu(); return; }
+        if (event.key !== "Tab") return;
+        const controls = [...layer.querySelectorAll('button:not(:disabled),a[href]')].filter((element) => element.getClientRects().length);
+        const first = controls[0], last = controls[controls.length - 1];
+        if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
+        else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
+      });
+      layer.querySelector("header button")?.focus({ preventScroll: true });
     }, true);
   }
 
@@ -458,7 +479,7 @@
       // Display the existing room values only; no lookup by guest name and no writes.
       const room = displayRooms.find((item) => Number(item.room) === roomNumber);
       const note = room?.note || "";
-      if (remark.textContent !== (note || "–")) remark.textContent = note || "–";
+      if (remark.textContent !== note) remark.textContent = note;
       remark.title = note;
       remark.classList.toggle("has-remark", Boolean(note));
       for (const field of ["arrival", "departure"]) {
@@ -638,6 +659,7 @@
       });
     }
     field.classList.add("reception-original-included");
+    choice.querySelectorAll("button").forEach((button) => { button.disabled = checkbox.disabled; });
     const includedButton = choice.querySelector('[data-included="true"]');
     const excludedButton = choice.querySelector('[data-included="false"]');
     includedButton?.classList.toggle("selected", checkbox.checked);
@@ -954,6 +976,39 @@
       state.innerHTML = html;
       state.querySelector("button")?.addEventListener("click", () => shell.querySelector('input[type="file"][accept*=".xlsx"]')?.click());
     }
+  }
+
+  function updateWorkspaceFeedback(shell) {
+    const content = shell.querySelector(".content");
+    if (!content) return;
+    const query = normalize(shell.querySelector(".search-box input")?.value || "");
+    const visibleRows = [...content.querySelectorAll(".room-row")].some((row) => row.getClientRects().length && getComputedStyle(row).display !== "none");
+    let empty = content.querySelector(".search-empty-state");
+    if (!empty) {
+      empty = document.createElement("p");
+      empty.className = "search-empty-state";
+      empty.setAttribute("role", "status");
+      content.append(empty);
+    }
+    const text = activeLanguage === "EN" ? "No rooms or guests found" : activeLanguage === "VI" ? "Không tìm thấy phòng hoặc khách" : "Keine Zimmer oder Gäste gefunden";
+    if (empty.textContent !== text) empty.textContent = text;
+    const hidden = !query || visibleRows;
+    if (empty.hidden !== hidden) empty.hidden = hidden;
+
+    if (document.body.dataset.appRole !== "reception") { shell.querySelector(".reception-detail-empty")?.remove(); return; }
+    let detail = shell.querySelector(".reception-detail-empty");
+    if (!detail) {
+      detail = document.createElement("aside");
+      detail.className = "reception-detail-empty";
+      shell.append(detail);
+    }
+    const copy = activeLanguage === "EN" ? ["Select a room", "Select a guest on the left to view their details."] : activeLanguage === "VI" ? ["Chọn phòng", "Chọn khách bên trái để xem thông tin."] : ["Zimmer auswählen", "Wähle links einen Gast, um die Details anzuzeigen."];
+    const html = `<strong>${copy[0]}</strong><p>${copy[1]}</p>`;
+    if (detail.innerHTML !== html) detail.innerHTML = html;
+    const selected = Boolean(shell.querySelector(".guest-edit-modal"));
+    if (detail.hidden !== selected) detail.hidden = selected;
+    const top = `${Math.round(shell.querySelector(".hero").getBoundingClientRect().top)}px`;
+    if (document.body.style.getPropertyValue("--reception-detail-top") !== top) document.body.style.setProperty("--reception-detail-top", top);
   }
 
   function enforceRoleFunctions(root) {
@@ -1349,6 +1404,7 @@
     lockServiceDialogBackground(document);
     if (shell) serviceEntryTransition(shell);
     enhanceRoomUndo(document);
+    if (shell) updateWorkspaceFeedback(shell);
     if (shell) {
       const finished = Boolean(shell.querySelector(".bottom-button.finish.finished"));
       shell.classList.toggle("breakfast-finished", finished);

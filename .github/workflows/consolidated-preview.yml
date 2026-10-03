@@ -1,0 +1,57 @@
+name: Consolidated P1 and landscape Front Desk preview acceptance
+on:
+  push:
+    branches: [ambassador-consolidated-fix-20261003]
+  workflow_dispatch:
+permissions:
+  contents: read
+  deployments: read
+jobs:
+  preview-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify authorized scope and build
+        run: |
+          npm ci
+          node .github/scripts/consolidated-boundaries.cjs
+          npm run build
+      - name: Install test-only browsers
+        run: |
+          npm install --no-save --ignore-scripts playwright@1.62.1
+          npx playwright install --with-deps webkit chromium
+      - name: Resolve exact commit Preview
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node .github/scripts/wait-for-preview.cjs
+      - name: WebKit synthetic P1, iPad landscape and iPhone regression
+        id: webkit
+        continue-on-error: true
+        env:
+          TEST_ENGINE: webkit
+          AUDIT_OUTPUT: consolidated-evidence/webkit
+        run: node .github/scripts/consolidated-acceptance.cjs
+      - name: Chromium synthetic P1 and desktop regression
+        id: chromium
+        continue-on-error: true
+        env:
+          TEST_ENGINE: chromium
+          AUDIT_OUTPUT: consolidated-evidence/chromium
+        run: node .github/scripts/consolidated-acceptance.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ambassador-consolidated-preview-proof
+          path: |
+            consolidated-evidence/
+            responsive-audit-output/deployment.json
+          retention-days: 14
+      - name: Require both browser runs
+        if: always()
+        run: test '${{ steps.webkit.outcome }}' = success && test '${{ steps.chromium.outcome }}' = success
