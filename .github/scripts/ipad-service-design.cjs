@@ -24,7 +24,10 @@ async function pageFor(browser,role,width,height,touch,version){
  const p=await ctx.newPage();p.setDefaultTimeout(12000);p.on('pageerror',e=>{if(!(/due to access control checks/.test(e.message)&&denied.some(x=>e.message.includes(x))))errors.push(e.message)});
  await p.goto(base,{waitUntil:'domcontentloaded'});await p.locator('.role-selection').waitFor();
  if(role){await p.locator('[data-role='+role+']').click();await p.locator('.app-shell').waitFor();await p.locator('.work-area-entry-transition').waitFor({state:'detached'});}
- await p.evaluate(()=>document.fonts.ready);await p.waitForTimeout(200);return{ctx,p};
+ await p.evaluate(()=>document.fonts.ready);await p.waitForTimeout(200);
+ // Compare static presentation after entry completion, never animation frames.
+ await p.addStyleTag({content:'*,*::before,*::after{animation:none!important;transition:none!important;caret-color:transparent!important}'});
+ await p.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));return{ctx,p};
 }
 function samePixels(a,b){const x=PNG.sync.read(a),y=PNG.sync.read(b);return x.width===y.width&&x.height===y.height&&x.data.equals(y.data);}
 (async()=>{
@@ -48,6 +51,8 @@ function samePixels(a,b){const x=PNG.sync.read(a),y=PNG.sync.read(b);return x.wi
   check(id+'.long-multiple-names',find(31).nameTitle.includes('Clara Dritter Gast')&&find(21).nameTitle.includes(' · '));check(id+'.names-readable',m.rows.every(r=>r.font>=12));
   await p.getByRole('button',{name:'Zimmer 31 öffnen',exact:true}).click();check(id+'.full-names-existing-dialog',(await p.locator('.checkin-choice-modal').textContent()).includes('Alexandra Sehr Langer Familienname'));await p.locator('.checkin-choice-modal .close-button').click();
   await p.locator('.search-box input').fill('NoMatchXYZ');check(id+'.search-existing-empty-state',await p.locator('.search-empty-state').isVisible());await p.locator('.search-box input').fill('');
+  await p.getByRole('button',{name:'Menü öffnen',exact:true}).click();await p.locator('[data-language="EN"]').click();await p.keyboard.press('Escape');await p.waitForTimeout(150);
+  check(id+'.existing-English-label',await p.locator('.ipad-room-column .meta-line').first().getAttribute('data-landscape-breakfast')==='included');
   await ctx.close();
  }
  for(const [role,w,h,touch] of [[null,390,844,true],[null,1194,810,true],['service',390,844,true],['reception',390,844,true],['reception',1194,810,true],['reception',1024,748,true],['reception',1440,900,false],['service',1194,810,false],['service',810,1194,true]]){

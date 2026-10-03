@@ -532,7 +532,9 @@
       // Presentation text for the approved landscape strip; native text/handlers
       // remain available unchanged in every other viewport and in dialogs.
       const breakfastLabel = names.querySelector(".meta-line");
-      if (breakfastLabel) breakfastLabel.dataset.landscapeBreakfast = tr("inklusive");
+      if (breakfastLabel && window.matchMedia("(min-width:1000px) and (max-width:1400px) and (min-height:700px) and (orientation:landscape) and (pointer:coarse)").matches) {
+        breakfastLabel.dataset.landscapeBreakfast = tr("inklusive");
+      }
       let note = names.querySelector(".frozen-breakfast-note");
       const needsNote = !row.classList.contains("included") && !names.querySelector(".vacant");
       if (needsNote && !note) {

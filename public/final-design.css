@@ -558,7 +558,7 @@
 
 /* Approved Service studies: one work strip and five aligned room registers.
    Only the landscape tablet main view; all existing handlers/data stay intact. */
-@media (min-width:1000px) and (max-width:1400px) and (orientation:landscape) and (pointer:coarse) {
+@media (min-width:1000px) and (max-width:1400px) and (orientation:landscape) and (min-height:700px) and (pointer:coarse) {
   #ambassador-ui[data-app-role="service"] .app-shell { grid-template-rows:60px 104px 12px minmax(0,1fr) 56px!important; }
   #ambassador-ui[data-app-role="service"] .topbar { grid-row:1!important; }
   #ambassador-ui[data-app-role="service"] .hero { grid-row:2!important; grid-column:1!important; position:relative!important; padding:0 24px!important; }
@@ -598,7 +598,7 @@
   #ambassador-ui[data-app-role="service"] .ipad-room-column .guest-names { text-overflow:ellipsis!important; }
   #ambassador-ui[data-app-role="service"] .ipad-room-column :is(.meta-line,.frozen-breakfast-note) { position:absolute!important; top:auto!important; left:0!important; bottom:4px!important; height:13px!important; font-size:11px!important; line-height:13px!important; gap:3px!important; color:#747d7a!important; }
   #ambassador-ui[data-app-role="service"] .ipad-room-column .frozen-breakfast-note { left:0!important; top:auto!important; bottom:4px!important; }
-  #ambassador-ui[data-app-role="service"] .ipad-room-column .meta-line { color:#b09a14!important; font-size:0!important; }
+  #ambassador-ui[data-app-role="service"] .ipad-room-column .meta-line { color:#747d7a!important; font-size:0!important; }
   #ambassador-ui[data-app-role="service"] .ipad-room-column .meta-line::after { content:attr(data-landscape-breakfast)!important; font-size:11px!important; line-height:13px!important; }
   #ambassador-ui[data-app-role="service"] .ipad-room-column .status-note { display:none!important; }
   #ambassador-ui[data-app-role="service"] .ipad-room-column .meta-line svg { width:12px!important; height:12px!important; }
@@ -607,7 +607,7 @@
   #ambassador-ui[data-app-role="service"] .bottom-bar { grid-row:5!important; padding:6px 24px!important; min-height:56px!important; }
   #ambassador-ui[data-app-role="service"] .bottom-button { height:44px!important; min-height:44px!important; }
 }
-@media (min-width:1000px) and (max-width:1100px) and (orientation:landscape) and (pointer:coarse) {
+@media (min-width:1000px) and (max-width:1100px) and (orientation:landscape) and (min-height:700px) and (pointer:coarse) {
   #ambassador-ui[data-app-role="service"] .hero { padding-inline:20px!important; }
   #ambassador-ui[data-app-role="service"] .hero-facts { left:20px!important; }
   #ambassador-ui[data-app-role="service"] .search-wrap { width:calc(66% - 40px)!important; margin-right:20px!important; }
