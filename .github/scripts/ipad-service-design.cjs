@@ -23,13 +23,17 @@ async function pageFor(browser,role,width,height,touch,version){
  await ctx.addInitScript(seed);await ctx.addInitScript(fixtureSpecialCases);
  const p=await ctx.newPage();p.setDefaultTimeout(12000);p.on('pageerror',e=>{if(!(/due to access control checks/.test(e.message)&&denied.some(x=>e.message.includes(x))))errors.push(e.message)});
  await p.goto(base,{waitUntil:'domcontentloaded'});await p.locator('.role-selection').waitFor();
- if(role){await p.locator('[data-role='+role+']').click();await p.locator('.app-shell').waitFor();await p.locator('.work-area-entry-transition').waitFor({state:'detached'});}
+ if(role){await p.locator('[data-role='+role+']').click();await p.locator('.app-shell').waitFor();await p.waitForFunction(role=>document.body.id==='ambassador-ui'&&document.body.dataset.appRole===role,role);await p.locator('.work-area-entry-transition').waitFor({state:'detached'});}
  await p.evaluate(()=>document.fonts.ready);await p.waitForTimeout(200);
  // Compare static presentation after entry completion, never animation frames.
  await p.addStyleTag({content:'*,*::before,*::after{animation:none!important;transition:none!important;caret-color:transparent!important}'});
  await p.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));return{ctx,p};
 }
-function samePixels(a,b){const x=PNG.sync.read(a),y=PNG.sync.read(b);return x.width===y.width&&x.height===y.height&&x.data.equals(y.data);}
+function pixelDifference(a,b){const x=PNG.sync.read(a),y=PNG.sync.read(b);if(x.width!==y.width||x.height!==y.height)return{pass:false};let changed=0,maxChannelDifference=0;for(let i=0;i<x.data.length;i+=4){let different=false;for(let j=0;j<4;j++){const d=Math.abs(x.data[i+j]-y.data[i+j]);if(d)different=true;maxChannelDifference=Math.max(maxChannelDifference,d);}if(different)changed++;}return{changedPixels:changed,totalPixels:x.width*x.height,maxChannelDifference,exact:changed===0,pass:changed<=x.width*x.height*.0001&&maxChannelDifference<=24};}
+const visualStructure=()=>{
+ const root=document.querySelector('.app-shell')||document.querySelector('.role-selection');
+ return [...root.querySelectorAll('*')].map(e=>{const s=getComputedStyle(e),r=e.getBoundingClientRect();return{tag:e.tagName,classes:e.className.baseVal??e.className,rect:[r.x,r.y,r.width,r.height],style:Array.from(s).sort().map(k=>[k,s.getPropertyValue(k)]),before:getComputedStyle(e,'::before').cssText,after:getComputedStyle(e,'::after').cssText};});
+};
 (async()=>{
  const browser=await pw[engine].launch(process.env.BROWSER_PATH?{executablePath:process.env.BROWSER_PATH,args:['--no-sandbox','--disable-dev-shm-usage']}:{});
  try{
@@ -49,16 +53,20 @@ function samePixels(a,b){const x=PNG.sync.read(a),y=PNG.sync.read(b);return x.wi
   const find=n=>m.rows.find(r=>r.room===String(n));
   check(id+'.inclusive-yellow',find(23).bar.color==='rgb(243, 207, 36)');check(id+'.neutral-grey',find(40).bar.color==='rgb(205, 215, 212)');check(id+'.partial-and-complete-petrol',[20,21,22].every(n=>find(n).bar.color==='rgb(28, 119, 123)'));
   check(id+'.long-multiple-names',find(31).nameTitle.includes('Clara Dritter Gast')&&find(21).nameTitle.includes(' · '));check(id+'.names-readable',m.rows.every(r=>r.font>=12));
-  await p.getByRole('button',{name:'Zimmer 31 öffnen',exact:true}).click();check(id+'.full-names-existing-dialog',(await p.locator('.checkin-choice-modal').textContent()).includes('Alexandra Sehr Langer Familienname'));await p.locator('.checkin-choice-modal .close-button').click();
-  await p.locator('.search-box input').fill('NoMatchXYZ');check(id+'.search-existing-empty-state',await p.locator('.search-empty-state').isVisible());await p.locator('.search-box input').fill('');
+  await p.getByRole('button',{name:'Zimmer 31 öffnen',exact:true}).click();check(id+'.full-names-existing-dialog',(await p.locator('.checkin-choice-modal').textContent()).includes('Alexandra Sehr Langer Familienname'));await p.locator('.checkin-choice-modal .close-button').click();await p.locator('.checkin-choice-modal').waitFor({state:'detached'});
+  await p.locator('.search-box input').fill('NoMatchXYZ');await p.locator('.search-empty-state').waitFor({state:'visible'});check(id+'.search-existing-empty-state',await p.locator('.search-empty-state').isVisible());await p.locator('.search-box input').fill('');
   await p.getByRole('button',{name:'Menü öffnen',exact:true}).click();await p.locator('[data-language="EN"]').click();await p.keyboard.press('Escape');await p.waitForTimeout(150);
   check(id+'.existing-English-label',await p.locator('.ipad-room-column .meta-line').first().getAttribute('data-landscape-breakfast')==='included');
   await ctx.close();
  }
  for(const [role,w,h,touch] of [[null,390,844,true],[null,1194,810,true],['service',390,844,true],['reception',390,844,true],['reception',1194,810,true],['reception',1024,748,true],['reception',1440,900,false],['service',1194,810,false],['service',810,1194,true]]){
-  const id=engine+'-unchanged-'+(role||'chooser')+'-'+w+'x'+h+'-'+(touch?'touch':'mouse'),shots=[];
-  for(const version of ['before','after']){const {ctx,p}=await pageFor(browser,role,w,h,touch,version);shots.push(await p.screenshot({path:path.join(out,id+'-'+version+'.png'),animations:'disabled'}));await ctx.close();}
-  check(id+'.pixel-identical',samePixels(...shots));
+  const id=engine+'-unchanged-'+(role||'chooser')+'-'+w+'x'+h+'-'+(touch?'touch':'mouse'),shots=[],structures=[];
+  for(const version of ['before','after']){const {ctx,p}=await pageFor(browser,role,w,h,touch,version);shots.push(await p.screenshot({path:path.join(out,id+'-'+version+'.png'),animations:'disabled'}));structures.push(await p.evaluate(visualStructure));await ctx.close();}
+  const pixels=pixelDifference(...shots),structureIdentical=JSON.stringify(structures[0])===JSON.stringify(structures[1]);
+  // Chromium can vary a few rounded-border antialias pixels between contexts.
+  // Require exact element geometry AND computed styles, plus at most 0.01%
+  // low-amplitude raster noise; never mask regions or accept layout differences.
+  const mismatch=structures[0].findIndex((e,i)=>JSON.stringify(e)!==JSON.stringify(structures[1][i]));const sample=mismatch<0?null:{before:structures[0][mismatch],after:structures[1][mismatch]};check(id+'.render-unchanged',structureIdentical&&pixels.pass,{structureIdentical,...pixels,sample});
  }
  check('runtime.no-unexpected-errors',errors.length===0,errors);
  }finally{await browser.close();fs.writeFileSync(path.join(out,'checks.json'),JSON.stringify({engine,url:base,baseline,commit:process.env.SOURCE_SHA,physicalIpad:false,physicalWindows:false,blocked,checks,pass:checks.filter(c=>c.pass).length,fail:checks.filter(c=>!c.pass).length},null,2));}
