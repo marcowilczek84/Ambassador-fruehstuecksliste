@@ -351,7 +351,7 @@
            ${menuItem("Frühstück beenden", "finish", "Frühstück beenden", "Tagesabschluss vorbereiten")}
            ${menuItem("Statistik", "stats", "Statistik", "Tages- und Wochenübersicht")}`;
       const tipEntry = currentRole === "service" ? `<a class="structured-menu-item" role="menuitem" href="https://silk-trinkgeld-uiux-polish.vercel.app">
-        <span class="structured-menu-icon">${icon("tip")}</span><span><strong>${tr("Trinkgeld")}</strong><small>${tr("Zusatz-App öffnen")}</small></span></a>` : "";
+        <span class="structured-menu-icon"><img src="/branding/silk-trinkgeld.png?v=c4ba62e356f39f6d" width="32" height="32" style="display:block;border-radius:7px" alt="" aria-hidden="true"></span><span><strong>${tr("Trinkgeld")}</strong><small>${tr("Zusatz-App öffnen")}</small></span></a>` : "";
       layer.innerHTML = `<section class="reliable-app-menu structured-app-menu" role="menu" aria-label="${tr("Hauptmenü")}">
         <header><span><small>${tr("MENÜ")}</small><strong>${tr("Frühstücksliste")}</strong></span><button type="button" aria-label="${tr("Menü schließen")}">×</button></header>
         <div class="structured-menu-scroll">
