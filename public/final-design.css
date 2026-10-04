@@ -667,14 +667,19 @@
 #ambassador-ui .checkin-choice-modal .modal-kicker { font-size:12px!important; line-height:16px!important; }
 #ambassador-ui .checkin-choice-modal .frozen-checkin-breakfast { font-size:12px!important; line-height:16px!important; margin-top:4px!important; }
 #ambassador-ui .single-guest-value { border:0!important; background:transparent!important; box-shadow:none!important; padding:4px 0!important; width:auto!important; color:#141918!important; min-height:0!important; font-size:14px!important; }
-#ambassador-ui .final-success-facts { display:flex!important; flex-direction:column!important; gap:16px!important; }
+#ambassador-ui .restored-success-facts { display:block!important; }
 #ambassador-ui .final-success-rooms { display:flex; flex-direction:column; gap:12px; }
-#ambassador-ui .final-success-rooms strong { font-size:16px; line-height:20px; }
-#ambassador-ui .final-success-rooms p { margin:4px 0 0; font-size:14px; line-height:19px; overflow-wrap:anywhere; }
-#ambassador-ui .checkin-card .service-success-head { padding:16px!important; }
-#ambassador-ui .checkin-card .service-success-head h2 { font-size:22px!important; line-height:26px!important; margin:8px 0 0!important; }
-#ambassador-ui .checkin-card .checkin-mark { width:28px!important; height:28px!important; margin:0 0 8px!important; }
-#ambassador-ui .checkin-card .service-success-body { padding:16px!important; }
+#ambassador-ui .success-room-context > strong { font-size:16px; line-height:20px; }
+#ambassador-ui .success-room-context { padding:16px 0 8px; }
+#ambassador-ui .success-room-context p { margin:4px 0 0; font-size:14px; line-height:19px; overflow-wrap:anywhere; }
+#ambassador-ui .checkin-card .service-success-head { padding:20px 20px 16px!important; }
+#ambassador-ui .checkin-card .service-success-head h2 { font-size:28px!important; line-height:32px!important; margin:10px 0 5px!important; overflow-wrap:anywhere; }
+#ambassador-ui .checkin-card .checkin-companions { color:#141918!important; font-size:14px; line-height:19px; font-weight:600; overflow-wrap:anywhere; }
+#ambassador-ui .checkin-card .checkin-confirmation-count { color:#1c777b!important; font-size:13px; line-height:18px; margin-top:4px; }
+#ambassador-ui .checkin-card .checkin-mark { width:48px!important; height:48px!important; margin:0 0 18px!important; }
+#ambassador-ui .checkin-card .service-success-body { padding:0 20px 16px!important; }
+#ambassador-ui .checkin-card .checkin-fact small { font-size:12px; line-height:16px; }
+#ambassador-ui .checkin-card .checkin-fact strong { font-size:14px; line-height:19px; }
 #ambassador-ui .guest-info-edit-link:disabled { cursor:default; font-size:12px; line-height:16px; color:#747d7a; }
 @media(min-width:700px) {
   #ambassador-ui[data-app-role=reception] .app-shell:has(.guest-edit-modal) > :is(.hero,.search-wrap,.content,.topbar) { pointer-events:auto!important; }
