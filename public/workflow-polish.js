@@ -124,9 +124,8 @@
   const normalize = (value) => value.replace(/\s+/g, " ").trim();
 
   function icon(name) {
-    if (name === "reception") {
-      return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 13h16v8H4zM3 13h18M8 13v-2a4 4 0 0 1 8 0v2M9 17h6M12 3a2 2 0 1 0 0 4 2 2 0 0 0 0-4"/></svg>';
-    }
+    if (name === "reception") return roleSelectionIcon("reception");
+
     const paths = {
       guests: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>',
       finish: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
@@ -189,13 +188,12 @@
     window.setTimeout(() => layer.remove(), window.matchMedia("(prefers-reduced-motion: reduce)").matches ? workAreaTransition.reducedDuration : duration);
   }
 
-  // Approved Hybrid C: 32-unit vector geometry, displayed in the existing 26px role slots.
-  // Source: Ambassador_Icon_Entscheidungstest, page 8; functional app icons stay unchanged.
+  // Final approved branding, 04.10.2026. Geometry matches public/branding/*.svg.
+  // The existing 32-unit icon boxes and all functional icons remain unchanged.
   function roleSelectionIcon(role) {
-    const head = (cx) => `<circle cx="${cx}" cy="6.5" r="3.4"/>`;
     const glyph = role === "service"
-      ? `${head(11.8)}<path d="M17.1 14C15.7 13 13.8 12.8 11.5 12.8H9C5.4 12.8 3.1 15.5 3.1 19v2.9c0 1.6 1 2.6 2.6 2.6l11 .6"/><path d="M20.3 15.2h8.1c.7 0 1 .5.7 1.2l-3.8 11.1c-.2.7-.6 1.1-1.4 1.1h-8c-.7 0-1-.5-.7-1.2L19 16.3c.3-.8.6-1.1 1.3-1.1Z"/>`
-      : `${head(16)}<path d="M8.8 18c.3-3.3 2.7-5.2 7.2-5.2s6.9 1.9 7.2 5.2"/><rect x="4" y="20.5" width="24" height="8.1" rx="1"/><path d="M2.8 20.5h26.4"/>`;
+      ? `<g fill="none" stroke="#1c777b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="16" cy="7" r="4"/><path d="M11.5 23H7.2c-1.8 0-2.5-1.1-1.7-2.7l2.7-5.2c.8-1.1 2.3-1.6 4.2-1.6h7.2c1.9 0 3.4.5 4.2 1.6l2.7 5.2c.8 1.6.1 2.7-1.7 2.7h-3.5"/><rect x="11.5" y="16.3" width="8" height="11.3" rx=".6"/> </g>`
+      : `<g fill="none" stroke="#1c777b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="16" cy="7" r="4"/><path d="M7.8 18.6v-.8c0-2.4 2.2-4.3 4.8-4.3h6.8c2.6 0 4.8 1.9 4.8 4.3v.8"/><path d="M2.8 20.4h26.4"/><path d="M3.8 20.4v7.8h24.4v-7.8"/> </g>`;
     return `<svg class="role-hybrid-icon" viewBox="0 0 32 32" aria-hidden="true" data-role-symbol="${role === "service" ? "person-tablet" : "person-counter"}">${glyph}</svg>`;
   }
 
@@ -222,7 +220,7 @@
     chooser.setAttribute("aria-label", "Arbeitsbereich auswählen");
     chooser.innerHTML = `
       <img class="role-logo" src="/ambassador-logo.svg?v=confirmed-20260816-0517" alt="Ambassador Hotel Zürich">
-      <img class="role-app-logo" src="/breakfast-app-logo.svg" width="60" height="60" alt="" aria-hidden="true">
+      <img class="role-app-logo" src="/breakfast-app-logo.svg?v=31ee7f5467251454" width="60" height="60" alt="" aria-hidden="true">
       <span class="role-eyebrow">Frühstücksliste</span>
       <h1>${tr("Arbeitsbereich")}</h1>
       <p class="role-date">${displayDate}</p>
