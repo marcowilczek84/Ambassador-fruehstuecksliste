@@ -1,5 +1,5 @@
 (() => {
-  // Presentation scope only: the recovered application and its business rules stay unchanged.
+  // Existing UI adapters plus the bounded F01–F14 final corrections. Persistence stays in the native app.
   document.body.id = "ambassador-ui";
   let openOnly = false;
   let scheduled = false;
@@ -85,6 +85,10 @@
     "Mews-Liste auswählen": ["Select Mews list", "Chọn danh sách Mews"],
     "Nicht belegt": ["Vacant", "Phòng trống"]
   };
+
+  Object.assign(translations, {"Nur offene": ["Only open", "Chỉ còn mở"], "Zimmer belegt": ["Occupied rooms", "Phòng có khách"], "Gäste bearbeiten": ["Edit guests", "Chỉnh sửa khách"], "Keine Zimmer oder Gäste gefunden": ["No rooms or guests found", "Không tìm thấy phòng hoặc khách"], "Suche leeren": ["Clear search", "Xóa tìm kiếm"], "Mindestens einen Gastnamen eingeben. Ein belegtes Zimmer kann hier nicht geleert werden.": ["Enter at least one guest name. An occupied room cannot be cleared here.", "Nhập ít nhất một tên khách. Không thể làm trống phòng tại đây."], "Bitte eine ganze Personenzahl von 1 bis 8 eingeben.": ["Enter a whole number of people from 1 to 8.", "Nhập số người nguyên từ 1 đến 8."], "Die Personenzahl darf nicht kleiner als die Anzahl der Namen oder bereits erfassten Gäste sein.": ["The number of people cannot be less than the number of names or guests already checked in.", "Số người không được ít hơn số tên hoặc khách đã ghi nhận."], "Die Abreise darf nicht vor der Anreise liegen.": ["Departure cannot be before arrival.", "Ngày đi không được trước ngày đến."], "Ungespeicherte Änderungen": ["Unsaved changes", "Thay đổi chưa lưu"], "Gespeichert": ["Saved", "Đã lưu"], "Änderungen speichern?": ["Save changes?", "Lưu thay đổi?"], "Es gibt ungespeicherte Änderungen an diesem Zimmer.": ["This room has unsaved changes.", "Phòng này có thay đổi chưa lưu."], "Zurück": ["Back", "Quay lại"], "Verwerfen": ["Discard", "Hủy thay đổi"], "Speichern": ["Save", "Lưu"], "Liste wird gelesen …": ["Reading list …", "Đang đọc danh sách …"], "Laden fehlgeschlagen": ["Loading failed", "Tải thất bại"], "Aktuell": ["Up to date", "Hiện tại"], "Lokal gespeichert": ["Saved locally", "Đã lưu cục bộ"], "Wird synchronisiert …": ["Synchronising …", "Đang đồng bộ …"], "Weitere Änderungen werden synchronisiert …": ["Synchronising more changes …", "Đang đồng bộ thêm …"], "Liste lokal gelöscht": ["List deleted locally", "Đã xóa danh sách cục bộ"], "Auf allen Geräten gelöscht": ["Deleted on all devices", "Đã xóa trên mọi thiết bị"], "Gäste ohne Zimmer": ["Guests without a room", "Khách không có phòng"]});
+
+  translations["Mindestens einen Gastnamen eingeben."]=["Enter at least one guest name.","Nhập ít nhất một tên khách."];
 
   const languageIndex = () => activeLanguage === "EN" ? 0 : activeLanguage === "VI" ? 1 : -1;
   function tr(german) {
@@ -306,7 +310,7 @@
   function changeLanguage(shell, code) {
     if (!supportedLanguages.includes(code)) return;
     activeLanguage = code;
-    try { localStorage.setItem(languageKey, code); } catch (_) { /* local storage may be unavailable */ }
+    try { localStorage.setItem(languageKey, code); localStorage.setItem("ambassador-language", code.toLowerCase()); window.dispatchEvent(new CustomEvent("ambassador-language-change", {detail:code.toLowerCase()})); } catch (_) { /* local storage may be unavailable */ }
     translateUi(document);
     [40, 160, 400].forEach((delay) => window.setTimeout(() => {
       translateUi(document);
@@ -402,26 +406,17 @@
   function buildReceptionToolbar(shell) {
     const hero = shell.querySelector(".hero");
     if (!hero) return;
-    const uniqueRooms = new Map();
-    [...shell.querySelectorAll(".room-row")]
-      .filter((row) => !row.querySelector(".vacant"))
-      .forEach((row) => {
-        const room = normalize(row.querySelector(".room-number")?.textContent || "");
-        if (room && !uniqueRooms.has(room)) uniqueRooms.set(room, row);
-      });
-    const occupiedRows = [...uniqueRooms.values()];
-    const rooms = occupiedRows.length;
-    const guests = occupiedRows.reduce((total, row) => {
-      const node = row.querySelector(".people");
-      const match = normalize(node?.textContent || "").match(/\d+/);
-      return total + (match ? Number(match[0]) : 0);
-    }, 0);
+    const dailyRooms = readDailyState("ambassador-breakfast-rooms", "rooms", []).filter(r=>r.guests?.length && Number(r.people)>0);
+    const rooms = dailyRooms.length;
+    const guests = dailyRooms.reduce((sum,r)=>sum+Number(r.people),0);
     const existing = hero.querySelector(".reception-toolbar");
     if (existing) {
       const counts = existing.querySelectorAll(".reception-summary small b");
       [rooms, guests].forEach((value, index) => {
         if (counts[index] && counts[index].textContent !== String(value)) counts[index].textContent = String(value);
       });
+      const label=existing.querySelector(".reception-guest-label");
+      if(label && label.textContent!==tr(guests===1?"Gast":"Gäste"))label.textContent=tr(guests===1?"Gast":"Gäste");
       return;
     }
     const toolbar = document.createElement("div");
@@ -429,7 +424,7 @@
     toolbar.innerHTML = `
       <div class="reception-summary">
         <span class="reception-summary-icon">${icon("reception")}</span>
-        <span><strong>${tr("Heutige Liste")}</strong><small><b>${rooms}</b> ${tr("Zimmer")} <i>·</i> <b>${guests}</b> ${tr("Gäste")}</small></span>
+        <span><strong>${tr("Heutige Liste")}</strong><small><b>${rooms}</b> ${tr("Zimmer")} <i>·</i> <b>${guests}</b> <span class="reception-guest-label">${tr(guests===1?"Gast":"Gäste")}</span></small></span>
       </div>
       <div class="reception-actions">
         <button type="button" class="reception-upload">${tr("Neue Mews-Liste laden")}</button>
@@ -489,7 +484,7 @@
           value.className = `reception-${field}`;
           row.append(value);
         }
-        const text = vacant ? "–" : room?.[field] || "–";
+        const text = vacant ? "–" : receptionDisplayDate(room?.[field]);
         if (value.textContent !== text) value.textContent = text;
       }
     });
@@ -532,7 +527,7 @@
       const landscapeRoom = row.closest(".ipad-room-column") && window.matchMedia("(min-width:1000px) and (max-width:1400px) and (min-height:700px) and (orientation:landscape) and (pointer:coarse)").matches;
       const guestLines = [...names.querySelectorAll("strong")];
       guestLines.forEach((line, index) => {
-        const extra = landscapeRoom && index === 1 && guestLines.length > 2 ? `+${guestLines.length - 2}` : "";
+        const extra = index === 1 && guestLines.length > 2 ? `+${guestLines.length - 2}` : "";
         if (extra) { if (line.dataset.landscapeAdditional !== extra) line.dataset.landscapeAdditional = extra; }
         else if (line.hasAttribute("data-landscape-additional")) line.removeAttribute("data-landscape-additional");
       });
@@ -548,7 +543,7 @@
       // Presentation text for the approved landscape strip; native text/handlers
       // remain available unchanged in every other viewport and in dialogs.
       const breakfastLabel = names.querySelector(".meta-line");
-      if (breakfastLabel && window.matchMedia("(min-width:1000px) and (max-width:1400px) and (min-height:700px) and (orientation:landscape) and (pointer:coarse)").matches) {
+      if (breakfastLabel) {
         breakfastLabel.dataset.landscapeBreakfast = tr("inklusive");
       }
       let note = names.querySelector(".frozen-breakfast-note");
@@ -562,12 +557,16 @@
     });
   }
 
+  function displayTable(value) {
+    if (!value || value === "Kein Tisch") return tr("Kein Tisch");
+    if (value === "Roomservice") return tr("Roomservice");
+    return value.replace(/^Tisch /, activeLanguage === "EN" ? "Table " : activeLanguage === "VI" ? "Bàn " : "Tisch ");
+  }
+
   function receptionDisplayDate(value) {
     const parts = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value || "");
     if (!parts) return value || "–";
-    return new Intl.DateTimeFormat(activeLanguage === "EN" ? "en-GB" : activeLanguage === "VI" ? "vi-VN" : "de-CH", {
-      day: "2-digit", month: "2-digit", year: "numeric"
-    }).format(new Date(Number(parts[1]), Number(parts[2]) - 1, Number(parts[3])));
+    return `${parts[3]}.${parts[2]}.${parts[1]}`;
   }
 
   function receptionReadView(root) {
@@ -581,15 +580,16 @@
     modal.setAttribute("aria-modal", window.innerWidth >= 700 ? "false" : "true");
     if (modal.dataset.viewRoom !== selectedRoom) {
       modal.dataset.viewRoom = selectedRoom;
-      modal.dataset.uiEdit = "false";
+      modal.dataset.uiEdit = String(window.innerWidth >= 700);
       modal.querySelector(".reception-view-body")?.remove();
       modal.querySelector(".reception-view-actions")?.remove();
     }
+    if (window.innerWidth >= 700) modal.dataset.uiEdit = "true";
     const editing = modal.dataset.uiEdit === "true";
     if (modal.classList.contains("reception-view-mode") === editing) modal.classList.toggle("reception-view-mode", !editing);
     const h2 = modal.querySelector(".modal-head h2"), subline = modal.querySelector(".modal-head p");
     const names = modal.querySelector(".guest-edit-grid textarea")?.value || "";
-    const title = editing ? tr("Gast bearbeiten") : `${tr("Zimmer")} ${selectedRoom}`;
+    const title = editing && window.innerWidth < 700 ? tr("Gast bearbeiten") : `${tr("Zimmer")} ${selectedRoom}`;
     const subtitle = editing ? tr("Gast- und Aufenthaltsdaten anpassen") : names.split("\n").join(" · ");
     if (h2 && h2.textContent !== title) h2.textContent = title;
     if (subline && subline.textContent !== subtitle) subline.textContent = subtitle;
@@ -611,7 +611,7 @@
     remark.className = "reception-view-remark";
     const label = document.createElement("h3"), text = document.createElement("p");
     label.textContent = tr("Bemerkung");
-    text.textContent = modal.querySelector(".remark-preview")?.textContent || tr("Keine Bemerkung gespeichert");
+    text.textContent = modal.querySelector(".final-note-field textarea")?.value || modal.querySelector(".remark-preview")?.textContent || tr("Keine Bemerkung gespeichert");
     remark.append(label, text); body.append(details, remark);
     const footer = document.createElement("div");
     footer.className = "reception-view-actions";
@@ -812,7 +812,7 @@
     const block = document.createElement("section");
     block.className = "room-checkin-management";
     const people = Math.max(0, Number(room.arrivedCount || 0) - Number(room.departedCount || 0)) || Number(action.people || 0);
-    block.innerHTML = `<div><span>${tr("Frühstücks-Check-in")}</span><strong>${people} ${people === 1 ? tr("Gast") : tr("Gäste")} · ${room.table || tr("Kein Tisch")}</strong></div><button type="button" class="room-checkin-undo">${tr("Check-in rückgängig machen")}</button>`;
+    block.innerHTML = `<div><span>${tr("Frühstücks-Check-in")}</span><strong>${people} ${people === 1 ? tr("Gast") : tr("Gäste")} · ${displayTable(room.table)}</strong></div><button type="button" class="room-checkin-undo">${tr("Check-in rückgängig machen")}</button>`;
     const actions = modal.querySelector(".modal-actions");
     (actions?.parentElement || modal.querySelector(".modal-body"))?.insertBefore(block, actions || null);
     block.querySelector("button")?.addEventListener("click", () => {
@@ -872,7 +872,7 @@
     return `<details class="special-guest-today"><summary>${tr("Heute erfasst")} · ${entries.reduce((sum, entry) => sum + Number(entry.people || 0), 0)} ›</summary><div class="special-guest-entry-list">${entries.map((entry) => {
       const label = entry.guestType === "opera" ? tr("Opera Gäste") : tr("Externe Gäste");
       const time = new Intl.DateTimeFormat(activeLanguage === "EN" ? "en-GB" : activeLanguage === "VI" ? "vi-VN" : "de-CH", { hour: "2-digit", minute: "2-digit" }).format(new Date(Number(entry.at || Date.now())));
-      return `<div class="special-guest-entry"><span><strong>${label}</strong><small>${Number(entry.people || 0)} ${Number(entry.people || 0) === 1 ? tr("Gast") : tr("Gäste")} · ${entry.table || tr("Kein Tisch")} · ${time}</small></span><button type="button" data-special-undo="${entry.actionId}">${tr("Rückgängig")}</button></div>`;
+      return `<div class="special-guest-entry"><span><strong>${label}</strong><small>${Number(entry.people || 0)} ${Number(entry.people || 0) === 1 ? tr("Gast") : tr("Gäste")} · ${displayTable(entry.table)} · ${time}</small></span><button type="button" data-special-undo="${entry.actionId}">${tr("Rückgängig")}</button></div>`;
     }).join("")}</div></details>`;
   }
 
@@ -1004,18 +1004,19 @@
     const content = shell.querySelector(".content");
     if (!content) return;
     const query = normalize(shell.querySelector(".search-box input")?.value || "");
-    const visibleRows = [...content.querySelectorAll(".room-row")].some((row) => row.getClientRects().length && getComputedStyle(row).display !== "none");
-    let empty = content.querySelector(".search-empty-state");
-    if (!empty) {
-      empty = document.createElement("p");
-      empty.className = "search-empty-state";
-      empty.setAttribute("role", "status");
-      content.append(empty);
-    }
-    const text = activeLanguage === "EN" ? "No rooms or guests found" : activeLanguage === "VI" ? "Không tìm thấy phòng hoặc khách" : "Keine Zimmer oder Gäste gefunden";
-    if (empty.textContent !== text) empty.textContent = text;
-    const hidden = !query || visibleRows;
-    if (empty.hidden !== hidden) empty.hidden = hidden;
+    const rows = [...content.querySelectorAll('.room-row')].filter(row=>row.getClientRects().length && getComputedStyle(row).display!=='none');
+    const count = new Set(rows.map(row=>row.querySelector('.room-number')?.textContent.trim())).size;
+    let summary=content.querySelector('.final-search-summary');
+    if(!summary){summary=document.createElement('p');summary.className='final-search-summary';summary.setAttribute('role','status');content.prepend(summary);}
+    const summaryText = activeLanguage === 'EN' ? `${count} ${count===1?'result':'results'}` : activeLanguage === 'VI' ? `${count} kết quả` : `${count} ${count===1?'Treffer':'Treffer'}`;
+    if(summary.textContent!==summaryText)summary.textContent=summaryText;
+    summary.hidden=!query;
+    let empty=content.querySelector('.search-empty-state');
+    if(!empty){empty=document.createElement('div');empty.className='search-empty-state';empty.innerHTML='<p></p><button type="button"></button>';content.append(empty);empty.querySelector('button').addEventListener('click',()=>{const input=shell.querySelector('.search-box input');Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(input,'');input.dispatchEvent(new Event('input',{bubbles:true}));input.focus();schedule();});}
+    const text=tr('Keine Zimmer oder Gäste gefunden');
+    if(empty.querySelector('p').textContent!==text)empty.querySelector('p').textContent=text;
+    empty.querySelector('button').textContent=tr('Suche leeren');
+    empty.hidden=!query || count>0;
 
     if (document.body.dataset.appRole !== "reception") { shell.querySelector(".reception-detail-empty")?.remove(); return; }
     let detail = shell.querySelector(".reception-detail-empty");
@@ -1176,8 +1177,9 @@
     const searchInput = shell.querySelector('.search-box input');
     const searchActive = Boolean(searchInput && normalize(searchInput.value || ""));
     shell.classList.toggle("compact-results", openOnly || searchActive);
+    shell.classList.toggle("search-active",searchActive);
     button.setAttribute("aria-pressed", String(openOnly));
-    button.textContent = openOnly ? tr("Nur offene anzeigen") : tr("Alle anzeigen");
+    button.textContent = openOnly ? tr("Nur offene") : tr("Alle anzeigen");
     markOpenRooms(shell);
   }
 
@@ -1200,7 +1202,7 @@
     const button = document.createElement("button");
     button.type = "button";
     button.className = "ipad-special-guest-shortcut";
-    button.innerHTML = `<span>＋</span> ${tr("Gäste ohne Zimmer erfassen").replace(" erfassen", "")}`;
+    button.innerHTML = `<span>＋</span> ${tr("Gäste ohne Zimmer")}`;
     button.addEventListener("click", openSpecialGuestDialog);
     wrap.append(button);
   }
@@ -1238,14 +1240,15 @@
           });
         });
       }
-      if (!selectedTable && !roomService) {
-        primary.disabled = false;
-        primary.textContent = tr("Ohne Tisch erfassen");
-      } else if (selectedTable) {
-        primary.textContent = activeLanguage === "EN" ? `Check in at table ${selectedTable}` : activeLanguage === "VI" ? `Ghi nhận tại bàn ${selectedTable}` : `An Tisch ${selectedTable} erfassen`;
-      } else if (roomService) {
-        primary.textContent = tr("Roomservice erfassen");
-      }
+      const mainCount=Number(modal.querySelector('.checkin-quantity-grid button.active')?.textContent.match(/\d+/)?.[0] || 1);
+      const grouped=[...modal.querySelectorAll('.group-room-quantity button.active')].reduce((sum,button)=>sum+Number(button.textContent),0);
+      const count=mainCount+grouped;
+      const label=activeLanguage==='EN'?`Check in ${count} ${count===1?'guest':'guests'}`:activeLanguage==='VI'?`Ghi nhận ${count} khách`:`${count} ${count===1?'Gast':'Gäste'} erfassen`;
+      const service=roomService?tr('Roomservice'):selectedTable?`${activeLanguage==='EN'?'Table':activeLanguage==='VI'?'Bàn':'Tisch'} ${selectedTable}`:'';
+      const text=label+(service?' · '+service:'');
+      primary.disabled=false;
+      if(primary.textContent!==text)primary.textContent=text;
+
     });
 
     root.querySelectorAll(".checkin-fact").forEach((fact) => {
@@ -1390,6 +1393,150 @@
     });
   }
 
+  // F01/F03/F10: validation and navigation protection around the existing React editor.
+  // Persisting still uses the application's one existing save handler; never autosave.
+  const editorFields = (modal) => ({
+    guests: modal?.querySelector('.guest-edit-grid > label.wide textarea'),
+    people: modal?.querySelector('input[type="number"]'),
+    arrival: modal?.querySelectorAll('input[type="date"]')[0],
+    departure: modal?.querySelectorAll('input[type="date"]')[1],
+    included: modal?.querySelector('input[type="checkbox"]'),
+    note: modal?.querySelector('.final-note-field textarea')
+  });
+  function editorState() {
+    if (sessionStorage.getItem(roleKey) !== 'reception') return null;
+    const modal = document.querySelector('.guest-edit-modal');
+    if (!modal) return null;
+    const room = Number(modal.querySelector('.modal-kicker')?.textContent.match(/\d+/)?.[0]);
+    const original = readDailyState('ambassador-breakfast-rooms', 'rooms', []).find(r => r.room === room);
+    if (!original) return null;
+    const f = editorFields(modal);
+    const draft = {room, guests:(f.guests?.value || '').split('\n'), people:f.people?.value, arrival:f.arrival?.value || '', departure:f.departure?.value || '', included:!!f.included?.checked, note:f.note?.value || ''};
+    const canonical = r => JSON.stringify({guests:(r.guests || []).map(x=>x.trim()).filter(Boolean),people:Number(r.people),arrival:r.arrival || '',departure:r.departure || '',included:!!r.included,note:r.note || ''});
+    return {modal, f, original, draft, dirty:canonical(draft)!==canonical(original)};
+  }
+  function editorErrors(draft, original) {
+    const errors = {};
+    const names = (draft.guests || []).map(x => x.trim()).filter(Boolean);
+    const people = Number(draft.people);
+    if (!names.length) errors.guests = tr(original?.guests?.length ? 'Mindestens einen Gastnamen eingeben. Ein belegtes Zimmer kann hier nicht geleert werden.' : 'Mindestens einen Gastnamen eingeben.');
+    if (!Number.isInteger(people) || people < 1 || people > 8) errors.people = tr('Bitte eine ganze Personenzahl von 1 bis 8 eingeben.');
+    else if (people < Math.max(names.length, Number(original.arrivedCount || 0), Number(original.departedCount || 0))) errors.people = tr('Die Personenzahl darf nicht kleiner als die Anzahl der Namen oder bereits erfassten Gäste sein.');
+    if (draft.arrival && draft.departure && draft.departure < draft.arrival) errors.departure = tr('Die Abreise darf nicht vor der Anreise liegen.');
+    return errors;
+  }
+  function validateEditor(draft, original, focus = false) {
+    const state = editorState();
+    const errors = editorErrors(draft, original);
+    if (state) {
+      for (const name of ['guests','people','arrival','departure']) {
+        const field = state.f[name];
+        if (!field) continue;
+        const id = `final-error-${name}`;
+        let error = state.modal.querySelector('#'+id);
+        if (errors[name] && !error) { error = document.createElement('small'); error.id=id; error.className='final-field-error'; field.after(error); }
+        if (error) { if (error.textContent !== (errors[name] || '')) error.textContent=errors[name] || ''; error.hidden=!errors[name]; }
+        if (errors[name]) { field.setAttribute('aria-invalid','true'); field.setAttribute('aria-describedby',id); }
+        else { field.removeAttribute('aria-invalid'); field.removeAttribute('aria-describedby'); }
+      }
+      if (focus && Object.keys(errors).length) state.f[Object.keys(errors)[0]]?.focus();
+    }
+    return !Object.keys(errors).length;
+  }
+  function updateEditor() {
+    const state=editorState(); if (!state) return;
+    const {modal,dirty,draft,original}=state;
+    const editing=!modal.classList.contains('reception-view-mode');
+    const valid=validateEditor(draft,original);
+    const save=modal.querySelector(':scope > .modal-actions .primary');
+    if (save) save.disabled=!dirty || !valid;
+    modal.dataset.dirty=String(dirty);
+    let status=modal.querySelector('.final-dirty-status');
+    if (!status) { status=document.createElement('small');status.className='final-dirty-status';status.setAttribute('role','status');modal.querySelector('.modal-head > div')?.append(status); }
+    const text=dirty?tr('Ungespeicherte Änderungen'):tr('Gespeichert');
+    if (status.textContent!==text) status.textContent=text;
+    status.hidden=!editing;
+  }
+  function afterEditorSave() {
+    const modal=document.querySelector('.guest-edit-modal');
+    if (!modal) return;
+    if (innerWidth < 700) modal.dataset.uiEdit='false';
+    modal.querySelector('.reception-view-body')?.remove();
+    modal.querySelector('.reception-view-actions')?.remove();
+    requestAnimationFrame(schedule);
+  }
+  function validateRoomAdd(draft, original) {
+    const modal=document.querySelector('.dialog-add-room');
+    const errors=editorErrors(draft,{...original,arrivedCount:0,departedCount:0});
+    const fields={guests:modal?.querySelector('textarea'),people:modal?.querySelector('input[type=number]')};
+    for(const name of ['guests','people']) {
+      const field=fields[name];if(!field)continue;
+      let error=field.parentElement.querySelector('.final-field-error');
+      if(!error){error=document.createElement('small');error.id='final-add-error-'+name;error.className='final-field-error';field.after(error);}
+      error.textContent=errors[name]||'';error.hidden=!errors[name];
+      if(errors[name]){field.setAttribute('aria-invalid','true');field.setAttribute('aria-describedby',error.id);}
+      else {field.removeAttribute('aria-invalid');field.removeAttribute('aria-describedby');}
+    }
+    if(Object.keys(errors).length)fields[Object.keys(errors)[0]]?.focus();
+    return !Object.keys(errors).length;
+  }
+  window.ambassadorFinal = {validate:validateEditor, saved:afterEditorSave, validateRoomAdd};
+  let allowEditorLeave=false;
+  function continueEditorAction(action) {
+    allowEditorLeave=true;
+    try { action(); } finally { allowEditorLeave=false; }
+  }
+  function confirmEditorLeave(action) {
+    if (document.querySelector('.final-dirty-layer')) return;
+    const state=editorState(); if (!state?.dirty) { continueEditorAction(action); return; }
+    const previous=document.activeElement;
+    const layer=document.createElement('div'); layer.className='final-dirty-layer';
+    layer.innerHTML=`<section class="final-dirty-dialog" role="alertdialog" aria-modal="true" aria-labelledby="final-dirty-title"><header><h2 id="final-dirty-title">${tr('Änderungen speichern?')}</h2></header><p>${tr('Es gibt ungespeicherte Änderungen an diesem Zimmer.')}</p><footer><button data-dirty="back">${tr('Zurück')}</button><button data-dirty="discard">${tr('Verwerfen')}</button><button data-dirty="save" class="primary">${tr('Speichern')}</button></footer></section>`;
+    const background=[...document.body.children].filter(x=>!x.matches('script,style,link')).map(x=>[x,x.inert]);
+    background.forEach(([x])=>x.inert=true); document.body.append(layer);
+    const close=()=>{layer.remove();background.forEach(([x,inert])=>x.inert=inert);if(previous?.isConnected)previous.focus({preventScroll:true});};
+    layer.addEventListener('click',event=>{
+      const choice=event.target.closest('[data-dirty]')?.dataset.dirty; if(!choice)return;
+      close();
+      if(choice==='back')return;
+      if(choice==='save') {
+        const current=editorState();
+        if(!current || !validateEditor(current.draft,current.original,true))return;
+        current.modal.querySelector(':scope > .modal-actions .primary')?.click();
+        // Native save is synchronous to local persistence; continue only when no draft remains.
+        requestAnimationFrame(()=>{if(!editorState()?.dirty)continueEditorAction(action);});
+      } else continueEditorAction(action);
+    });
+    layer.addEventListener('keydown',event=>{
+      if(event.key==='Escape'){event.preventDefault();close();return;}
+      if(event.key!=='Tab')return;
+      const buttons=[...layer.querySelectorAll('button')],first=buttons[0],last=buttons.at(-1);
+      if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus();}
+      else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus();}
+    });
+    layer.querySelector('[data-dirty=back]').focus();
+  }
+  document.addEventListener('click',event=>{
+    if(allowEditorLeave || !(event.target instanceof Element))return;
+    const state=editorState(); if(!state?.dirty)return;
+    const target=event.target.closest('.guest-edit-modal .close-button,.room-row,.home-button,.active-role-badge,.reception-upload,.reception-add,[data-menu-action]');
+    const backdrop=event.target.matches('.modal-layer') && event.target.contains(state.modal);
+    if(!target&&!backdrop)return;
+    if(target?.matches('.room-row')&&Number(target.querySelector('.room-number')?.textContent)===state.draft.room)return;
+    event.preventDefault();event.stopImmediatePropagation();
+    const clicked=target||event.target;
+    confirmEditorLeave(()=>clicked.isConnected&&clicked.click());
+  },true);
+  document.addEventListener('keydown',event=>{
+    if(event.key!=='Escape'||document.querySelector('.final-dirty-layer,.reliable-app-menu-layer'))return;
+    const state=editorState();if(!state?.dirty)return;
+    event.preventDefault();event.stopImmediatePropagation();
+    confirmEditorLeave(()=>state.modal.querySelector('.close-button')?.click());
+  },true);
+  window.addEventListener('beforeunload',event=>{if(!allowEditorLeave&&editorState()?.dirty){event.preventDefault();event.returnValue='';}});
+  document.addEventListener('input',event=>{if(event.target.closest('.guest-edit-modal'))schedule();});
+  document.addEventListener('change',event=>{if(event.target.closest('.guest-edit-modal'))schedule();});
+
   function apply() {
     scheduled = false;
     const entry = document.querySelector(".entry-screen");
@@ -1427,6 +1574,7 @@
     if (shell) serviceEntryTransition(shell);
     enhanceRoomUndo(document);
     if (shell) updateWorkspaceFeedback(shell);
+    updateEditor();
     if (shell) {
       const finished = Boolean(shell.querySelector(".bottom-button.finish.finished"));
       shell.classList.toggle("breakfast-finished", finished);
@@ -1460,30 +1608,8 @@
       entryOpen.dataset.sharedAnimationTriggered = "true";
       window.setTimeout(showSharedListReadyAnimation, 80);
     }
-    const tableButton = event.target instanceof Element ? event.target.closest(".checkin-choice-modal .table-picker button") : null;
-    if (tableButton) {
-      const table = normalize(tableButton.textContent || "");
-      [0, 40, 120].forEach((delay) => window.setTimeout(() => {
-        const modal = document.querySelector(".checkin-choice-modal");
-        const primary = modal?.querySelector(".modal-actions .primary");
-        if (!modal || !primary) return;
-        modal.dataset.selectedTable = table;
-        primary.disabled = false;
-        primary.textContent = activeLanguage === "EN" ? `Check in at table ${table}` : activeLanguage === "VI" ? `Ghi nhận tại bàn ${table}` : `An Tisch ${table} erfassen`;
-      }, delay));
-    }
-    const roomServiceButton = event.target instanceof Element ? event.target.closest(".checkin-choice-modal .room-service-option") : null;
-    if (roomServiceButton) {
-      [0, 40, 120].forEach((delay) => window.setTimeout(() => {
-        const modal = document.querySelector(".checkin-choice-modal");
-        const primary = modal?.querySelector(".modal-actions .primary");
-        if (!modal || !primary) return;
-        modal.dataset.selectedTable = "";
-        primary.disabled = false;
-        primary.textContent = tr("Roomservice erfassen");
-      }, delay));
-    }
-  }, true);
+    if(event.target instanceof Element && event.target.closest('.checkin-choice-modal')) [0,40,120].forEach(delay=>setTimeout(()=>updateCheckinDialog(document),delay));
+  });
 
   window.addEventListener("resize", schedule, { passive: true });
 
