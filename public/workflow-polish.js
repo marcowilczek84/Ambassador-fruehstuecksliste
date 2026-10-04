@@ -350,7 +350,7 @@
         : `${menuItem("special-guests", "guests", "Gäste ohne Zimmer erfassen", "Opera- oder externe Gäste")}
            ${menuItem("Frühstück beenden", "finish", "Frühstück beenden", "Tagesabschluss vorbereiten")}
            ${menuItem("Statistik", "stats", "Statistik", "Tages- und Wochenübersicht")}`;
-      const tipEntry = currentRole === "service" ? `<a class="structured-menu-item" role="menuitem" href="https://silk-trinkgeld-uiux-polish.vercel.app">
+      const tipEntry = currentRole === "service" ? `<a class="structured-menu-item" role="menuitem" href="https://silk-trinkgeld-uiux-polish.vercel.app" style="grid-template-columns:42px minmax(0,1fr)!important;gap:11px!important">
         <span class="structured-menu-icon" style="border:0!important;width:42px!important;height:42px!important"><img src="/branding/silk-trinkgeld.png?v=c4ba62e356f39f6d" width="42" height="42" style="display:block;width:42px;height:42px;object-fit:contain;border-radius:10px" alt="" aria-hidden="true"></span><span><strong>${tr("Trinkgeld")}</strong><small>${tr("Zusatz-App öffnen")}</small></span></a>` : "";
       layer.innerHTML = `<section class="reliable-app-menu structured-app-menu" role="menu" aria-label="${tr("Hauptmenü")}">
         <header><span><small>${tr("MENÜ")}</small><strong>${tr("Frühstücksliste")}</strong></span><button type="button" aria-label="${tr("Menü schließen")}">×</button></header>
