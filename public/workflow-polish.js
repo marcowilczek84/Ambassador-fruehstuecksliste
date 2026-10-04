@@ -137,7 +137,7 @@
       globe: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/>'
     };
     if (paths[name]) return `<svg viewBox="0 0 24 24" aria-hidden="true">${paths[name]}</svg>`;
-    return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h12v6a4 4 0 0 1-4 4H9a4 4 0 0 1-4-4V8Zm12 2h1a3 3 0 0 1 0 6h-1M3 21h18M8 3v2m4-2v2m4-2v2"/></svg>';
+    return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h12v6a4 4 0 0 1-4 4H9a4 4 0 0 1-4-4V8Zm12 2h1a3 3 0 0 1 0 6h-1M3 21h18"/><path d="M10 2c2 1.5-2 2.5 0 4" data-breakfast-steam="single"/></svg>';
   }
 
   const menuItem = (action, iconName, title, subtitle = "") => `
