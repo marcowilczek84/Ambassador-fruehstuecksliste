@@ -551,30 +551,6 @@
       if (breakfastLabel && window.matchMedia("(min-width:1000px) and (max-width:1400px) and (min-height:700px) and (orientation:landscape) and (pointer:coarse)").matches) {
         breakfastLabel.dataset.landscapeBreakfast = tr("inklusive");
       }
-      // Decorative reuse of the existing counter and native BedDouble glyphs.
-      // Restricted to the landscape main view; no React-owned text or actions change.
-      const badge = row.closest(".ipad-room-column") ? row.querySelector(".table-badge") : null;
-      if (badge) {
-        const landscape = window.matchMedia("(min-width:1000px) and (max-width:1400px) and (min-height:700px) and (orientation:landscape) and (pointer:coarse)").matches;
-        let glyph = badge.querySelector(".landscape-service-icon");
-        if (!landscape) glyph?.remove();
-        else {
-          const roomservice = normalize(badge.textContent) === tr("Roomservice");
-          const kind = roomservice ? "roomservice" : "table";
-          if (!glyph) {
-            glyph = document.createElement("span");
-            glyph.className = "landscape-service-icon";
-            glyph.setAttribute("aria-hidden", "true");
-            badge.prepend(glyph);
-          }
-          if (glyph.dataset.iconKind !== kind) {
-            glyph.dataset.iconKind = kind;
-            glyph.innerHTML = roomservice
-              ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 20v-8a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v8"/><path d="M4 10V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v4"/><path d="M12 4v6"/><path d="M2 18h20"/></svg>'
-              : icon("reception");
-          }
-        }
-      }
       let note = names.querySelector(".frozen-breakfast-note");
       const needsNote = !row.classList.contains("included") && !names.querySelector(".vacant");
       if (needsNote && !note) {

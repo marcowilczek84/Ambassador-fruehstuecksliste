@@ -3,7 +3,7 @@ const fs=require('node:fs'),path=require('node:path'),cp=require('node:child_pro
 const pw=require('playwright'),seed=require('./ui-fixture.cjs'),{PNG}=require('pngjs');
 const base=process.env.PREVIEW_URL||'http://app.test/index-live.html',origin=new URL(base).origin;
 const out=process.env.DESIGN_OUTPUT||'ipad-service-design-evidence',engine=process.env.TEST_ENGINE||'webkit';
-const baseline='6d00f417868e52a5f257481582ab60d8a07b5eef';
+const baseline='c97b92e3d5eb22d5a6672c62c76287489ae1172c';
 fs.mkdirSync(out,{recursive:true});
 const checks=[];let blocked=0;const errors=[];
 function check(name,pass,detail){checks.push({name,pass,detail});console.log((pass?'PASS ':'FAIL ')+name);}
@@ -63,7 +63,8 @@ const visualStructure=()=>{
   check(id+'.existing-kpi-icons-visible',await p.locator('.hero-fact > svg').evaluateAll(es=>es.length===3&&es.every(e=>e.getBoundingClientRect().width>=18&&getComputedStyle(e).display!=='none')));
   check(id+'.existing-people-icons-visible',await p.locator('.ipad-room-column .people svg').evaluateAll(es=>es.length>0&&es.every(e=>e.getBoundingClientRect().width===14&&getComputedStyle(e).display!=='none')));
   check(id+'.inclusive-yellow-outline-cup',await p.locator('.ipad-room-column .meta-line svg').evaluateAll(es=>es.length>0&&es.every(e=>getComputedStyle(e).color==='rgb(243, 207, 36)'&&getComputedStyle(e).fill==='none')));
-  check(id+'.table-roomservice-fixed-icons',await p.locator('.landscape-service-icon').evaluateAll(es=>es.some(e=>e.dataset.iconKind==='table')&&es.some(e=>e.dataset.iconKind==='roomservice')&&es.every(e=>Math.abs(e.getBoundingClientRect().width-13)<.1)),await p.locator('.landscape-service-icon').evaluateAll(es=>es.map(e=>({kind:e.dataset.iconKind,width:e.getBoundingClientRect().width}))));
+  check(id+'.table-roomservice-text-only',await p.locator('.ipad-room-column .table-badge').evaluateAll(es=>es.length>0&&es.every(e=>!e.querySelector('svg'))));
+  check(id+'.capture-table-roomservice-right-aligned',await p.locator('.ipad-room-column .room-state:not(.redundant-open-status),.ipad-room-column .table-badge').evaluateAll(es=>es.length>0&&es.every(e=>getComputedStyle(e).justifyContent==='flex-end'&&getComputedStyle(e).textAlign==='right')));
   check(id+'.table-content-contained',await p.locator('.ipad-room-column .table-badge').evaluateAll(es=>es.every(e=>{const range=document.createRange();range.selectNodeContents(e);const r=range.getBoundingClientRect(),b=e.getBoundingClientRect();return r.left>=b.left-.5&&r.right<=b.right+.5;})));
   check(id+'.neutral-breakfast-without-cup',await p.locator('.frozen-breakfast-note:not([hidden])').evaluateAll(es=>es.length>0&&es.every(e=>!e.querySelector('svg')&&getComputedStyle(e).color==='rgb(116, 125, 122)')));
   await p.getByRole('button',{name:'Zimmer 31 öffnen',exact:true}).click();check(id+'.full-names-existing-dialog',(await p.locator('.checkin-choice-modal').textContent()).includes('Alexandra Sehr Langer Familienname'));await p.locator('.checkin-choice-modal .close-button').click();await p.locator('.checkin-choice-modal').waitFor({state:'detached'});
