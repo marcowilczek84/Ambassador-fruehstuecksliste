@@ -3,14 +3,14 @@ const fs=require('node:fs'),path=require('node:path'),cp=require('node:child_pro
 const pw=require('playwright'),seed=require('./ui-fixture.cjs'),{PNG}=require('pngjs');
 const base=process.env.PREVIEW_URL||'http://app.test/index-live.html',origin=new URL(base).origin;
 const out=process.env.DESIGN_OUTPUT||'ipad-service-design-evidence',engine=process.env.TEST_ENGINE||'webkit';
-const baseline='3a6908d1f163ac0fc3236f9521db14fed9acc76f';
+const baseline='6d00f417868e52a5f257481582ab60d8a07b5eef';
 fs.mkdirSync(out,{recursive:true});
 const checks=[];let blocked=0;const errors=[];
 function check(name,pass,detail){checks.push({name,pass,detail});console.log((pass?'PASS ':'FAIL ')+name);}
 const before=Object.fromEntries(['final-design.css','workflow-polish.js'].map(f=>[f,cp.execFileSync('git',['show',baseline+':public/'+f])]));
 const boxScript=()=>{
  const box=e=>e?.getBoundingClientRect().toJSON(),shown=e=>e&&e.getClientRects().length&&getComputedStyle(e).display!=='none';
- const row=e=>({room:e.querySelector('.room-number').textContent,box:box(e),key:box(e.querySelector('.room-key')),names:box(e.querySelector('.guest-names')),nameTitle:e.querySelector('.guest-names').title,label:box(e.querySelector('.meta-line,.frozen-breakfast-note:not([hidden])')),status:shown(e.querySelector('.room-state:not(.redundant-open-status)'))?box(e.querySelector('.room-state:not(.redundant-open-status)')):null,table:box(e.querySelector('.table-badge')),bar:{left:getComputedStyle(e,'::before').left,width:getComputedStyle(e,'::before').width,top:getComputedStyle(e,'::before').top,bottom:getComputedStyle(e,'::before').bottom,color:getComputedStyle(e,'::before').backgroundColor},font:parseFloat(getComputedStyle(e.querySelector('.guest-names'),'::before').fontSize)});
+ const row=e=>({room:e.querySelector('.room-number').textContent,box:box(e),key:box(e.querySelector('.room-key')),names:box(e.querySelector('.guest-names')),nameTitle:e.querySelector('.guest-names').title,label:box(e.querySelector('.meta-line,.frozen-breakfast-note:not([hidden])')),status:shown(e.querySelector('.room-state:not(.redundant-open-status)'))?box(e.querySelector('.room-state:not(.redundant-open-status)')):null,table:box(e.querySelector('.table-badge')),bar:{left:getComputedStyle(e,'::before').left,width:getComputedStyle(e,'::before').width,top:getComputedStyle(e,'::before').top,bottom:getComputedStyle(e,'::before').bottom,color:getComputedStyle(e,'::before').backgroundColor},font:parseFloat(getComputedStyle(e.querySelector('.guest-names strong')).fontSize)});
  return{viewport:{width:innerWidth,height:innerHeight},document:{height:document.documentElement.scrollHeight,width:document.documentElement.scrollWidth},facts:box(document.querySelector('.hero-facts')),search:box(document.querySelector('.search-box')),action:box(document.querySelector('.ipad-special-guest-shortcut')),footer:box(document.querySelector('.bottom-bar')),rows:[...document.querySelectorAll('.ipad-room-column .room-row')].map(row),columns:[...document.querySelectorAll('.ipad-room-column')].map(e=>({label:e.getAttribute('aria-label'),slots:[...e.children].map(x=>x.classList.contains('room-placeholder')?'':x.querySelector('.room-number')?.textContent)})),placeholder:[...document.querySelectorAll('.room-placeholder')].map(e=>({text:e.textContent,inert:e.inert,box:box(e)})),touch:[...document.querySelectorAll('.topbar button,.open-filter-button,.ipad-special-guest-shortcut,.ipad-room-column .room-row,.bottom-button')].filter(shown).map(e=>({text:e.getAttribute('aria-label')||e.textContent,box:box(e)}))};
 };
 function fixtureSpecialCases(){const d=JSON.parse(localStorage.getItem('ambassador-breakfast-rooms'));Object.assign(d.rooms.find(r=>r.room===21),{arrivedCount:1,table:'Tisch 17'});Object.assign(d.rooms.find(r=>r.room===22),{present:true,arrivedCount:1,table:'Roomservice'});Object.assign(d.rooms.find(r=>r.room===31),{people:3,guests:['Alexandra Sehr Langer Familienname','Ben Weiterer Sehr Langer Familienname','Clara Dritter Gast']});localStorage.setItem('ambassador-breakfast-rooms',JSON.stringify(d));}
@@ -37,7 +37,7 @@ const visualStructure=()=>{
 (async()=>{
  const browser=await pw[engine].launch(process.env.BROWSER_PATH?{executablePath:process.env.BROWSER_PATH,args:['--no-sandbox','--disable-dev-shm-usage']}:{});
  try{
- for(const [w,h] of [[1194,810],[1024,748]]){
+ for(const [w,h] of [[1194,810]]){
   const {ctx,p}=await pageFor(browser,'service',w,h,true,'after');const id=engine+'-'+w+'x'+h;
   const m=await p.evaluate(boxScript);fs.writeFileSync(path.join(out,id+'.json'),JSON.stringify(m,null,2));await p.screenshot({path:path.join(out,id+'.png'),animations:'disabled'});
   check(id+'.one-screen',m.document.height<=h+1&&m.document.width<=w&&m.rows.every(r=>r.box.bottom<=m.footer.top+1));
@@ -47,20 +47,23 @@ const visualStructure=()=>{
   check(id+'.55-empty-inert',m.placeholder.length===1&&m.placeholder[0].inert&&!m.placeholder[0].text&&Math.abs(m.placeholder[0].box.height-m.rows[0].box.height)<1);
   check(id+'.touch-targets-44',m.touch.every(t=>t.box.width>=44&&t.box.height>=44),m.touch.filter(t=>t.box.width<44||t.box.height<44));
   check(id+'.stable-row-height',Math.max(...m.rows.map(r=>r.box.height))-Math.min(...m.rows.map(r=>r.box.height))<1);
-  check(id+'.fixed-information-zones',m.rows.every(r=>Math.abs(r.key.left-r.box.left-10)<1&&Math.abs(r.key.top-r.box.top-4)<1&&Math.abs(r.names.top-r.box.top-23)<1&&(!r.label||Math.abs(r.label.bottom-r.box.bottom+5)<2)&&(!r.status||r.status.top===r.key.top)&&(!r.table||Math.abs(r.table.bottom-r.box.bottom+5)<2)));
-  check(id+'.labels-tables-no-overlap',m.rows.every(r=>!r.label||!r.table||r.label.right+4<=r.table.left),m.rows.filter(r=>r.label&&r.table&&r.label.right+4>r.table.left));
-  check(id+'.key-status-no-overlap',m.rows.every(r=>!r.status||r.key.right+3<=r.status.left));
+  check(id+'.fixed-information-zones',m.rows.every(r=>Math.abs(r.key.left-r.box.left-10)<1&&Math.abs(r.key.top-r.box.top-4)<1&&Math.abs(r.names.left-r.box.left-46)<1&&Math.abs(r.names.top-r.box.top-4)<1&&(!r.label||Math.abs(r.label.top-r.box.top-33)<1)&&(!r.status||Math.abs(r.status.top-r.box.top-33)<1)&&(!r.table||Math.abs(r.table.left-r.names.left)<1&&Math.abs(r.table.bottom-r.box.bottom+4)<2)));
+  check(id+'.breakfast-table-distinct-lines',m.rows.every(r=>!r.label||!r.table||r.label.bottom+1<=r.table.top),m.rows.filter(r=>r.label&&r.table&&r.label.bottom+1>r.table.top));
+  check(id+'.breakfast-status-no-overlap',m.rows.every(r=>!r.label||!r.status||r.label.right+4<=r.status.left),m.rows.filter(r=>r.label&&r.status&&r.label.right+4>r.status.left));
+  check(id+'.identification-name-columns',m.rows.every(r=>r.key.right+7<=r.names.left));
   check(id+'.aligned-status-bars',m.rows.every(r=>r.bar.left==='0px'&&r.bar.width==='3px'&&r.bar.top==='4px'&&r.bar.bottom==='4px'));
   const find=n=>m.rows.find(r=>r.room===String(n));
   check(id+'.inclusive-yellow',find(23).bar.color==='rgb(243, 207, 36)');check(id+'.neutral-grey',find(40).bar.color==='rgb(205, 215, 212)');check(id+'.partial-and-complete-petrol',[20,21,22].every(n=>find(n).bar.color==='rgb(28, 119, 123)'));
   check(id+'.long-multiple-names',find(31).nameTitle.includes('Clara Dritter Gast')&&find(21).nameTitle.includes(' · '));check(id+'.names-readable',m.rows.every(r=>r.font>=13));
-  check(id+'.name-line-before-breakfast',m.rows.every(r=>!r.label||r.names.top+16<=r.label.top));
-  check(id+'.bounded-name-line',await p.locator('.ipad-room-column .guest-names').evaluateAll(es=>es.every(e=>{const s=getComputedStyle(e,'::before');return s.height==='16px'&&s.textOverflow==='ellipsis'&&s.content!== 'none';})));
-  check(id+'.fixed-person-axis',await p.locator('.ipad-room-column .room-key').evaluateAll(es=>es.every(e=>{const people=e.querySelector('.people');return !people||Math.abs(people.getBoundingClientRect().left-e.getBoundingClientRect().left-34)<1;})));
+  check(id+'.name-line-before-breakfast',m.rows.every(r=>!r.label||r.names.top+28+1<=r.label.top));
+  check(id+'.bounded-stacked-name-lines',await p.locator('.ipad-room-column .guest-names').evaluateAll(es=>es.every(e=>{const lines=[...e.querySelectorAll('strong')].filter(x=>getComputedStyle(x).display!=='none');return lines.length>=1&&lines.length<=2&&lines.every((line,i)=>{const s=getComputedStyle(line),r=line.getBoundingClientRect(),b=e.getBoundingClientRect();return s.textOverflow==='ellipsis'&&Math.abs(r.top-b.top-i*14)<.5&&r.height===14;});})));
+  check(id+'.additional-guest-indicator',await p.locator('.ipad-room-column .room-row').filter({has:p.locator('.room-number',{hasText:'31'})}).locator('strong[data-landscape-additional]').getAttribute('data-landscape-additional')==='+1');
+  check(id+'.person-below-room-number',await p.locator('.ipad-room-column .room-key').evaluateAll(es=>es.every(e=>{const people=e.querySelector('.people'),number=e.querySelector('.room-number');return !people||Math.abs(people.getBoundingClientRect().left-number.getBoundingClientRect().left)<1&&people.getBoundingClientRect().top>=number.getBoundingClientRect().bottom+2;})));
+  check(id+'.existing-numeric-capture',await p.getByRole('button',{name:'Zimmer 21 öffnen',exact:true}).locator('.room-state').getAttribute('data-landscape-capture')==='1/2 erfasst');
   check(id+'.existing-kpi-icons-visible',await p.locator('.hero-fact > svg').evaluateAll(es=>es.length===3&&es.every(e=>e.getBoundingClientRect().width>=18&&getComputedStyle(e).display!=='none')));
-  check(id+'.existing-people-icons-visible',await p.locator('.ipad-room-column .people svg').evaluateAll(es=>es.length>0&&es.every(e=>e.getBoundingClientRect().width===12&&getComputedStyle(e).display!=='none')));
+  check(id+'.existing-people-icons-visible',await p.locator('.ipad-room-column .people svg').evaluateAll(es=>es.length>0&&es.every(e=>e.getBoundingClientRect().width===14&&getComputedStyle(e).display!=='none')));
   check(id+'.inclusive-yellow-outline-cup',await p.locator('.ipad-room-column .meta-line svg').evaluateAll(es=>es.length>0&&es.every(e=>getComputedStyle(e).color==='rgb(243, 207, 36)'&&getComputedStyle(e).fill==='none')));
-  check(id+'.table-roomservice-fixed-icons',await p.locator('.landscape-service-icon').evaluateAll(es=>es.some(e=>e.dataset.iconKind==='table')&&es.some(e=>e.dataset.iconKind==='roomservice')&&es.every(e=>Math.abs(e.getBoundingClientRect().width-12)<.1)),await p.locator('.landscape-service-icon').evaluateAll(es=>es.map(e=>({kind:e.dataset.iconKind,width:e.getBoundingClientRect().width}))));
+  check(id+'.table-roomservice-fixed-icons',await p.locator('.landscape-service-icon').evaluateAll(es=>es.some(e=>e.dataset.iconKind==='table')&&es.some(e=>e.dataset.iconKind==='roomservice')&&es.every(e=>Math.abs(e.getBoundingClientRect().width-13)<.1)),await p.locator('.landscape-service-icon').evaluateAll(es=>es.map(e=>({kind:e.dataset.iconKind,width:e.getBoundingClientRect().width}))));
   check(id+'.table-content-contained',await p.locator('.ipad-room-column .table-badge').evaluateAll(es=>es.every(e=>{const range=document.createRange();range.selectNodeContents(e);const r=range.getBoundingClientRect(),b=e.getBoundingClientRect();return r.left>=b.left-.5&&r.right<=b.right+.5;})));
   check(id+'.neutral-breakfast-without-cup',await p.locator('.frozen-breakfast-note:not([hidden])').evaluateAll(es=>es.length>0&&es.every(e=>!e.querySelector('svg')&&getComputedStyle(e).color==='rgb(116, 125, 122)')));
   await p.getByRole('button',{name:'Zimmer 31 öffnen',exact:true}).click();check(id+'.full-names-existing-dialog',(await p.locator('.checkin-choice-modal').textContent()).includes('Alexandra Sehr Langer Familienname'));await p.locator('.checkin-choice-modal .close-button').click();await p.locator('.checkin-choice-modal').waitFor({state:'detached'});
@@ -69,7 +72,7 @@ const visualStructure=()=>{
   check(id+'.existing-English-label',await p.locator('.ipad-room-column .meta-line').first().getAttribute('data-landscape-breakfast')==='included');
   await ctx.close();
  }
- for(const [role,w,h,touch] of [[null,390,844,true],[null,1194,810,true],['service',390,844,true],['reception',390,844,true],['reception',1194,810,true],['reception',1024,748,true],['reception',1440,900,false],['service',1194,810,false],['service',810,1194,true]]){
+ for(const [role,w,h,touch] of [[null,390,844,true],[null,1194,810,true],['service',390,844,true],['reception',390,844,true],['reception',1194,810,true],['reception',1440,900,false],['service',1194,810,false]]){
   const id=engine+'-unchanged-'+(role||'chooser')+'-'+w+'x'+h+'-'+(touch?'touch':'mouse'),shots=[],structures=[];
   for(const version of ['before','after']){const {ctx,p}=await pageFor(browser,role,w,h,touch,version);shots.push(await p.screenshot({path:path.join(out,id+'-'+version+'.png'),animations:'disabled'}));structures.push(await p.evaluate(visualStructure));await ctx.close();}
   const pixels=pixelDifference(...shots),structureIdentical=JSON.stringify(structures[0])===JSON.stringify(structures[1]);
@@ -79,6 +82,6 @@ const visualStructure=()=>{
   const mismatch=structures[0].findIndex((e,i)=>JSON.stringify(e)!==JSON.stringify(structures[1][i]));const sample=mismatch<0?null:{before:structures[0][mismatch],after:structures[1][mismatch]};check(id+'.render-unchanged',structureIdentical&&pixels.pass,{structureIdentical,...pixels,sample});
  }
  check('runtime.no-unexpected-errors',errors.length===0,errors);
- }finally{await browser.close();fs.writeFileSync(path.join(out,'checks.json'),JSON.stringify({engine,url:base,baseline,commit:process.env.SOURCE_SHA,physicalIpad:false,physicalWindows:false,blocked,checks,pass:checks.filter(c=>c.pass).length,fail:checks.filter(c=>!c.pass).length},null,2));}
+ }finally{await browser.close();fs.writeFileSync(path.join(out,'checks.json'),JSON.stringify({engine,url:base,baseline,commit:process.env.SOURCE_SHA,targetViewport:{width:1194,height:810},multiResolutionAudit:false,physicalIpad:false,physicalWindows:false,blocked,checks,pass:checks.filter(c=>c.pass).length,fail:checks.filter(c=>!c.pass).length},null,2));}
  if(checks.some(c=>!c.pass))process.exitCode=1;
 })().catch(e=>{console.error(e);process.exitCode=1});

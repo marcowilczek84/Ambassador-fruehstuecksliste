@@ -529,6 +529,22 @@
       const names = row.querySelector(".guest-names");
       if (!names) return;
       names.title = [...names.querySelectorAll("strong")].map((x) => x.textContent).join(" · ");
+      const landscapeRoom = row.closest(".ipad-room-column") && window.matchMedia("(min-width:1000px) and (max-width:1400px) and (min-height:700px) and (orientation:landscape) and (pointer:coarse)").matches;
+      const guestLines = [...names.querySelectorAll("strong")];
+      guestLines.forEach((line, index) => {
+        const extra = landscapeRoom && index === 1 && guestLines.length > 2 ? `+${guestLines.length - 2}` : "";
+        if (extra) { if (line.dataset.landscapeAdditional !== extra) line.dataset.landscapeAdditional = extra; }
+        else if (line.hasAttribute("data-landscape-additional")) line.removeAttribute("data-landscape-additional");
+      });
+      const capture = row.querySelector(".room-state");
+      if (capture) {
+        // Shorten only the visual numeric fraction, preserving native status text/semantics.
+        const nativeStatus = normalize(capture.textContent);
+        const compactStatus = nativeStatus.replace(/(\d+)\s+(?:von|of)\s+(\d+)/, "$1/$2");
+        if (landscapeRoom && compactStatus !== nativeStatus) {
+          if (capture.dataset.landscapeCapture !== compactStatus) capture.dataset.landscapeCapture = compactStatus;
+        } else if (capture.hasAttribute("data-landscape-capture")) capture.removeAttribute("data-landscape-capture");
+      }
       // Presentation text for the approved landscape strip; native text/handlers
       // remain available unchanged in every other viewport and in dialogs.
       const breakfastLabel = names.querySelector(".meta-line");
