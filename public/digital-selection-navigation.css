@@ -1,0 +1,53 @@
+/* DIGITAL 1.0 · role selection + menus ONLY.
+ * Keep separate from digital-breakfast.css: room layout belongs to its own branch.
+ * !important narrowly wins the existing final-design/workflow cascade.
+ */
+#ambassador-ui .role-options button{
+  background:var(--ad-white)!important;color:var(--ad-ink)!important;
+  border:1px solid var(--ad-selection-line)!important;border-radius:var(--ad-radius)!important;
+  box-shadow:var(--ad-selection-shadow)!important;column-gap:var(--ad-space-4)!important;
+  transition:border-color .15s ease,box-shadow .15s ease!important;
+}
+#ambassador-ui .role-options .role-icon{background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important}
+#ambassador-ui .role-options .role-icon svg{width:32px!important;height:32px!important}
+#ambassador-ui .role-options .role-icon svg :is(g,path,circle,rect){fill:none!important;stroke:var(--ad-accent)!important;stroke-width:var(--ad-icon-stroke)!important;vector-effect:non-scaling-stroke}
+#ambassador-ui .role-options strong{color:var(--ad-ink)!important}
+#ambassador-ui .role-options small{color:var(--ad-muted)!important}
+#ambassador-ui .role-options button:active{border-color:var(--ad-accent)!important;box-shadow:var(--ad-selection-shadow-pressed)!important}
+#ambassador-ui .role-options button:focus-visible{outline:2px solid var(--ad-accent)!important;outline-offset:3px!important}
+@media(hover:hover){#ambassador-ui .role-options button:hover{background:var(--ad-white)!important;border-color:var(--ad-accent)!important}}
+
+#ambassador-ui .structured-app-menu .structured-menu-item{
+  grid-template-columns:var(--ad-nav-icon) minmax(0,1fr)!important;gap:var(--ad-nav-gap)!important;
+  min-height:56px!important;padding:10px 8px!important;
+  color:var(--ad-ink)!important;background:var(--ad-white)!important;
+  border-radius:0!important;box-shadow:none!important;
+}
+#ambassador-ui .structured-app-menu .structured-menu-item > span:not(.structured-menu-icon){grid-column:2!important;min-width:0!important}
+#ambassador-ui .structured-app-menu .structured-menu-icon{
+  display:grid!important;place-items:center!important;width:var(--ad-nav-icon)!important;height:var(--ad-nav-icon)!important;
+  color:inherit!important;background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;
+}
+#ambassador-ui .structured-app-menu .structured-menu-icon svg,
+#ambassador-ui .header-actions :is(.icon-button,.home-button) svg{
+  width:var(--ad-nav-icon)!important;height:var(--ad-nav-icon)!important;
+  fill:none!important;stroke:currentColor!important;stroke-width:var(--ad-icon-stroke)!important;
+  stroke-linecap:round!important;stroke-linejoin:round!important;background:transparent!important;
+}
+#ambassador-ui .structured-app-menu .structured-menu-icon svg *,
+#ambassador-ui .header-actions :is(.icon-button,.home-button) svg *{vector-effect:non-scaling-stroke}
+/* Only paint the existing header controls; preserve their slots and room geometry. */
+#ambassador-ui .header-actions :is(.icon-button,.home-button){color:var(--ad-ink)!important;background:transparent!important;border-color:transparent!important;box-shadow:none!important}
+#ambassador-ui .structured-app-menu .structured-menu-item strong{font-weight:600!important;line-height:1.4!important}
+#ambassador-ui .structured-app-menu .structured-menu-item small{font-size:12px!important;line-height:1.4!important;color:var(--ad-muted)!important}
+#ambassador-ui .structured-app-menu .structured-language{grid-template-columns:var(--ad-nav-icon) minmax(0,1fr) auto!important;gap:var(--ad-nav-gap)!important;color:var(--ad-ink)!important}
+#ambassador-ui .structured-app-menu .structured-language > div{background:var(--ad-white)!important;border:0!important;padding:0!important;gap:4px!important;box-shadow:none!important}
+#ambassador-ui .structured-app-menu .structured-language button{min-width:40px!important;height:44px!important;border-radius:0!important;border-bottom:2px solid transparent!important;background:transparent!important;color:var(--ad-ink)!important;box-shadow:none!important;font-weight:400!important}
+#ambassador-ui .structured-app-menu .structured-language button[aria-pressed="true"]{color:var(--ad-accent)!important;border-bottom-color:var(--ad-accent)!important;background:transparent!important;font-weight:600!important}
+#ambassador-ui .structured-app-menu .structured-menu-item:active{background:var(--ad-active)!important;color:var(--ad-accent)!important}
+@media(hover:hover){#ambassador-ui .structured-app-menu .structured-menu-item:hover{background:var(--ad-active)!important;color:var(--ad-accent)!important}}
+/* Approved app-logo link retains its original asset/42px slot. */
+#ambassador-ui .structured-app-menu .structured-menu-item:has(img){column-gap:var(--ad-nav-gap)!important}
+#ambassador-ui .structured-app-menu > header button{display:grid!important;place-items:center!important;min-width:44px!important;min-height:44px!important;background:transparent!important;border:0!important;box-shadow:none!important;color:var(--ad-ink)!important;font-size:0!important}
+#ambassador-ui .structured-app-menu > header button::before{content:"";width:20px;height:20px;background:currentColor;mask:url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"%3E%3Cpath d="M5 5l10 10M15 5 5 15" fill="none" stroke="black" stroke-width="1.75" stroke-linecap="round"/%3E%3C/svg%3E') center/contain no-repeat}
+@media(max-width:359px){#ambassador-ui .structured-app-menu .structured-language{column-gap:8px!important}#ambassador-ui .structured-app-menu .structured-language button{min-width:36px!important}}
