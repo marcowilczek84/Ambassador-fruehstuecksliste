@@ -522,7 +522,7 @@
       const names = row.querySelector(".guest-names");
       if (!names) return;
       names.title = [...names.querySelectorAll("strong")].map((x) => x.textContent).join(" · ");
-      const landscapeRoom = row.closest(".ipad-room-column") && window.matchMedia("(min-width:1000px) and (max-width:1400px) and (min-height:700px) and (orientation:landscape) and (pointer:coarse)").matches;
+      const landscapeRoom = row.closest(".ipad-room-column") && window.matchMedia("(min-width:700px)").matches;
       const guestLines = [...names.querySelectorAll("strong")];
       guestLines.forEach((line, index) => {
         const extra = index === 1 && guestLines.length > 2 ? `+${guestLines.length - 2}` : "";
@@ -1537,6 +1537,8 @@
 
   function apply() {
     scheduled = false;
+    // React hydration can remove the presentation scope from the recovered body.
+    if (document.body.id !== "ambassador-ui") document.body.id = "ambassador-ui";
     const entry = document.querySelector(".entry-screen");
     if (entry) renderRoleSelection(entry);
     if (entry) updateEntryForRole(entry);
