@@ -1,0 +1,20 @@
+/* AMBASSADOR DIGITAL 1.0 — scoped presentation; room geometry and status logic retained. */
+#ambassador-ui{--ui-petrol:var(--ad-accent);--ui-text:var(--ad-ink);--ui-muted:var(--ad-muted);--ui-line:var(--ad-line);--ui-soft:#fff;background:#fff;color:var(--ad-ink);font-family:var(--ad-font)}
+#ambassador-ui :is(button,input,textarea,select){font-family:var(--ad-font)!important}
+#ambassador-ui :is(.app-shell,.entry-screen,.topbar,.hero,.content,.bottom-bar,.menu-panel){background:#fff!important}
+#ambassador-ui :is(.role-options button,.search-box,.menu-panel,.load-card){border-radius:var(--ad-radius)!important;box-shadow:none!important}
+#ambassador-ui .role-options button{border:0!important;border-top:1px solid var(--ad-line)!important;border-bottom:1px solid var(--ad-line)!important;padding:20px 16px!important}
+#ambassador-ui .role-eyebrow{font-weight:600!important;color:var(--ad-ink)!important;font-size:23px!important}
+#ambassador-ui .role-app-logo{width:48px!important;height:48px!important}
+#ambassador-ui .role-logo{width:min(225px,54vw)!important}
+#ambassador-ui :is(.page-title h1,.role-options strong){font-weight:600!important}
+#ambassador-ui .search-box{border-color:var(--ad-field)!important}
+#ambassador-ui :is(.icon-button,.header-actions button){border:0!important;border-radius:var(--ad-radius)!important;box-shadow:none!important;color:var(--ad-accent)!important}
+#ambassador-ui :is(.room-row,.section,.hero-fact){border-radius:0!important;box-shadow:none!important}
+#ambassador-ui :is(.guest-edit-modal,.checkin-choice-modal,.special-guest-modal,.dialog-add-room,.import-modal,.checkin-card){border-radius:var(--ad-dialog-radius)!important}
+#ambassador-ui :is(.modal-action,.table-picker button,.person-choice,.breakfast-toggle button,.load-button){border-radius:var(--ad-radius)!important}
+#ambassador-ui :is(input,textarea,select){border-radius:var(--ad-radius)!important}
+#ambassador-ui :is(.menu-item,.menu-companion-link){border-radius:0!important;box-shadow:none!important}
+#ambassador-ui svg:not(.success-rings svg){stroke-width:1.6}
+#ambassador-ui .role-icon svg{stroke-width:1.6!important}
+@media(max-width:560px){#ambassador-ui .role-eyebrow{font-size:21px!important}}
