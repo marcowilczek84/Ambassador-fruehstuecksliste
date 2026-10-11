@@ -1,5 +1,5 @@
 /* AMBASSADOR DIGITAL 1.0 — scoped presentation; five room columns and status logic retained. */
-#ambassador-ui{--ui-petrol:var(--ad-accent);--ui-text:var(--ad-ink);--ui-muted:var(--ad-muted);--ui-line:var(--ad-line);--ui-soft:#fff;background:#fff;color:var(--ad-ink);font-family:var(--ad-font)}
+#ambassador-ui{--ui-petrol:var(--ad-accent);--ui-text:var(--ad-ink);--ui-muted:var(--ad-muted);--ui-line:var(--ad-line);--ui-soft:#fff;background:#fff;color:var(--ad-ink);font-family:var(--ad-font)!important}
 #ambassador-ui :is(button,input,textarea,select){font-family:var(--ad-font)!important}
 #ambassador-ui :is(.app-shell,.entry-screen,.topbar,.hero,.content,.bottom-bar,.menu-panel){background:#fff!important}
 #ambassador-ui :is(.role-options button,.search-box,.menu-panel,.load-card){border-radius:var(--ad-radius)!important;box-shadow:none!important}
