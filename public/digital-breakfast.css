@@ -100,6 +100,7 @@
 #ambassador-ui[data-app-role=service] .room-placeholder{visibility:hidden!important;pointer-events:none!important;background:none!important}
 #ambassador-ui[data-app-role=service] .compact-results .ipad-room-grid .room-row{grid-column:auto!important;grid-row:auto!important}
 #ambassador-ui[data-app-role=service] .compact-results .room-placeholder{display:none!important}
+#ambassador-ui[data-app-role=service] .open-only:not(.search-active) .ipad-room-grid .room-row[data-open-match=false]{display:none!important}
 #ambassador-ui[data-app-role=service] .ipad-room-grid .room-row{position:relative!important;display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:0!important;min-width:0!important;width:100%!important;margin:0!important;padding:4px 6px 5px 11px!important;border:0!important;border-radius:0!important;background:#fff!important;box-shadow:none!important;overflow:visible!important;text-align:left!important}
 #ambassador-ui[data-app-role=service] .ipad-room-grid .room-row::before{display:block!important;content:""!important;width:3px!important;height:auto!important;left:0!important;top:6px!important;bottom:6px!important;border-radius:0!important;background:var(--ad-field)!important}
 #ambassador-ui[data-app-role=service] .ipad-room-grid .room-row.included::before{background:var(--ad-yellow)!important}
