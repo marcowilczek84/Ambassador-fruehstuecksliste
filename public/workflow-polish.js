@@ -216,12 +216,12 @@
         .format(new Date(Number(dateParts[3]), Number(dateParts[2]) - 1, Number(dateParts[1])))
       : currentDate;
     const chooser = document.createElement("section");
-    chooser.className = "role-selection";
+    chooser.className = "role-selection ad-start-brand";
     chooser.setAttribute("aria-label", "Arbeitsbereich auswählen");
     chooser.innerHTML = `
-      <img class="role-logo" src="/ambassador-logo.svg?v=confirmed-20260816-0517" alt="Ambassador Hotel Zürich">
-      <img class="role-app-logo" src="/breakfast-app-logo.svg?v=31ee7f5467251454" width="60" height="60" alt="" aria-hidden="true">
-      <span class="role-eyebrow">SILK Frühstück</span>
+      <img class="role-logo ad-silk-logo" src="/silk-wordmark.jpg" alt="SILK Restaurant &amp; Bar">
+      <img class="role-app-logo ad-app-icon" src="/app-icon-breakfast.svg" width="44" height="44" alt="" aria-hidden="true">
+      <span class="role-eyebrow ad-app-name">Frühstück</span>
       <h1>${tr("Arbeitsbereich")}</h1>
       <p class="role-date">${displayDate}</p>
       <div class="role-options">
@@ -351,7 +351,7 @@
            ${menuItem("Frühstück beenden", "finish", "Frühstück beenden", "Tagesabschluss vorbereiten")}
            ${menuItem("Statistik", "stats", "Statistik", "Tages- und Wochenübersicht")}`;
       const tipEntry = currentRole === "service" ? `<a class="structured-menu-item" role="menuitem" href="https://silk-trinkgeld-uiux-polish.vercel.app" style="grid-template-columns:42px minmax(0,1fr)!important;gap:11px!important">
-        <span class="structured-menu-icon" style="border:0!important;width:42px!important;height:42px!important"><img src="/branding/silk-trinkgeld.png?v=c4ba62e356f39f6d" width="42" height="42" style="display:block;width:42px;height:42px;object-fit:contain;border-radius:10px" alt="" aria-hidden="true"></span><span><strong>${tr("Trinkgeld")}</strong><small>${tr("Zusatz-App öffnen")}</small></span></a>` : "";
+        <span class="structured-menu-icon" style="border:0!important;width:42px!important;height:42px!important"><img src="/app-icon-tips.svg" width="42" height="42" style="display:block;width:42px;height:42px;object-fit:contain;border-radius:0" alt="" aria-hidden="true"></span><span><strong>${tr("Trinkgeld")}</strong><small>${tr("Zusatz-App öffnen")}</small></span></a>` : "";
       layer.innerHTML = `<section class="reliable-app-menu structured-app-menu" role="menu" aria-label="${tr("Hauptmenü")}">
         <header><span><small>${tr("MENÜ")}</small><strong>SILK Frühstück</strong></span><button type="button" aria-label="${tr("Menü schließen")}">×</button></header>
         <div class="structured-menu-scroll">
