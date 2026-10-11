@@ -57,7 +57,7 @@
 }
 #ambassador-ui :is(.bottom-button,.open-filter-button,.special-guest-button){border-radius:var(--ad-radius)!important;box-shadow:none!important}
 @media(min-width:1000px) and (orientation:landscape){
-#ambassador-ui[data-app-role=service] .app-shell{grid-template-rows:56px 68px 52px minmax(0,1fr) 58px!important}
+#ambassador-ui[data-app-role=service] .app-shell{grid-template-rows:56px 96px 52px minmax(0,1fr) 58px!important}
 #ambassador-ui[data-app-role=service] .topbar{height:56px!important;min-height:56px!important}
 #ambassador-ui[data-app-role=service] .hero{padding-block:0!important;border-radius:0!important}
 }
