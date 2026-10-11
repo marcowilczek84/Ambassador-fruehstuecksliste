@@ -219,7 +219,7 @@
     chooser.className = "role-selection ad-start-brand";
     chooser.setAttribute("aria-label", "Arbeitsbereich auswählen");
     chooser.innerHTML = `
-      <img class="role-logo ad-silk-logo" src="/silk-wordmark.jpg" alt="SILK Restaurant &amp; Bar">
+      <img class="role-logo ad-hotel-logo" src="/ambassador-logo.svg?v=confirmed-20260816-0517" alt="Ambassador Hotel Zürich">
       <img class="role-app-logo ad-app-icon" src="/app-icon-breakfast.svg" width="44" height="44" alt="" aria-hidden="true">
       <span class="role-eyebrow ad-app-name">Frühstück</span>
       <h1>${tr("Arbeitsbereich")}</h1>
@@ -353,7 +353,7 @@
       const tipEntry = currentRole === "service" ? `<a class="structured-menu-item" role="menuitem" href="https://silk-trinkgeld-uiux-polish.vercel.app" style="grid-template-columns:42px minmax(0,1fr)!important;gap:11px!important">
         <span class="structured-menu-icon" style="border:0!important;width:42px!important;height:42px!important"><img src="/app-icon-tips.svg" width="42" height="42" style="display:block;width:42px;height:42px;object-fit:contain;border-radius:0" alt="" aria-hidden="true"></span><span><strong>${tr("Trinkgeld")}</strong><small>${tr("Zusatz-App öffnen")}</small></span></a>` : "";
       layer.innerHTML = `<section class="reliable-app-menu structured-app-menu" role="menu" aria-label="${tr("Hauptmenü")}">
-        <header><span><small>${tr("MENÜ")}</small><strong>SILK Frühstück</strong></span><button type="button" aria-label="${tr("Menü schließen")}">×</button></header>
+        <header><span><small>${tr("MENÜ")}</small><strong>Ambassador Frühstück</strong></span><button type="button" aria-label="${tr("Menü schließen")}">×</button></header>
         <div class="structured-menu-scroll">
           <section><h3>${tr(currentRole === "reception" ? "REZEPTION" : "SERVICE")}</h3>${roleActions}</section>
           <section><h3>${tr("EINSTELLUNGEN")}</h3>
@@ -363,7 +363,7 @@
           </section>
           ${tipEntry ? `<section><h3>${tr("ZUSATZ-APP")}</h3>${tipEntry}</section>` : ""}
         </div>
-        <footer>SILK Frühstück · ${previewVersion}</footer>
+        <footer>Ambassador Frühstück · ${previewVersion}</footer>
       </section>`;
       layer.addEventListener("click", (clickEvent) => {
         if (clickEvent.target === layer || clickEvent.target.closest(".structured-app-menu > header button")) closeMenu();
@@ -961,7 +961,7 @@
       const compactHeader = window.matchMedia("(max-width: 560px)").matches;
       title.textContent = compactHeader
         ? tr(role === "reception" ? "Rezeption" : "Service")
-        : role === "reception" ? `SILK Frühstück · ${tr("Rezeption")}` : `SILK Frühstück · ${tr("Service")}`;
+        : role === "reception" ? `Ambassador Frühstück · ${tr("Rezeption")}` : `Ambassador Frühstück · ${tr("Service")}`;
     }
     const search = shell.querySelector('.search-box input');
     if (search) search.placeholder = tr(role === "reception" ? "Zimmer oder Name suchen" : "Zimmer, Name oder Tisch suchen");
@@ -1056,7 +1056,7 @@
     root.querySelectorAll(".menu-card").forEach((menu) => {
       menu.querySelectorAll("*").forEach((node) => {
         if (node.children.length === 0 && /Ambassador Liste · 8\.\d+\.\d+/.test(normalize(node.textContent || ""))) {
-          node.textContent = `SILK Frühstück · ${previewVersion}`;
+          node.textContent = `Ambassador Frühstück · ${previewVersion}`;
         }
       });
     });
