@@ -1,4 +1,4 @@
-/* QA ONLY: original media rules rendered with coarse pointer CSS in Chromium. */
+/* QA ONLY: coarse pointer CSS simulation in Chromium, not Safari/device emulation. */
 /* AMBASSADOR DIGITAL 1.0 — scoped presentation; five room columns and status logic retained. */
 #ambassador-ui{--ui-petrol:var(--ad-accent);--ui-text:var(--ad-ink);--ui-muted:var(--ad-muted);--ui-line:var(--ad-line);--ui-soft:#fff;background:#fff;color:var(--ad-ink);font-family:var(--ad-font)!important}
 #ambassador-ui :is(button,input,textarea,select){font-family:var(--ad-font)!important}
@@ -56,58 +56,80 @@
 #ambassador-ui[data-app-role=service] .ipad-room-column .vacant{font-size:12px!important;color:var(--ad-muted)!important}
 }
 #ambassador-ui :is(.bottom-button,.open-filter-button,.special-guest-button){border-radius:var(--ad-radius)!important;box-shadow:none!important}
+/* Header arrangement from the user's August iPad photo:
+   brand / title / navigation; open guests beside KPIs; one full search row.
+   Existing elements and handlers only. iPhone and reception are outside scope. */
 @media(min-width:1000px) and (orientation:landscape){
-#ambassador-ui[data-app-role=service] .app-shell{grid-template-rows:56px 96px 52px minmax(0,1fr) 58px!important}
+#ambassador-ui[data-app-role=service] .app-shell{grid-template-rows:56px 56px 56px minmax(0,1fr) 58px!important}
 #ambassador-ui[data-app-role=service] .topbar{height:56px!important;min-height:56px!important}
-#ambassador-ui[data-app-role=service] .hero{padding-block:0!important;border-radius:0!important}
+#ambassador-ui[data-app-role=service] .hero{grid-row:2!important;grid-column:1!important;display:grid!important;grid-template-columns:minmax(0,1fr) 48%!important;grid-template-rows:1fr!important;align-items:center!important;gap:12px!important;position:relative!important;padding:0 24px!important;border:0!important;border-radius:0!important;min-height:0!important}
+#ambassador-ui[data-app-role=service] .hero h2{grid-column:1!important;grid-row:1!important;position:static!important;display:flex!important;align-items:center!important;justify-content:flex-start!important;gap:12px!important;margin:0!important;padding:0!important;width:auto!important;min-height:0!important;font-size:23px!important;line-height:28px!important;white-space:nowrap!important}
+#ambassador-ui[data-app-role=service] .hero .open-guests-phone{display:none!important}
+#ambassador-ui[data-app-role=service] .hero .open-guests-tablet{display:inline!important}
+#ambassador-ui[data-app-role=service] .open-filter-button{position:static!important;inset:auto!important;flex:0 0 auto!important;min-height:44px!important;height:44px!important;padding:0 4px!important;margin:0!important;font-size:12px!important;line-height:16px!important}
+#ambassador-ui[data-app-role=service] .open-filter-button::after{content:none!important}
+#ambassador-ui[data-app-role=service] .hero-facts{grid-column:2!important;grid-row:1!important;position:static!important;inset:auto!important;display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:0!important;width:auto!important;height:44px!important;min-height:44px!important;margin:0!important;padding:0!important}
+#ambassador-ui[data-app-role=service] .hero-fact{position:static!important;display:grid!important;grid-template-columns:20px max-content!important;grid-template-rows:22px 15px!important;column-gap:6px!important;row-gap:0!important;align-content:center!important;justify-content:center!important;height:44px!important;min-height:44px!important;padding:0 10px!important;border:0!important;border-left:1px solid var(--ad-line)!important;background:#fff!important}
+#ambassador-ui[data-app-role=service] .hero-fact > span{display:contents!important}
+#ambassador-ui[data-app-role=service] .hero-fact > svg{grid-column:1!important;grid-row:1!important;display:block!important;width:20px!important;height:20px!important;align-self:center!important}
+#ambassador-ui[data-app-role=service] .hero-fact strong{grid-column:2!important;grid-row:1!important;font-size:18px!important;line-height:22px!important}
+#ambassador-ui[data-app-role=service] .hero-fact small{grid-column:1 / -1!important;grid-row:2!important;font-size:12px!important;line-height:15px!important;text-align:center!important}
+#ambassador-ui[data-app-role=service] .progress-track{position:absolute!important;grid-area:auto!important;left:24px!important;right:24px!important;top:auto!important;bottom:0!important;width:auto!important;height:2px!important;margin:0!important}
+#ambassador-ui[data-app-role=service] .search-wrap{grid-row:3!important;grid-column:1!important;position:relative!important;inset:auto!important;display:flex!important;align-items:center!important;justify-content:flex-start!important;gap:12px!important;align-self:stretch!important;justify-self:stretch!important;width:auto!important;height:56px!important;margin:0!important;padding:6px 24px!important;overflow:visible!important;background:#fff!important}
+#ambassador-ui[data-app-role=service] .search-row{display:flex!important;flex:1 1 auto!important;width:auto!important;min-width:0!important;max-width:none!important;height:44px!important;margin:0!important;padding:0!important}
+#ambassador-ui[data-app-role=service] .search-box{width:100%!important;max-width:none!important;height:44px!important;min-height:44px!important}
+#ambassador-ui[data-app-role=service] .ipad-special-guest-shortcut{position:static!important;inset:auto!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;flex:0 0 176px!important;width:176px!important;min-height:44px!important;height:44px!important;margin:0!important;padding:0 10px!important;font-size:13px!important}
+#ambassador-ui[data-app-role=service] .content{padding-top:0!important;padding-inline:24px!important}
 }
 
-/* Landscape service cards only. Keep the 6e90044 shell geometry and native buttons.
-   Nine equal rows use the existing content height; no 82px floor and no grid scroll.
-   Identity + capture share the left area; two names sit alongside; breakfast/table
-   use the original footer positions. Font sizes match the reference (20/13/11px). */
+/* Restored from c97b92e / 75b161b (4 October): fixed identification
+   column, native stacked names and breakfast, native capture/table footer.
+   Preserve existing shell and all native elements, data and handlers.
+   Nine equal rows: 55.8px at the small QA viewport, 62.7px at the large.
+   Only the card's vertical rhythm changes with available height. */
 @media(min-width:1000px) and (orientation:landscape){
 #ambassador-ui[data-app-role=service] .content{overflow:hidden!important;min-height:0!important}
 #ambassador-ui[data-app-role=service] :is(.ipad-room-overview,.ipad-room-grid,.ipad-room-column){height:100%!important;min-height:0!important;max-height:100%!important}
 #ambassador-ui[data-app-role=service] .ipad-room-grid{grid-template-columns:repeat(5,minmax(0,1fr))!important;grid-template-rows:minmax(0,1fr)!important;gap:0 16px!important}
-#ambassador-ui[data-app-role=service] .ipad-room-column{grid-template-rows:repeat(9,minmax(0,1fr))!important;gap:0!important}
+#ambassador-ui[data-app-role=service] .ipad-room-column{grid-template-rows:repeat(9,minmax(0,1fr))!important;gap:0!important;--card-name-size:13px;--card-name-line:14px;--card-meta-line:12px;--card-inset:1px}
 #ambassador-ui[data-app-role=service] .ipad-room-column > :is(.room-row,.room-placeholder){height:100%!important;min-height:0!important;max-height:none!important;block-size:auto!important}
-#ambassador-ui[data-app-role=service] .ipad-room-column .room-row{display:block!important;position:relative!important;padding:0!important;border:0!important;border-bottom:1px solid var(--ad-line)!important;background:#fff!important;overflow:hidden!important}
+#ambassador-ui[data-app-role=service] .ipad-room-column .room-row{display:block!important;position:relative!important;padding:0!important;border:0!important;border-bottom:1px solid var(--ad-line)!important;background:#fff!important;overflow:hidden!important;text-align:left!important}
 #ambassador-ui[data-app-role=service] .ipad-room-column .room-row::before{width:3px!important;left:0!important;top:4px!important;bottom:4px!important;border-radius:0!important}
-#ambassador-ui[data-app-role=service] .ipad-room-column .room-key{position:absolute!important;top:2px!important;left:9px!important;right:auto!important;display:flex!important;flex-direction:row!important;align-items:center!important;gap:4px!important;width:auto!important;height:auto!important}
-#ambassador-ui[data-app-role=service] .ipad-room-column .room-number{font-size:20px!important;line-height:20px!important;font-weight:600!important;color:var(--ad-ink)!important}
-#ambassador-ui[data-app-role=service] .ipad-room-column .people{font-size:12px!important;line-height:16px!important;gap:2px!important;color:var(--ad-muted)!important}
-#ambassador-ui[data-app-role=service] .ipad-room-column .people svg{display:block!important;width:12px!important;height:12px!important;flex:0 0 12px!important}
-#ambassador-ui[data-app-role=service] .ipad-room-column .guest-names{display:contents!important;position:static!important;margin:0!important;overflow:visible!important}
-#ambassador-ui[data-app-role=service] .ipad-room-column .guest-names::before{content:none!important;display:none!important}
-#ambassador-ui[data-app-role=service] .ipad-room-column .guest-names strong{display:block!important;position:absolute!important;left:65px!important;right:5px!important;top:2px!important;width:auto!important;height:16px!important;min-height:16px!important;max-height:32px!important;margin:0!important;font-size:13px!important;line-height:16px!important;font-weight:400!important;color:var(--ad-ink)!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;padding:0!important}
-#ambassador-ui[data-app-role=service] .ipad-room-column .guest-names strong:nth-of-type(2){top:18px!important}
-#ambassador-ui[data-app-role=service] .ipad-room-column .room-row:has(.room-state:not(.redundant-open-status)) .guest-names strong:nth-of-type(2){font-size:13px!important;line-height:16px!important}
-#ambassador-ui[data-app-role=service] .ipad-room-column .guest-names strong:nth-of-type(n+3){display:none!important}
-#ambassador-ui[data-app-role=service] .ipad-room-column .guest-names strong:only-of-type{height:32px!important;white-space:normal!important;display:-webkit-box!important;-webkit-line-clamp:2!important;-webkit-box-orient:vertical!important}
-#ambassador-ui[data-app-role=service] .ipad-room-column .guest-names strong[data-landscape-additional]{padding-right:20px!important}
-#ambassador-ui[data-app-role=service] .ipad-room-column .guest-names strong[data-landscape-additional]::after{content:attr(data-landscape-additional)!important;position:absolute!important;right:0!important;top:0!important;font-size:11px!important;line-height:16px!important;color:var(--ad-muted)!important;background:#fff!important}
-#ambassador-ui[data-app-role=service] .ipad-room-column :is(.meta-line,.frozen-breakfast-note){position:absolute!important;top:auto!important;bottom:2px!important;left:9px!important;right:auto!important;height:13px!important;line-height:13px!important;font-size:11px!important;color:var(--ad-muted)!important;gap:4px!important;white-space:nowrap!important}
-#ambassador-ui[data-app-role=service] .ipad-room-column .meta-line{font-size:0!important}
-#ambassador-ui[data-app-role=service] .ipad-room-column .meta-line::after{content:attr(data-landscape-breakfast)!important;font-size:11px!important;line-height:13px!important}
-#ambassador-ui[data-app-role=service] .ipad-room-column .meta-line svg{width:13px!important;height:13px!important;color:var(--ad-accent)!important}
-#ambassador-ui[data-app-role=service] .ipad-room-column .room-tail{display:contents!important}
-#ambassador-ui[data-app-role=service] .ipad-room-column .room-state:not(.redundant-open-status){position:absolute!important;top:22px!important;bottom:auto!important;left:9px!important;right:auto!important;display:flex!important;justify-content:flex-start!important;align-items:center!important;gap:3px!important;width:auto!important;max-width:58px!important;height:12px!important;min-height:12px!important;padding:0!important;border:0!important;background:transparent!important;font-size:11px!important;line-height:12px!important;font-weight:400!important;color:var(--ad-accent)!important;white-space:nowrap!important}
-#ambassador-ui[data-app-role=service] .ipad-room-column .room-state[data-reference-capture]{font-size:0!important}
-#ambassador-ui[data-app-role=service] .ipad-room-column .room-state[data-reference-capture]::after{content:attr(data-reference-capture)!important;font-size:11px!important;line-height:12px!important}
-#ambassador-ui[data-app-role=service] .ipad-room-column .room-state svg{display:block!important;width:12px!important;height:12px!important;flex:0 0 12px!important}
-#ambassador-ui[data-app-role=service] .ipad-room-column .table-badge{position:absolute!important;top:auto!important;bottom:2px!important;left:auto!important;right:5px!important;width:auto!important;max-width:calc(100% - 93px)!important;height:13px!important;min-height:13px!important;padding:0!important;background:transparent!important;border:0!important;border-radius:0!important;font-size:11px!important;line-height:13px!important;font-weight:400!important;color:var(--ad-accent)!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
-#ambassador-ui[data-app-role=service] .ipad-room-column .status-note{display:none!important}
-#ambassador-ui[data-app-role=service] .ipad-room-column .vacant{position:absolute!important;left:65px!important;top:5px!important;font-size:12px!important;color:var(--ad-muted)!important}
-/* Respect the existing open-only predicate without moving any room slot. */
+/* Original fixed identification axis, with the count BELOW the number. */
+#ambassador-ui[data-app-role=service] .ipad-room-column .room-row .room-key{position:absolute!important;top:var(--card-inset)!important;left:10px!important;right:auto!important;display:grid!important;grid-template-columns:28px!important;grid-template-rows:23px 15px!important;align-items:center!important;justify-items:start!important;gap:2px!important;width:28px!important;height:40px!important}
+#ambassador-ui[data-app-role=service] .ipad-room-column .room-row .room-number{font-size:21px!important;line-height:23px!important;font-weight:600!important;color:var(--ad-ink)!important}
+#ambassador-ui[data-app-role=service] .ipad-room-column .room-row .people{display:flex!important;font-size:12px!important;line-height:15px!important;gap:3px!important;color:var(--ad-muted)!important}
+#ambassador-ui[data-app-role=service] .ipad-room-column .room-row .people svg{display:block!important;width:14px!important;height:14px!important;flex:0 0 14px!important}
+/* Original right information axis: two fixed name lines, then breakfast. */
+#ambassador-ui[data-app-role=service] .ipad-room-column .room-row .guest-names{position:absolute!important;top:var(--card-inset)!important;left:46px!important;right:5px!important;bottom:auto!important;display:block!important;width:auto!important;height:calc(2 * var(--card-name-line) + var(--card-meta-line))!important;max-height:none!important;block-size:calc(2 * var(--card-name-line) + var(--card-meta-line))!important;margin:0!important;overflow:visible!important;white-space:nowrap!important}
+#ambassador-ui[data-app-role=service] .ipad-room-column .room-row .guest-names::before{content:none!important;display:none!important}
+#ambassador-ui[data-app-role=service] .ipad-room-column .room-row .guest-names strong,
+#ambassador-ui[data-app-role=service] .ipad-room-column .room-row:has(.room-state:not(.redundant-open-status)) .guest-names strong:nth-of-type(2){position:relative!important;inset:auto!important;display:block!important;width:100%!important;height:var(--card-name-line)!important;min-height:var(--card-name-line)!important;max-height:var(--card-name-line)!important;margin:0!important;padding:0!important;font-size:var(--card-name-size)!important;line-height:var(--card-name-line)!important;font-weight:500!important;color:var(--ad-ink)!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+#ambassador-ui[data-app-role=service] .ipad-room-column .room-row .guest-names strong:nth-of-type(n+3){display:none!important}
+#ambassador-ui[data-app-role=service] .ipad-room-column .room-row .guest-names strong:only-of-type{height:calc(2 * var(--card-name-line))!important;max-height:calc(2 * var(--card-name-line))!important;white-space:normal!important;display:-webkit-box!important;-webkit-line-clamp:2!important;-webkit-box-orient:vertical!important}
+#ambassador-ui[data-app-role=service] .ipad-room-column .room-row .guest-names strong[data-landscape-additional],
+#ambassador-ui[data-app-role=service] .ipad-room-column .room-row:has(.room-state:not(.redundant-open-status)) .guest-names strong[data-landscape-additional]:nth-of-type(2){padding-right:19px!important}
+#ambassador-ui[data-app-role=service] .ipad-room-column .room-row .guest-names strong[data-landscape-additional]::after{content:attr(data-landscape-additional)!important;position:absolute!important;right:0!important;top:0!important;font-size:12px!important;line-height:var(--card-name-line)!important;font-weight:400!important;color:var(--ad-muted)!important;background:#fff!important}
+#ambassador-ui[data-app-role=service] .ipad-room-column .room-row :is(.meta-line,.frozen-breakfast-note){position:absolute!important;top:calc(2 * var(--card-name-line))!important;bottom:auto!important;left:0!important;right:0!important;display:flex!important;align-items:center!important;height:var(--card-meta-line)!important;min-height:0!important;line-height:var(--card-meta-line)!important;font-size:12px!important;color:#596267!important;gap:4px!important;margin:0!important;padding:0!important;white-space:nowrap!important}
+#ambassador-ui[data-app-role=service] .ipad-room-column .room-row .frozen-breakfast-note[hidden]{display:none!important}
+#ambassador-ui[data-app-role=service] .ipad-room-column .room-row .meta-line{font-size:0!important}
+#ambassador-ui[data-app-role=service] .ipad-room-column .room-row .meta-line::after{content:attr(data-landscape-breakfast)!important;font-size:12px!important;line-height:var(--card-meta-line)!important}
+#ambassador-ui[data-app-role=service] .ipad-room-column .room-row .meta-line svg{display:block!important;width:12px!important;height:12px!important;color:var(--ad-yellow)!important}
+/* The existing footer stays on the same bottom line in every occupied card. */
+#ambassador-ui[data-app-role=service] .ipad-room-column .room-row .room-tail{position:absolute!important;left:46px!important;right:5px!important;top:auto!important;bottom:var(--card-inset)!important;display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:space-between!important;gap:4px!important;width:auto!important;height:var(--card-meta-line)!important;min-height:0!important;padding:0!important;margin:0!important}
+#ambassador-ui[data-app-role=service] .ipad-room-column .room-row .room-state{position:static!important;inset:auto!important;display:flex!important;order:0!important;flex:0 0 auto!important;align-items:center!important;justify-content:flex-start!important;gap:2px!important;width:auto!important;max-width:none!important;height:var(--card-meta-line)!important;min-height:0!important;padding:0!important;margin:0!important;border:0!important;background:transparent!important;font-size:12px!important;line-height:var(--card-meta-line)!important;font-weight:400!important;text-align:left!important;color:var(--ad-accent)!important;white-space:nowrap!important}
+#ambassador-ui[data-app-role=service] .ipad-room-column .room-row .room-state.redundant-open-status{color:#596267!important}
+#ambassador-ui[data-app-role=service] .ipad-room-column .room-row .room-state[data-reference-capture]{font-size:0!important}
+#ambassador-ui[data-app-role=service] .ipad-room-column .room-row .room-state[data-reference-capture]::after{content:attr(data-reference-capture)!important;font-size:12px!important;line-height:var(--card-meta-line)!important}
+#ambassador-ui[data-app-role=service] .ipad-room-column .room-row .room-state svg{display:block!important;width:12px!important;height:12px!important;flex:0 0 12px!important}
+#ambassador-ui[data-app-role=service] .ipad-room-column .room-row .table-badge{position:static!important;inset:auto!important;display:block!important;order:1!important;flex:0 1 auto!important;width:auto!important;max-width:none!important;min-width:0!important;height:var(--card-meta-line)!important;min-height:0!important;padding:0!important;margin:0!important;border:0!important;background:transparent!important;border-radius:0!important;font-size:12px!important;line-height:var(--card-meta-line)!important;font-weight:400!important;text-align:right!important;color:var(--ad-accent)!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+#ambassador-ui[data-app-role=service] .ipad-room-column .room-row .status-note{display:none!important}
+#ambassador-ui[data-app-role=service] .ipad-room-column .room-row .vacant{position:static!important;font-size:13px!important;line-height:var(--card-name-line)!important;color:var(--ad-muted)!important}
 #ambassador-ui[data-app-role=service] .app-shell.open-only:not(.search-active) .ipad-room-column .room-row[data-open-match=false]{visibility:hidden!important;pointer-events:none!important}
 #ambassador-ui[data-app-role=service] .ipad-room-column .room-row.partial::before{background:#CBD2D5!important}
 #ambassador-ui[data-app-role=service] .ipad-room-column .room-row.included.partial::before{background:var(--ad-yellow)!important}
 #ambassador-ui[data-app-role=service] .ipad-room-column .room-row.present:not(.partial)::before{background:var(--ad-accent)!important}
 }
-
-/* The original desktop search wrapper extends 8px into the room track.
-   Reserve those pixels inside the grid only; the original header stays untouched. */
-@media(min-width:1000px) and (orientation:landscape) and (max-width:0px){
-#ambassador-ui[data-app-role=service] .content{padding-top:8px!important}
+@media(min-width:1000px) and (min-height:780px) and (orientation:landscape){
+#ambassador-ui[data-app-role=service] .ipad-room-column{--card-name-size:14px;--card-name-line:16px;--card-meta-line:13px;--card-inset:1px}
 }
