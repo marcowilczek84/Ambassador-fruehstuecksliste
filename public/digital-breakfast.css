@@ -67,7 +67,7 @@
 #ambassador-ui[data-app-role=service] .topbar{grid-area:1 / 1!important;display:flex!important;align-items:center!important;gap:20px!important;height:44px!important;min-height:0!important;padding:0!important;border-bottom:1px solid var(--ad-line)!important}
 #ambassador-ui[data-app-role=service] .header-logo{width:125px!important;height:34px!important;max-height:34px!important;flex:none!important;order:0!important}
 #ambassador-ui[data-app-role=service] .page-title{display:flex!important;flex-direction:column!important;justify-content:center!important;align-items:flex-start!important;gap:0!important;order:1!important;min-width:0!important;width:auto!important;max-width:260px!important;margin:0!important;text-align:left!important}
-#ambassador-ui[data-app-role=service] .page-title-line{margin:0!important;position:static!important;order:0!important;display:flex!important;align-items:center!important;gap:6px!important;white-space:nowrap!important}
+#ambassador-ui[data-app-role=service] .page-title-line{margin:0!important;position:relative!important;order:0!important;display:flex!important;align-items:center!important;gap:6px!important;white-space:nowrap!important}
 #ambassador-ui[data-app-role=service] .page-title h1{font-size:15px!important;line-height:20px!important;letter-spacing:0!important;font-weight:600!important;margin:0!important}
 #ambassador-ui[data-app-role=service] .page-title p{order:1!important;margin:0!important;color:var(--ad-muted)!important;font-size:11.5px!important;line-height:14px!important;white-space:nowrap!important}
 #ambassador-ui[data-app-role=service] .header-actions{order:3!important;display:flex!important;gap:0!important;margin:0 0 0 auto!important}
