@@ -534,6 +534,12 @@
         // Shorten only the visual numeric fraction, preserving native status text/semantics.
         const nativeStatus = normalize(capture.textContent);
         const compactStatus = nativeStatus.replace(/(\d+)\s+(?:von|of)\s+(\d+)/, "$1/$2");
+        // Card-only visual fraction. Keep the complete native status for accessibility
+        // and the existing dialog; this reads text, never guest/check-in state.
+        const referenceStatus = compactStatus.match(/\d+\/\d+/)?.[0] || compactStatus;
+        if (landscapeRoom) {
+          if (capture.dataset.referenceCapture !== referenceStatus) capture.dataset.referenceCapture = referenceStatus;
+        } else if (capture.hasAttribute("data-reference-capture")) capture.removeAttribute("data-reference-capture");
         if (landscapeRoom && compactStatus !== nativeStatus) {
           if (capture.dataset.landscapeCapture !== compactStatus) capture.dataset.landscapeCapture = compactStatus;
         } else if (capture.hasAttribute("data-landscape-capture")) capture.removeAttribute("data-landscape-capture");
