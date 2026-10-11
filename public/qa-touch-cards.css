@@ -99,6 +99,8 @@
 #ambassador-ui[data-app-role=service] .ipad-room-column .table-badge{position:absolute!important;top:auto!important;bottom:2px!important;left:auto!important;right:5px!important;width:auto!important;max-width:calc(100% - 93px)!important;height:13px!important;min-height:13px!important;padding:0!important;background:transparent!important;border:0!important;border-radius:0!important;font-size:11px!important;line-height:13px!important;font-weight:400!important;color:var(--ad-accent)!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
 #ambassador-ui[data-app-role=service] .ipad-room-column .status-note{display:none!important}
 #ambassador-ui[data-app-role=service] .ipad-room-column .vacant{position:absolute!important;left:65px!important;top:5px!important;font-size:12px!important;color:var(--ad-muted)!important}
+/* Respect the existing open-only predicate without moving any room slot. */
+#ambassador-ui[data-app-role=service] .app-shell.open-only:not(.search-active) .ipad-room-column .room-row[data-open-match=false]{visibility:hidden!important;pointer-events:none!important}
 #ambassador-ui[data-app-role=service] .ipad-room-column .room-row.partial::before{background:#CBD2D5!important}
 #ambassador-ui[data-app-role=service] .ipad-room-column .room-row.included.partial::before{background:var(--ad-yellow)!important}
 #ambassador-ui[data-app-role=service] .ipad-room-column .room-row.present:not(.partial)::before{background:var(--ad-accent)!important}
