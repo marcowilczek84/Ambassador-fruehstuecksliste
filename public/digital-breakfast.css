@@ -86,7 +86,7 @@
 #ambassador-ui[data-app-role=service] .ipad-room-column .guest-names strong:only-of-type{height:32px!important;white-space:normal!important;display:-webkit-box!important;-webkit-line-clamp:2!important;-webkit-box-orient:vertical!important}
 #ambassador-ui[data-app-role=service] .ipad-room-column .guest-names strong[data-landscape-additional]{padding-right:20px!important}
 #ambassador-ui[data-app-role=service] .ipad-room-column .guest-names strong[data-landscape-additional]::after{content:attr(data-landscape-additional)!important;position:absolute!important;right:0!important;top:0!important;font-size:11px!important;line-height:16px!important;color:var(--ad-muted)!important;background:#fff!important}
-#ambassador-ui[data-app-role=service] .ipad-room-column :is(.meta-line,.frozen-breakfast-note){position:absolute!important;top:auto!important;bottom:3px!important;left:9px!important;right:auto!important;height:13px!important;line-height:13px!important;font-size:11px!important;color:var(--ad-muted)!important;gap:4px!important;white-space:nowrap!important}
+#ambassador-ui[data-app-role=service] .ipad-room-column :is(.meta-line,.frozen-breakfast-note){position:absolute!important;top:auto!important;bottom:2px!important;left:9px!important;right:auto!important;height:13px!important;line-height:13px!important;font-size:11px!important;color:var(--ad-muted)!important;gap:4px!important;white-space:nowrap!important}
 #ambassador-ui[data-app-role=service] .ipad-room-column .meta-line{font-size:0!important}
 #ambassador-ui[data-app-role=service] .ipad-room-column .meta-line::after{content:attr(data-landscape-breakfast)!important;font-size:11px!important;line-height:13px!important}
 #ambassador-ui[data-app-role=service] .ipad-room-column .meta-line svg{width:13px!important;height:13px!important;color:var(--ad-accent)!important}
@@ -95,10 +95,16 @@
 #ambassador-ui[data-app-role=service] .ipad-room-column .room-state[data-reference-capture]{font-size:0!important}
 #ambassador-ui[data-app-role=service] .ipad-room-column .room-state[data-reference-capture]::after{content:attr(data-reference-capture)!important;font-size:11px!important;line-height:12px!important}
 #ambassador-ui[data-app-role=service] .ipad-room-column .room-state svg{display:block!important;width:12px!important;height:12px!important;flex:0 0 12px!important}
-#ambassador-ui[data-app-role=service] .ipad-room-column .table-badge{position:absolute!important;top:auto!important;bottom:3px!important;left:auto!important;right:5px!important;width:auto!important;max-width:calc(100% - 93px)!important;height:13px!important;min-height:13px!important;padding:0!important;background:transparent!important;border:0!important;border-radius:0!important;font-size:11px!important;line-height:13px!important;font-weight:400!important;color:var(--ad-accent)!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+#ambassador-ui[data-app-role=service] .ipad-room-column .table-badge{position:absolute!important;top:auto!important;bottom:2px!important;left:auto!important;right:5px!important;width:auto!important;max-width:calc(100% - 93px)!important;height:13px!important;min-height:13px!important;padding:0!important;background:transparent!important;border:0!important;border-radius:0!important;font-size:11px!important;line-height:13px!important;font-weight:400!important;color:var(--ad-accent)!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
 #ambassador-ui[data-app-role=service] .ipad-room-column .status-note{display:none!important}
 #ambassador-ui[data-app-role=service] .ipad-room-column .vacant{position:absolute!important;left:65px!important;top:5px!important;font-size:12px!important;color:var(--ad-muted)!important}
 #ambassador-ui[data-app-role=service] .ipad-room-column .room-row.partial::before{background:#CBD2D5!important}
 #ambassador-ui[data-app-role=service] .ipad-room-column .room-row.included.partial::before{background:var(--ad-yellow)!important}
 #ambassador-ui[data-app-role=service] .ipad-room-column .room-row.present:not(.partial)::before{background:var(--ad-accent)!important}
+}
+
+/* The original desktop search wrapper extends 8px into the room track.
+   Reserve those pixels inside the grid only; the original header stays untouched. */
+@media(min-width:1000px) and (orientation:landscape) and (pointer:fine){
+#ambassador-ui[data-app-role=service] .content{padding-top:8px!important}
 }
