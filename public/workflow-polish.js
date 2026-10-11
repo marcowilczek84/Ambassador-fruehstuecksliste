@@ -561,8 +561,7 @@
     });
   }
 
-  // Approved wide service presentation. Read native DOM only; no persisted state.
-  const ipadScrollOwners = new WeakSet();
+  // Compact wide service presentation. Read native DOM only; no persisted state.
   function updateIpadServicePresentation(shell) {
     if (document.body.dataset.appRole !== "service" || !window.matchMedia("(min-width:1000px) and (orientation:landscape)").matches) return;
     const nativeHeading = shell.querySelector(".open-guests-tablet");
@@ -621,21 +620,6 @@
         }
       } else partial?.remove();
     });
-    const content = shell.querySelector(".content");
-    let scrollNote = shell.querySelector(".ipad-scroll-note");
-    if (!scrollNote && shell.querySelector(".bottom-bar")) {
-      scrollNote = document.createElement("span"); scrollNote.className = "ipad-scroll-note";
-      shell.querySelector(".bottom-bar").insertBefore(scrollNote, shell.querySelector(".bottom-button.finish"));
-    }
-    if (!content || !scrollNote) return;
-    const refresh = () => {
-      const end = content.scrollTop >= content.scrollHeight - content.clientHeight - 3;
-      const label = activeLanguage === "EN" ? (end ? "End of list" : "More rooms ↓") : activeLanguage === "VI" ? (end ? "Cuối danh sách" : "Các phòng khác ↓") : (end ? "Listenende" : "Weitere Zimmer ↓");
-      if (scrollNote.textContent !== label) scrollNote.textContent = label;
-      scrollNote.hidden = content.scrollHeight <= content.clientHeight + 3;
-    };
-    if (!ipadScrollOwners.has(content)) { content.addEventListener("scroll", refresh, { passive: true }); ipadScrollOwners.add(content); }
-    refresh();
   }
 
   function displayTable(value) {
