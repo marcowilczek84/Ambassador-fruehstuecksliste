@@ -1,11 +1,14 @@
-# SILK Frühstück – aktueller Arbeitsstand
+# Ambassador Frühstück – Arbeitsstand
 
-11.10.2026: Finale Designharmonisierung auf `ambassador-final-polish-20261011`. Runtime-Commit `366fd5dd8e9fedf58d70ae32dfe9688c031d0cef`, basierend auf Master-Integration `a228d8f`. Keine Production-Freigabe.
+11.10.2026, Europe/Zurich. Production zuletzt verifiziert: `e74d850597d6f68dbe182ef92cf235950690c279`. Neue, noch nicht veröffentlichte Korrektur auf `ambassador-start-header-20261011`, direkt auf diesem Production-Commit aufgebaut.
 
-Zentrale Dokumentation liegt im bestehenden Repository `marcowilczek84/silk-service`, Branch `ambassador-final-polish-20261011`:
+Der neue Nutzerauftrag korrigiert den tatsächlich aktiven React-Ladebildschirm (altes Tassenlogo), vereinheitlicht die Starttypografie und ergänzt einen Hub-Link im Header. Der kurze App-Name lautet Frühstück; Service/Rezeption bleiben als Arbeitsbereich sichtbar. Das originale Hotellogo führt zur Bereichswahl. Der Zusatz-App-Verweis entfällt. Zimmerkarten-Geometrie, Import, Check-in, Berechnung und Speicherung unverändert.
 
-- [PROJECT-STATUS.md](https://github.com/marcowilczek84/silk-service/blob/ambassador-final-polish-20261011/PROJECT-STATUS.md)
-- [AMBASSADOR-DESIGN-SYSTEM.md](https://github.com/marcowilczek84/silk-service/blob/ambassador-final-polish-20261011/AMBASSADOR-DESIGN-SYSTEM.md)
-- [RELEASE-HISTORY.md](https://github.com/marcowilczek84/silk-service/blob/ambassador-final-polish-20261011/RELEASE-HISTORY.md)
+Kanonische Dokumentation im Repository `marcowilczek84/silk-service`, Branch `ambassador-start-header-20261011`:
 
-Kartenregeln und Anwendungslogik bleiben gegenüber dem integrierten Master-Preview erhalten. Der Feinschliff betrifft SILK-Wortmarke, Hub-Originalicon, Serif Italic 400 und abgestufte Sans-Schriftgewichte. QA: 44/44 Zimmer in beiden iPad-Prüfgrößen; echte Chromium-Screenshots mit ausschließlich fiktiven Daten. Physischer Safari-/Windows-Gerätetest nicht durchgeführt.
+- [Projektstatus](https://github.com/marcowilczek84/silk-service/blob/ambassador-start-header-20261011/PROJECT-STATUS.md)
+- [Designsystem](https://github.com/marcowilczek84/silk-service/blob/ambassador-start-header-20261011/AMBASSADOR-DESIGN-SYSTEM.md)
+- [Release-Historie](https://github.com/marcowilczek84/silk-service/blob/ambassador-start-header-20261011/RELEASE-HISTORY.md)
+- [Gezielte Prüfungen](https://github.com/marcowilczek84/silk-service/blob/ambassador-start-header-20261011/docs/HEADER-STARTSEITEN-QA-20261011.md)
+
+Syntax und isolierte Header-DOM-Prüfungen bestanden. Im aktiven kompilierten Programm unterscheidet sich ausschließlich das Markup des Ladebildschirms. Neue Browserprüfung einschließlich Hydration und 44-Zimmer-Geometrie bei 1024 × 748 / 1194 × 834 noch offen. Ältere Screenshots und bestandene Geometrieprüfungen gelten für den vorherigen Stand, nicht als Abnahme dieser Änderung. Vercel-Neudeployments sind wegen des bereits gemeldeten Tageslimits blockiert. Keine neue Production-Veröffentlichung.

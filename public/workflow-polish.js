@@ -260,18 +260,23 @@
 
   function addViewSwitcher(shell, role) {
     const actions = shell.querySelector(".header-actions");
-    if (!actions || actions.querySelector(".view-switch-button")) return;
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = "view-switch-button home-button";
-    button.title = "Zur Startseite";
-    button.setAttribute("aria-label", button.title);
-    button.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5V21h-6v-6H9v6H3z"/></svg>';
-    button.addEventListener("click", () => {
-      sessionStorage.removeItem(roleKey);
-      location.reload();
-    });
-    actions.prepend(button);
+    if (!actions || actions.querySelector(".ad-hub-link")) return;
+    // Preserve the existing area-selection action on the hotel logo.
+    const logo = shell.querySelector(".header-logo");
+    if (logo && !logo.closest("button")) {
+      const home = document.createElement("button");
+      home.type = "button";
+      home.className = "ad-brand-home";
+      home.setAttribute("aria-label", "Arbeitsbereich wechseln");
+      home.title = "Arbeitsbereich wechseln";
+      home.addEventListener("click", () => {
+        sessionStorage.removeItem(roleKey);
+        location.reload();
+      });
+      logo.replaceWith(home);
+      home.append(logo);
+    }
+    actions.insertAdjacentHTML("afterbegin", '<a class="ad-hub-link" href="https://ambassador-apps.vercel.app/" aria-label="Zum App-Hub" title="Zum App-Hub"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z"/></svg></a>');
   }
 
   function clickMenuAction(shell, label) {
@@ -350,8 +355,6 @@
         : `${menuItem("special-guests", "guests", "Gäste ohne Zimmer erfassen", "Opera- oder externe Gäste")}
            ${menuItem("Frühstück beenden", "finish", "Frühstück beenden", "Tagesabschluss vorbereiten")}
            ${menuItem("Statistik", "stats", "Statistik", "Tages- und Wochenübersicht")}`;
-      const tipEntry = currentRole === "service" ? `<a class="structured-menu-item" role="menuitem" href="https://silk-trinkgeld-uiux-polish.vercel.app" style="grid-template-columns:42px minmax(0,1fr)!important;gap:11px!important">
-        <span class="structured-menu-icon" style="border:0!important;width:42px!important;height:42px!important"><img src="/app-icon-tips.svg" width="42" height="42" style="display:block;width:42px;height:42px;object-fit:contain;border-radius:0" alt="" aria-hidden="true"></span><span><strong>${tr("Trinkgeld")}</strong><small>${tr("Zusatz-App öffnen")}</small></span></a>` : "";
       layer.innerHTML = `<section class="reliable-app-menu structured-app-menu" role="menu" aria-label="${tr("Hauptmenü")}">
         <header><span><small>${tr("MENÜ")}</small><strong>Ambassador Frühstück</strong></span><button type="button" aria-label="${tr("Menü schließen")}">×</button></header>
         <div class="structured-menu-scroll">
@@ -361,7 +364,6 @@
               ${supportedLanguages.map((code) => `<button type="button" data-language="${code}" aria-pressed="${String(activeLanguage === code)}">${code}</button>`).join("")}
             </div></div>
           </section>
-          ${tipEntry ? `<section><h3>${tr("ZUSATZ-APP")}</h3>${tipEntry}</section>` : ""}
         </div>
         <footer>Ambassador Frühstück · ${previewVersion}</footer>
       </section>`;
@@ -958,10 +960,9 @@
     addViewSwitcher(shell, role);
     const title = shell.querySelector(".page-title h1");
     if (title) {
-      const compactHeader = window.matchMedia("(max-width: 560px)").matches;
-      title.textContent = compactHeader
-        ? tr(role === "reception" ? "Rezeption" : "Service")
-        : role === "reception" ? `Ambassador Frühstück · ${tr("Rezeption")}` : `Ambassador Frühstück · ${tr("Service")}`;
+      const area = tr(role === "reception" ? "Rezeption" : "Service");
+      const label = `<span data-no-auto-translate="">Frühstück</span> <span class="ad-header-area">${area}</span>`;
+      if (title.innerHTML !== label) title.innerHTML = label;
     }
     const search = shell.querySelector('.search-box input');
     if (search) search.placeholder = tr(role === "reception" ? "Zimmer oder Name suchen" : "Zimmer, Name oder Tisch suchen");

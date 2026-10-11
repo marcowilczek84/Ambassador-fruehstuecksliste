@@ -1,8 +1,8 @@
 /* Final brand rules deliberately exclude room-grid geometry. */
 #ambassador-ui .entry-screen.role-pending .role-selection.ad-start-brand{top:45%!important;gap:0!important}
-#ambassador-ui .role-selection.ad-start-brand .role-logo{order:0!important;width:clamp(168px,19vw,220px)!important;height:auto!important;max-height:none!important;border-radius:0!important;filter:none!important;margin:0 0 32px!important}
+#ambassador-ui .role-selection.ad-start-brand .role-logo{order:0!important;width:clamp(220px,24vw,280px)!important;height:128px!important;object-fit:contain!important;max-height:none!important;border-radius:0!important;filter:none!important;margin:0 0 32px!important}
 #ambassador-ui .role-selection.ad-start-brand .role-app-logo{order:1!important;width:44px!important;height:44px!important;background:transparent!important;border:0!important;border-radius:0!important;padding:0!important;box-shadow:none!important;margin:0 0 16px!important}
-#ambassador-ui .role-selection.ad-start-brand .role-eyebrow{order:2!important;font-family:var(--ad-serif)!important;font-style:italic!important;font-weight:400!important;font-size:40px!important;line-height:1.2!important;letter-spacing:-.025em!important;color:var(--ad-ink)!important;margin:0!important}
+#ambassador-ui .role-selection.ad-start-brand .role-eyebrow{order:2!important;font-family:var(--ad-serif)!important;font-style:italic!important;font-weight:400!important;font-size:36px!important;line-height:1.2!important;letter-spacing:0!important;color:var(--ad-ink)!important;margin:0!important}
 #ambassador-ui .role-selection .role-date,#ambassador-ui .role-selection h1{display:none!important}
 #ambassador-ui .role-selection .role-options{order:3!important;margin-top:40px!important}
 #ambassador-ui .role-options strong,#ambassador-ui .structured-menu-item strong,#ambassador-ui .structured-language button,#ambassador-ui .page-title h1{font-weight:500!important}
@@ -10,7 +10,23 @@
 #ambassador-ui .guest-names strong{font-weight:400!important}
 #ambassador-ui .bottom-button{font-weight:500!important}
 .breakfast-splash-content.ad-start-brand{gap:0!important}
-.breakfast-splash-content.ad-start-brand .ad-hotel-logo{width:clamp(168px,19vw,220px)!important;height:auto!important;margin:0 0 32px!important;border-radius:0!important;filter:none!important}
+.breakfast-splash-content.ad-start-brand .ad-hotel-logo{width:clamp(220px,24vw,280px)!important;height:128px!important;object-fit:contain!important;margin:0 0 32px!important;border-radius:0!important;filter:none!important}
 .breakfast-splash-content.ad-start-brand .ad-app-icon{width:44px!important;height:44px!important;margin:0 0 16px!important;border:0!important;border-radius:0!important;background:transparent!important}
-.breakfast-splash-content.ad-start-brand .ad-app-name{font-family:var(--ad-serif)!important;font-style:italic!important;font-weight:400!important;font-size:40px!important;line-height:1.2!important;letter-spacing:-.025em!important;margin:0!important}
-@media(max-width:699px){#ambassador-ui .role-selection.ad-start-brand .role-logo,.breakfast-splash-content.ad-start-brand .ad-hotel-logo{width:168px!important;margin-bottom:24px!important}#ambassador-ui .role-selection.ad-start-brand .role-app-logo,.breakfast-splash-content.ad-start-brand .ad-app-icon{width:36px!important;height:36px!important;margin-bottom:14px!important}#ambassador-ui .role-selection.ad-start-brand .role-eyebrow,.breakfast-splash-content.ad-start-brand .ad-app-name{font-size:34px!important}#ambassador-ui .role-selection .role-options{margin-top:32px!important}}
+.breakfast-splash-content.ad-start-brand .ad-app-name{font-family:var(--ad-serif)!important;font-style:italic!important;font-weight:400!important;font-size:36px!important;line-height:1.2!important;letter-spacing:0!important;margin:0!important}
+@media(max-width:699px){#ambassador-ui .role-selection.ad-start-brand .role-logo,.breakfast-splash-content.ad-start-brand .ad-hotel-logo{width:220px!important;height:96px!important;margin-bottom:24px!important}#ambassador-ui .role-selection.ad-start-brand .role-app-logo,.breakfast-splash-content.ad-start-brand .ad-app-icon{width:36px!important;height:36px!important;margin-bottom:14px!important}#ambassador-ui .role-selection.ad-start-brand .role-eyebrow,.breakfast-splash-content.ad-start-brand .ad-app-name{font-size:30px!important}#ambassador-ui .role-selection .role-options{margin-top:32px!important}}
+
+/* Preserve room geometry; only the existing header slots change. */
+.breakfast-splash-content.ad-start-brand{transform:none!important}
+#ambassador-ui .ad-brand-home{display:block;justify-self:start;padding:0;min-height:44px;border:0;background:transparent;box-shadow:none;cursor:pointer}
+#ambassador-ui .ad-brand-home .header-logo{display:block}
+#ambassador-ui .header-actions{gap:0!important}
+#ambassador-ui .header-actions .ad-hub-link{width:44px!important;height:44px!important;min-width:44px!important;color:var(--ad-ink)!important;background:transparent!important;border-color:transparent!important;box-shadow:none!important}
+#ambassador-ui .header-actions .ad-hub-link svg{width:20px!important;height:20px!important;fill:none;stroke:currentColor;stroke-width:1.75}
+#ambassador-ui .page-title h1{font-family:var(--ad-font)!important;font-style:normal!important;font-weight:500!important;font-size:20px!important;letter-spacing:0!important;line-height:1.2!important}
+#ambassador-ui .ad-header-area{display:inline-block;margin-left:8px;font-family:var(--ad-font);font-size:12px;font-style:normal;font-weight:400;color:var(--ad-muted)}
+@media(max-width:560px){
+ #ambassador-ui .topbar{grid-template-columns:92px minmax(0,1fr) 88px!important;gap:8px!important}
+ #ambassador-ui .page-title h1{font-size:18px!important;line-height:1.1!important}
+ #ambassador-ui .ad-header-area{display:block;margin:3px 0 0;font-size:11px;line-height:1.15}
+ #ambassador-ui .page-title p{font-size:10px!important;line-height:1.3!important;margin-top:3px!important}
+}
