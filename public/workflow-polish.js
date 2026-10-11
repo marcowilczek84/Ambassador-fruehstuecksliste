@@ -508,11 +508,6 @@
   function alignFrozenRooms(shell) {
     shell.querySelectorAll(".ipad-room-column").forEach((column, index) => {
       const start = 20 + index * 10;
-      column.style.setProperty("--service-column", String(index + 1));
-      column.querySelectorAll(".room-row").forEach((row) => {
-        const room = Number(row.querySelector(".room-number")?.textContent);
-        row.style.setProperty("--service-row", String(room % 10 + 1));
-      });
       column.setAttribute("aria-label", `${start}–${start + 8}`);
       if (start !== 50 || column.querySelector(".room-placeholder")) return;
       const next = [...column.querySelectorAll(".room-row")].find((row) => Number(row.querySelector(".room-number")?.textContent) > 55);
@@ -520,7 +515,6 @@
       placeholder.className = "room-placeholder";
       placeholder.setAttribute("aria-hidden", "true");
       placeholder.setAttribute("inert", "");
-      placeholder.style.setProperty("--service-row", "6");
       column.insertBefore(placeholder, next || null);
     });
     if (document.body.dataset.appRole !== "service") return;
@@ -540,6 +534,12 @@
         // Shorten only the visual numeric fraction, preserving native status text/semantics.
         const nativeStatus = normalize(capture.textContent);
         const compactStatus = nativeStatus.replace(/(\d+)\s+(?:von|of)\s+(\d+)/, "$1/$2");
+        // Card-only visual fraction. Keep the complete native status for accessibility
+        // and the existing dialog; this reads text, never guest/check-in state.
+        const referenceStatus = compactStatus.match(/\d+\/\d+/)?.[0] || compactStatus;
+        if (landscapeRoom) {
+          if (capture.dataset.referenceCapture !== referenceStatus) capture.dataset.referenceCapture = referenceStatus;
+        } else if (capture.hasAttribute("data-reference-capture")) capture.removeAttribute("data-reference-capture");
         if (landscapeRoom && compactStatus !== nativeStatus) {
           if (capture.dataset.landscapeCapture !== compactStatus) capture.dataset.landscapeCapture = compactStatus;
         } else if (capture.hasAttribute("data-landscape-capture")) capture.removeAttribute("data-landscape-capture");
@@ -559,83 +559,6 @@
       }
       if (note) { note.hidden = !needsNote; if (note.textContent !== tr("nicht inklusive")) note.textContent = tr("nicht inklusive"); }
     });
-  }
-
-  // Approved wide service presentation. Read native DOM only; no persisted state.
-  const ipadScrollOwners = new WeakSet();
-  function updateIpadServicePresentation(shell) {
-    if (document.body.dataset.appRole !== "service" || !window.matchMedia("(min-width:1000px) and (orientation:landscape)").matches) return;
-    const nativeHeading = shell.querySelector(".open-guests-tablet");
-    const headingParts = normalize(nativeHeading?.textContent || "").match(/^(\d+)\s+(.+)$/);
-    if (headingParts) {
-      let summary = shell.querySelector(".ipad-service-summary");
-      if (!summary) {
-        summary = document.createElement("div");
-        summary.className = "ipad-service-summary";
-        summary.innerHTML = "<strong></strong><span></span>";
-        shell.querySelector(".hero")?.prepend(summary);
-      }
-      if (summary.firstElementChild.textContent !== headingParts[1]) summary.firstElementChild.textContent = headingParts[1];
-      if (summary.lastElementChild.textContent !== headingParts[2]) summary.lastElementChild.textContent = headingParts[2];
-    }
-    let filters = shell.querySelector(".ipad-service-filters");
-    if (!filters) {
-      filters = document.createElement("div");
-      filters.className = "ipad-service-filters";
-      filters.setAttribute("role", "group");
-      for (const onlyOpen of [false, true]) {
-        const button = document.createElement("button");
-        button.type = "button";
-        button.dataset.onlyOpen = String(onlyOpen);
-        button.addEventListener("click", () => { openOnly = onlyOpen; updateFilter(shell); schedule(); });
-        filters.append(button);
-      }
-      shell.querySelector(".search-row")?.append(filters);
-    }
-    filters.setAttribute("aria-label", activeLanguage === "EN" ? "Room filter" : activeLanguage === "VI" ? "Lọc phòng" : "Zimmerfilter");
-    filters.querySelectorAll("button").forEach((button) => {
-      const onlyOpen = button.dataset.onlyOpen === "true";
-      const text = tr(onlyOpen ? "Nur offene" : "Alle anzeigen");
-      if (button.textContent !== text) button.textContent = text;
-      button.setAttribute("aria-pressed", String(openOnly === onlyOpen));
-    });
-    shell.querySelectorAll(".ipad-room-grid .room-row").forEach((row) => {
-      const capture = row.querySelector(".room-state");
-      const vacant = Boolean(row.querySelector(".vacant"));
-      const openLabel = activeLanguage === "EN" ? "Open" : activeLanguage === "VI" ? "Còn chờ" : "Offen";
-      if (capture?.classList.contains("redundant-open-status")) capture.dataset.landscapeCapture = openLabel;
-      let note = row.querySelector(".ipad-open-note");
-      if (!capture && !vacant) {
-        if (!note) { note = document.createElement("small"); note.className = "ipad-open-note"; row.querySelector(".room-tail")?.append(note); }
-        if (note.textContent !== openLabel) note.textContent = openLabel;
-      } else note?.remove();
-      let partial = capture?.querySelector(".ipad-partial-icon");
-      if (capture?.classList.contains("partial")) {
-        if (!partial) {
-          partial = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-          partial.setAttribute("class", "ipad-partial-icon");
-          partial.setAttribute("viewBox", "0 0 24 24"); partial.setAttribute("aria-hidden", "true");
-          partial.setAttribute("fill", "none"); partial.setAttribute("stroke", "currentColor"); partial.setAttribute("stroke-width", "1.6");
-          partial.innerHTML = '<circle cx="12" cy="12" r="8"/><path d="M12 4v16"/>';
-          capture.append(partial);
-        }
-      } else partial?.remove();
-    });
-    const content = shell.querySelector(".content");
-    let scrollNote = shell.querySelector(".ipad-scroll-note");
-    if (!scrollNote && shell.querySelector(".bottom-bar")) {
-      scrollNote = document.createElement("span"); scrollNote.className = "ipad-scroll-note";
-      shell.querySelector(".bottom-bar").insertBefore(scrollNote, shell.querySelector(".bottom-button.finish"));
-    }
-    if (!content || !scrollNote) return;
-    const refresh = () => {
-      const end = content.scrollTop >= content.scrollHeight - content.clientHeight - 3;
-      const label = activeLanguage === "EN" ? (end ? "End of list" : "More rooms ↓") : activeLanguage === "VI" ? (end ? "Cuối danh sách" : "Các phòng khác ↓") : (end ? "Listenende" : "Weitere Zimmer ↓");
-      if (scrollNote.textContent !== label) scrollNote.textContent = label;
-      scrollNote.hidden = content.scrollHeight <= content.clientHeight + 3;
-    };
-    if (!ipadScrollOwners.has(content)) { content.addEventListener("scroll", refresh, { passive: true }); ipadScrollOwners.add(content); }
-    refresh();
   }
 
   function displayTable(value) {
@@ -1644,7 +1567,6 @@
     if (shell) ensureReliableMenu(shell, sessionStorage.getItem(roleKey) || "service");
     if (shell) updateServiceOpenHeading(shell);
     if (shell) addIPadSpecialGuestShortcut(shell);
-    if (shell) updateIpadServicePresentation(shell);
     settleServiceEditorContext(document);
     enhanceReceptionModal(document);
     labelMobileReceptionRemarks(document);

@@ -19,8 +19,8 @@
 #ambassador-ui .role-icon svg{stroke-width:1.6!important}
 @media(max-width:560px){#ambassador-ui .role-eyebrow{font-size:21px!important}}
 
-/* Legacy portrait/narrow-tablet presentation. Landscape service is owned below. */
-@media(min-width:700px) and (max-width:999px), (min-width:1000px) and (orientation:portrait){
+/* Original portrait/narrow tablet cards. The wide service view is scoped below. */
+@media (min-width:700px) and (max-width:999px), (min-width:700px) and (orientation:portrait){
 #ambassador-ui[data-app-role=service] .content{overflow:auto!important}
 #ambassador-ui[data-app-role=service] :is(.ipad-room-overview,.ipad-room-grid,.ipad-room-column){height:auto!important;min-height:100%!important}
 #ambassador-ui[data-app-role=service] .ipad-room-grid{grid-template-columns:repeat(5,minmax(0,1fr))!important;grid-template-rows:minmax(0,1fr)!important;gap:0 16px!important}
@@ -55,100 +55,93 @@
 #ambassador-ui[data-app-role=service] .ipad-room-column .vacant{font-size:12px!important;color:var(--ad-muted)!important}
 }
 #ambassador-ui :is(.bottom-button,.open-filter-button,.special-guest-button){border-radius:var(--ad-radius)!important;box-shadow:none!important}
-
-/* Approved iPad service, 11 October 2026. Single owner of landscape geometry.
-   Native room buttons, dialogs, state, search and role permissions stay intact.
-   Safe areas consume real viewport space; room rows may grow when names wrap. */
-.ipad-service-summary,.ipad-service-filters,.ipad-scroll-note,.ipad-open-note,.ipad-partial-icon{display:none}
+/* Header arrangement from the user's August iPad photo:
+   brand / title / navigation; open guests beside KPIs; one full search row.
+   Existing elements and handlers only. iPhone and reception are outside scope. */
 @media(min-width:1000px) and (orientation:landscape){
-#ambassador-ui[data-app-role=service]{--service-gutter:20px;--service-gap:16px}
-#ambassador-ui[data-app-role=service] .app-shell{display:grid!important;grid-template-columns:minmax(0,1fr)!important;grid-template-rows:52px 48px 52px minmax(0,1fr) 52px!important;height:100dvh!important;min-height:0!important;max-width:none!important;width:100%!important;box-sizing:border-box!important;padding:env(safe-area-inset-top) max(var(--service-gutter),env(safe-area-inset-right)) env(safe-area-inset-bottom) max(var(--service-gutter),env(safe-area-inset-left))!important;overflow:hidden!important;position:relative!important}
-#ambassador-ui[data-app-role=service] .topbar{grid-area:1 / 1!important;display:flex!important;align-items:center!important;gap:24px!important;height:52px!important;min-height:0!important;padding:0!important;border-bottom:1px solid var(--ad-line)!important}
-#ambassador-ui[data-app-role=service] .header-logo{width:145px!important;height:38px!important;max-height:38px!important;flex:none!important;order:1!important}
-#ambassador-ui[data-app-role=service] .page-title{display:contents!important}
-#ambassador-ui[data-app-role=service] .page-title-line{order:2!important;display:flex!important;align-items:center!important;gap:8px!important;white-space:nowrap!important}
-#ambassador-ui[data-app-role=service] .page-title h1{font-size:17px!important;line-height:24px!important;letter-spacing:0!important;font-weight:600!important;margin:0!important}
-#ambassador-ui[data-app-role=service] .page-title p{order:3!important;margin:0 0 0 auto!important;white-space:nowrap!important;color:var(--ad-muted)!important;font-size:13px!important;line-height:18px!important}
-#ambassador-ui[data-app-role=service] .header-actions{order:4!important;gap:4px!important;margin:0!important}
-#ambassador-ui[data-app-role=service] .hero{grid-area:2 / 1!important;display:flex!important;align-items:center!important;gap:54px!important;position:static!important;height:48px!important;min-height:0!important;padding:0!important;margin:0!important;border:0!important;overflow:visible!important}
-#ambassador-ui[data-app-role=service] .hero::after,#ambassador-ui[data-app-role=service] .hero-eyebrow,#ambassador-ui[data-app-role=service] .progress-track,#ambassador-ui[data-app-role=service] .hero:has(.ipad-service-summary) > h2{display:none!important}
-#ambassador-ui[data-app-role=service] .ipad-service-summary{display:flex;align-items:center;gap:10px;white-space:nowrap;order:0}
-#ambassador-ui[data-app-role=service] .ipad-service-summary::before{content:"";width:3px;height:27px;background:var(--ad-yellow)}
-#ambassador-ui[data-app-role=service] .ipad-service-summary strong{font-size:27px;line-height:32px;font-weight:600;font-variant-numeric:tabular-nums}
-#ambassador-ui[data-app-role=service] .ipad-service-summary span{font-size:14px;line-height:20px}
-#ambassador-ui[data-app-role=service] .hero-facts{position:static!important;display:flex!important;flex-wrap:nowrap!important;flex-direction:row!important;align-items:center!important;justify-content:flex-start!important;gap:28px!important;width:auto!important;height:auto!important;padding:0!important;margin:0!important;border:0!important;order:1!important;background:#fff!important;overflow:visible!important}
-#ambassador-ui[data-app-role=service] .hero-fact{display:flex!important;flex:0 0 auto!important;width:auto!important;height:auto!important;align-items:center!important;justify-content:flex-start!important;gap:8px!important;padding:0!important;margin:0!important;min-height:0!important;border:0!important;background:none!important;color:var(--ad-ink)!important;white-space:nowrap!important}
-#ambassador-ui[data-app-role=service] .hero-fact::before,#ambassador-ui[data-app-role=service] .hero-fact::after{display:none!important}
-#ambassador-ui[data-app-role=service] .hero-fact > svg{display:block!important;width:19px!important;height:19px!important;flex:none!important;color:var(--ad-accent)!important}
-#ambassador-ui[data-app-role=service] .hero-fact strong{display:block!important;font-size:16px!important;line-height:18px!important;font-weight:600!important;color:var(--ad-ink)!important}
-#ambassador-ui[data-app-role=service] .hero-fact small{display:block!important;font-size:11px!important;line-height:15px!important;margin:0!important;color:var(--ad-muted)!important}
-#ambassador-ui[data-app-role=service] .search-wrap{grid-area:3 / 1!important;position:static!important;display:flex!important;align-items:center!important;gap:14px!important;width:100%!important;max-width:none!important;height:52px!important;margin:0!important;padding:0 0 8px!important;overflow:visible!important;transform:none!important}
-#ambassador-ui[data-app-role=service] .search-row{display:contents!important}
-#ambassador-ui[data-app-role=service] .search-box{flex:0 1 330px!important;width:330px!important;max-width:38%!important;min-width:0!important;height:44px!important;min-height:44px!important;padding:0 11px!important;margin:0!important;gap:9px!important;border:1px solid var(--ad-field)!important}
-#ambassador-ui[data-app-role=service] .search-box > svg{width:18px!important;height:18px!important;flex:none!important}
-#ambassador-ui[data-app-role=service] .search-box input{font-size:14px!important;height:100%!important}
-#ambassador-ui[data-app-role=service] .ipad-service-filters{display:flex;gap:4px;height:44px;align-items:center}
-#ambassador-ui[data-app-role=service] .ipad-service-filters button{height:44px;padding:0 13px;background:#fff;border:0;border-bottom:2px solid transparent;color:var(--ad-muted);font-size:13px;white-space:nowrap}
-#ambassador-ui[data-app-role=service] .ipad-service-filters button[aria-pressed=true]{color:var(--ad-accent);border-bottom-color:var(--ad-accent);font-weight:600}
-#ambassador-ui[data-app-role=service] .ipad-special-guest-shortcut{display:flex!important;position:static!important;align-items:center!important;justify-content:center!important;gap:8px!important;flex:none!important;width:auto!important;height:44px!important;min-height:44px!important;margin:0 0 0 auto!important;padding:0 13px!important;border:1px solid var(--ad-field)!important;border-radius:4px!important;color:var(--ad-accent)!important;font-size:13px!important;font-weight:600!important;background:white!important;white-space:nowrap!important}
-#ambassador-ui[data-app-role=service] .content{grid-area:4 / 1!important;display:block!important;position:relative!important;width:100%!important;height:100%!important;min-height:0!important;margin:0!important;padding:0!important;overflow:auto!important;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-gutter:stable;scrollbar-color:var(--ad-field) white;touch-action:pan-y;border-top:1px solid var(--ad-line)!important;clip-path:none!important}
-#ambassador-ui[data-app-role=service] .ipad-room-overview{display:block!important;width:100%!important;height:auto!important;min-height:0!important;padding:0!important;margin:0!important}
-#ambassador-ui[data-app-role=service] .ipad-room-grid{display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;grid-template-rows:none!important;grid-auto-rows:minmax(92px,auto)!important;gap:4px var(--service-gap)!important;align-content:start!important;height:auto!important;min-height:0!important;padding:4px 0!important;margin:0!important}
-#ambassador-ui[data-app-role=service] .ipad-room-column{display:contents!important}
-#ambassador-ui[data-app-role=service] .ipad-room-column::before{display:none!important;content:none!important}
-#ambassador-ui[data-app-role=service] .ipad-room-grid :is(.room-row,.room-placeholder){grid-column:var(--service-column)!important;grid-row:var(--service-row)!important;height:auto!important;min-height:92px!important;max-height:none!important;block-size:auto!important}
-#ambassador-ui[data-app-role=service] .room-placeholder{visibility:hidden!important;pointer-events:none!important;background:none!important}
-#ambassador-ui[data-app-role=service] .compact-results .ipad-room-grid .room-row{grid-column:auto!important;grid-row:auto!important}
-#ambassador-ui[data-app-role=service] .compact-results .room-placeholder{display:none!important}
-#ambassador-ui[data-app-role=service] .open-only:not(.search-active) .ipad-room-grid .room-row[data-open-match=false]{display:none!important}
-#ambassador-ui[data-app-role=service] .ipad-room-grid .room-row{position:relative!important;display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:0!important;min-width:0!important;width:100%!important;margin:0!important;padding:4px 6px 5px 11px!important;border:0!important;border-radius:0!important;background:#fff!important;box-shadow:none!important;overflow:visible!important;text-align:left!important}
-#ambassador-ui[data-app-role=service] .ipad-room-grid .room-row::before{display:block!important;content:""!important;width:3px!important;height:auto!important;left:0!important;top:6px!important;bottom:6px!important;border-radius:0!important;background:var(--ad-field)!important}
-#ambassador-ui[data-app-role=service] .ipad-room-grid .room-row.included::before{background:var(--ad-yellow)!important}
-#ambassador-ui[data-app-role=service] .ipad-room-grid .room-row.present:not(.partial)::before,#ambassador-ui[data-app-role=service] .ipad-room-grid .room-row.departed::before{background:var(--ad-accent)!important}
-#ambassador-ui[data-app-role=service] .ipad-room-grid .room-key{position:static!important;display:flex!important;flex-direction:row!important;align-items:center!important;gap:8px!important;inset:auto!important;width:auto!important;min-height:23px!important;height:23px!important;padding:0!important;flex:none!important}
-#ambassador-ui[data-app-role=service] .ipad-room-grid .room-number{font-size:21px!important;line-height:23px!important;font-weight:600!important;color:var(--ad-ink)!important}
-#ambassador-ui[data-app-role=service] .ipad-room-grid .people{display:flex!important;align-items:center!important;gap:3px!important;font-size:13px!important;line-height:18px!important;color:var(--ad-muted)!important;font-weight:400!important}
-#ambassador-ui[data-app-role=service] .ipad-room-grid .people svg{display:block!important;width:14px!important;height:14px!important;flex:none!important;color:var(--ad-muted)!important}
-#ambassador-ui[data-app-role=service] .ipad-room-grid .guest-names{position:static!important;display:block!important;inset:auto!important;width:auto!important;min-width:0!important;height:auto!important;min-height:36px!important;max-height:none!important;block-size:auto!important;padding:0!important;margin:2px 0 3px!important;flex:1!important;overflow:visible!important;white-space:normal!important;align-self:stretch!important}
-#ambassador-ui[data-app-role=service] .ipad-room-grid .guest-names::before{display:none!important;content:none!important}
-#ambassador-ui[data-app-role=service] .ipad-room-grid .guest-names strong{display:block!important;position:static!important;width:auto!important;height:auto!important;min-height:18px!important;margin:0!important;padding:0!important;white-space:normal!important;overflow:visible!important;overflow-wrap:anywhere!important;text-overflow:clip!important;font-size:14px!important;line-height:18px!important;font-weight:400!important;color:var(--ad-ink)!important}
-#ambassador-ui[data-app-role=service] .ipad-room-grid .guest-names strong:nth-of-type(n+3){display:none!important}
-#ambassador-ui[data-app-role=service] .ipad-room-grid .guest-names strong[data-landscape-additional]::after{content:attr(data-landscape-additional)!important;display:inline!important;position:static!important;margin-left:5px!important;padding:0!important;font-size:13px!important;line-height:18px!important;font-weight:400!important;color:var(--ad-muted)!important;background:none!important}
-#ambassador-ui[data-app-role=service] .ipad-room-grid :is(.meta-line,.frozen-breakfast-note){position:absolute!important;top:6px!important;bottom:auto!important;left:auto!important;right:6px!important;display:block!important;margin:0!important;padding:0!important;width:auto!important;height:18px!important;font-size:13px!important;line-height:18px!important;font-weight:400!important;color:#4d5559!important;white-space:nowrap!important}
-#ambassador-ui[data-app-role=service] .ipad-room-grid .meta-line{font-size:0!important}
-#ambassador-ui[data-app-role=service] .ipad-room-grid .meta-line::after{content:attr(data-landscape-breakfast)!important;font-size:13px!important;line-height:18px!important}
-#ambassador-ui[data-app-role=service] .ipad-room-grid .meta-line svg,#ambassador-ui[data-app-role=service] .ipad-room-grid .status-note,#ambassador-ui[data-app-role=service] .ipad-room-grid .frozen-breakfast-note[hidden]{display:none!important}
-#ambassador-ui[data-app-role=service] .ipad-room-grid .room-tail{display:flex!important;flex-direction:row!important;flex-wrap:wrap!important;align-items:center!important;justify-content:flex-start!important;gap:4px!important;position:static!important;inset:auto!important;width:auto!important;min-height:18px!important;padding:0!important;margin:0!important;font-size:13px!important;line-height:18px!important}
-#ambassador-ui[data-app-role=service] .ipad-room-grid .room-state,#ambassador-ui[data-app-role=service] .ipad-room-grid .ipad-open-note{display:flex!important;position:static!important;inset:auto!important;align-items:center!important;justify-content:flex-start!important;gap:4px!important;order:0!important;min-height:18px!important;height:auto!important;width:auto!important;max-width:none!important;margin:0!important;padding:0!important;border:0!important;border-radius:0!important;background:none!important;font-size:13px!important;line-height:18px!important;font-weight:600!important;text-align:left!important;white-space:nowrap!important;color:var(--ad-accent)!important}
-#ambassador-ui[data-app-role=service] .ipad-room-grid .room-state[data-landscape-capture]{font-size:0!important}
-#ambassador-ui[data-app-role=service] .ipad-room-grid .room-state[data-landscape-capture]::after{content:attr(data-landscape-capture)!important;font-size:13px!important;line-height:18px!important}
-#ambassador-ui[data-app-role=service] .ipad-room-grid .room-state.partial{color:var(--ad-ink)!important}
-#ambassador-ui[data-app-role=service] .ipad-room-grid .room-state.redundant-open-status,#ambassador-ui[data-app-role=service] .ipad-room-grid .ipad-open-note{font-weight:400!important;color:#4d5559!important}
-#ambassador-ui[data-app-role=service] .ipad-room-grid .room-state svg{display:block!important;width:14px!important;height:14px!important;flex:none!important;order:-1!important}
-#ambassador-ui[data-app-role=service] .ipad-room-grid .room-tail .mobile-inline-info-badge{display:none!important}
-#ambassador-ui[data-app-role=service] .ipad-room-grid .guest-info-indicator{order:1!important;flex:none!important;margin:0!important}
-#ambassador-ui[data-app-role=service] .ipad-room-grid .table-badge{display:block!important;position:static!important;inset:auto!important;order:2!important;margin:0 0 0 auto!important;padding:0!important;border:0!important;border-radius:0!important;background:none!important;min-height:18px!important;height:auto!important;width:auto!important;max-width:100%!important;font-size:13px!important;line-height:18px!important;font-weight:400!important;text-align:right!important;color:var(--ad-accent)!important;white-space:nowrap!important;overflow:visible!important;text-overflow:clip!important}
-#ambassador-ui[data-app-role=service] .ipad-room-grid .room-row:has(.vacant) :is(.meta-line,.frozen-breakfast-note,.room-tail,.people){visibility:hidden!important}
-#ambassador-ui[data-app-role=service] .ipad-room-grid .vacant{font-size:14px!important;color:var(--ad-muted)!important}
-#ambassador-ui[data-app-role=service] .bottom-bar{grid-area:5 / 1!important;display:flex!important;position:static!important;align-items:center!important;gap:16px!important;height:52px!important;min-height:52px!important;padding:0!important;border-top:1px solid var(--ad-line)!important;box-shadow:none!important}
-#ambassador-ui[data-app-role=service] .bottom-button{flex:0 0 auto!important;width:auto!important;min-width:184px!important;height:44px!important;min-height:44px!important;margin:0!important;padding:0 16px!important;border-radius:4px!important;font-size:13px!important;font-weight:600!important}
-#ambassador-ui[data-app-role=service] .bottom-button.finish{margin-left:auto!important;min-width:214px!important}
-#ambassador-ui[data-app-role=service] .ipad-scroll-note{display:flex;align-items:center;justify-content:center;gap:7px;margin:0 auto;color:var(--ad-muted);font-size:13px;white-space:nowrap}
-#ambassador-ui[data-app-role=service] .ipad-scroll-note[hidden]{display:none}
+#ambassador-ui[data-app-role=service] .app-shell{grid-template-rows:56px 56px 56px minmax(0,1fr) 58px!important}
+#ambassador-ui[data-app-role=service] .topbar{height:56px!important;min-height:56px!important}
+#ambassador-ui[data-app-role=service] .hero{grid-row:2!important;grid-column:1!important;display:grid!important;grid-template-columns:minmax(0,1fr) 48%!important;grid-template-rows:1fr!important;align-items:center!important;gap:12px!important;position:relative!important;padding:0 24px!important;border:0!important;border-radius:0!important;min-height:0!important}
+#ambassador-ui[data-app-role=service] .hero h2{grid-column:1!important;grid-row:1!important;position:static!important;display:flex!important;align-items:center!important;justify-content:flex-start!important;gap:12px!important;margin:0!important;padding:0!important;width:auto!important;min-height:0!important;font-size:23px!important;line-height:28px!important;white-space:nowrap!important}
+#ambassador-ui[data-app-role=service] .hero .open-guests-phone{display:none!important}
+#ambassador-ui[data-app-role=service] .hero .open-guests-tablet{display:inline!important}
+#ambassador-ui[data-app-role=service] .open-filter-button{position:static!important;inset:auto!important;flex:0 0 auto!important;min-height:44px!important;height:44px!important;padding:0 4px!important;margin:0!important;font-size:12px!important;line-height:16px!important;color:var(--ad-ink)!important}
+#ambassador-ui[data-app-role=service] .open-filter-button::after{content:none!important}
+#ambassador-ui[data-app-role=service] .open-filter-button[aria-pressed=true]{color:var(--ad-accent)!important}
+#ambassador-ui[data-app-role=service] .hero-facts{grid-column:2!important;grid-row:1!important;position:static!important;inset:auto!important;display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:0!important;width:auto!important;height:44px!important;min-height:44px!important;margin:0!important;padding:0!important}
+#ambassador-ui[data-app-role=service] .hero-fact{position:static!important;display:grid!important;grid-template-columns:20px max-content!important;grid-template-rows:22px 15px!important;column-gap:6px!important;row-gap:0!important;align-content:center!important;justify-content:center!important;height:44px!important;min-height:44px!important;padding:0 10px!important;border:0!important;border-left:1px solid var(--ad-line)!important;background:#fff!important}
+#ambassador-ui[data-app-role=service] .hero-fact > span{display:contents!important}
+#ambassador-ui[data-app-role=service] .hero-facts .hero-fact > svg{grid-column:1!important;grid-row:1!important;display:block!important;width:20px!important;height:20px!important;align-self:center!important;color:#596267!important}
+#ambassador-ui[data-app-role=service] .hero-fact strong{grid-column:2!important;grid-row:1!important;font-size:18px!important;line-height:22px!important}
+#ambassador-ui[data-app-role=service] .hero-fact small{grid-column:1 / -1!important;grid-row:2!important;font-size:12px!important;line-height:15px!important;text-align:center!important}
+#ambassador-ui[data-app-role=service] .progress-track{position:absolute!important;grid-area:auto!important;left:24px!important;right:24px!important;top:auto!important;bottom:0!important;width:auto!important;height:2px!important;margin:0!important}
+#ambassador-ui[data-app-role=service] .search-wrap{grid-row:3!important;grid-column:1!important;position:relative!important;inset:auto!important;display:flex!important;align-items:center!important;justify-content:flex-start!important;gap:12px!important;align-self:stretch!important;justify-self:stretch!important;width:auto!important;height:56px!important;margin:0!important;padding:6px 24px!important;overflow:visible!important;background:#fff!important}
+#ambassador-ui[data-app-role=service] .search-row{display:flex!important;flex:1 1 auto!important;width:auto!important;min-width:0!important;max-width:none!important;height:44px!important;margin:0!important;padding:0!important}
+#ambassador-ui[data-app-role=service] .search-box{width:100%!important;max-width:none!important;height:44px!important;min-height:44px!important}
+#ambassador-ui[data-app-role=service] .ipad-special-guest-shortcut{position:static!important;inset:auto!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;flex:0 0 176px!important;width:176px!important;min-height:44px!important;height:44px!important;margin:0!important;padding:0 10px!important;font-size:13px!important;color:var(--ad-ink)!important;border-color:#B7C0C5!important}
+#ambassador-ui[data-app-role=service] .content{padding-top:0!important;padding-inline:24px!important}
+/* Neutral secondary controls; retain the yellow progress and room signals. */
+#ambassador-ui[data-app-role=service] .topbar .header-actions button{color:var(--ad-ink)!important}
+#ambassador-ui[data-app-role=service] .topbar .header-actions button:is([aria-expanded=true],[aria-pressed=true]){color:var(--ad-accent)!important}
+#ambassador-ui[data-app-role=service] .bottom-bar .bottom-button{background:#fff!important;color:var(--ad-ink)!important;border-color:#B7C0C5!important}
+#ambassador-ui[data-app-role=service] .bottom-bar .bottom-button.finish{background:#fff!important;color:var(--ad-accent)!important;border-color:var(--ad-accent)!important}
+#ambassador-ui[data-app-role=service] .bottom-bar .bottom-button.finish svg{color:inherit!important}
 }
-@media(min-width:1000px) and (max-width:1050px) and (orientation:landscape){
-#ambassador-ui[data-app-role=service]{--service-gutter:16px;--service-gap:12px}
-#ambassador-ui[data-app-role=service] .topbar{gap:20px!important}
-#ambassador-ui[data-app-role=service] .header-logo{width:137px!important}
-#ambassador-ui[data-app-role=service] .page-title h1{font-size:16px!important}
-#ambassador-ui[data-app-role=service] .hero{gap:39px!important}
-#ambassador-ui[data-app-role=service] .hero-facts{gap:20px!important}
-#ambassador-ui[data-app-role=service] .ipad-service-summary span{font-size:13px}
-#ambassador-ui[data-app-role=service] .search-box{flex-basis:300px!important;width:300px!important}
-#ambassador-ui[data-app-role=service] .ipad-room-grid .room-row{padding-left:9px!important;padding-right:3px!important}
-#ambassador-ui[data-app-role=service] .ipad-room-grid .room-key{gap:6px!important}
-#ambassador-ui[data-app-role=service] .ipad-room-grid :is(.meta-line,.frozen-breakfast-note),#ambassador-ui[data-app-role=service] .ipad-room-grid .meta-line::after{font-size:12.5px!important}
-#ambassador-ui[data-app-role=service] .ipad-room-grid .meta-line{font-size:0!important}
-#ambassador-ui[data-app-role=service] .bottom-button{min-width:176px!important}
-#ambassador-ui[data-app-role=service] .bottom-button.finish{min-width:200px!important}
+
+/* Restored from c97b92e / 75b161b (4 October): fixed identification
+   column, native stacked names and breakfast, native capture/table footer.
+   Preserve existing shell and all native elements, data and handlers.
+   Nine equal rows: 55.8px at the small QA viewport, 62.7px at the large.
+   Only the card's vertical rhythm changes with available height. */
+@media(min-width:1000px) and (orientation:landscape){
+#ambassador-ui[data-app-role=service] .content{overflow:hidden!important;min-height:0!important}
+#ambassador-ui[data-app-role=service] :is(.ipad-room-overview,.ipad-room-grid,.ipad-room-column){height:100%!important;min-height:0!important;max-height:100%!important}
+#ambassador-ui[data-app-role=service] .ipad-room-grid{grid-template-columns:repeat(5,minmax(0,1fr))!important;grid-template-rows:minmax(0,1fr)!important;gap:0 16px!important}
+#ambassador-ui[data-app-role=service] .ipad-room-column{grid-template-rows:repeat(9,minmax(0,1fr))!important;gap:0!important;--card-name-size:13px;--card-name-line:14px;--card-meta-line:12px;--card-inset:1px}
+#ambassador-ui[data-app-role=service] .ipad-room-column > :is(.room-row,.room-placeholder){height:100%!important;min-height:0!important;max-height:none!important;block-size:auto!important}
+#ambassador-ui[data-app-role=service] .ipad-room-column .room-row{display:block!important;position:relative!important;padding:0!important;border:0!important;border-bottom:0!important;background:#fff!important;overflow:hidden!important;text-align:left!important}
+#ambassador-ui[data-app-role=service] .ipad-room-column .room-row::before{width:3px!important;left:0!important;top:4px!important;bottom:4px!important;border-radius:0!important}
+/* Original fixed identification axis, with the count BELOW the number. */
+#ambassador-ui[data-app-role=service] .ipad-room-column .room-row .room-key{position:absolute!important;top:var(--card-inset)!important;left:10px!important;right:auto!important;display:grid!important;grid-template-columns:28px!important;grid-template-rows:23px 15px!important;align-items:center!important;justify-items:start!important;gap:2px!important;width:28px!important;height:40px!important}
+#ambassador-ui[data-app-role=service] .ipad-room-column .room-row .room-number{font-size:21px!important;line-height:23px!important;font-weight:600!important;color:var(--card-ink,var(--ad-ink))!important}
+#ambassador-ui[data-app-role=service] .ipad-room-column .room-row .people{display:flex!important;font-size:12px!important;line-height:15px!important;gap:3px!important;color:var(--ad-muted)!important}
+#ambassador-ui[data-app-role=service] .ipad-room-column .room-row .people svg{display:block!important;width:14px!important;height:14px!important;flex:0 0 14px!important}
+/* Original right information axis: two fixed name lines, then breakfast. */
+#ambassador-ui[data-app-role=service] .ipad-room-column .room-row .guest-names{position:absolute!important;top:var(--card-inset)!important;left:46px!important;right:5px!important;bottom:auto!important;display:block!important;width:auto!important;height:calc(2 * var(--card-name-line) + var(--card-meta-line))!important;max-height:none!important;block-size:calc(2 * var(--card-name-line) + var(--card-meta-line))!important;margin:0!important;overflow:visible!important;white-space:nowrap!important}
+#ambassador-ui[data-app-role=service] .ipad-room-column .room-row .guest-names::before{content:none!important;display:none!important}
+#ambassador-ui[data-app-role=service] .ipad-room-column .room-row .guest-names strong,
+#ambassador-ui[data-app-role=service] .ipad-room-column .room-row:has(.room-state:not(.redundant-open-status)) .guest-names strong:nth-of-type(2){position:relative!important;inset:auto!important;display:block!important;width:100%!important;height:var(--card-name-line)!important;min-height:var(--card-name-line)!important;max-height:var(--card-name-line)!important;margin:0!important;padding:0!important;font-size:var(--card-name-size)!important;line-height:var(--card-name-line)!important;font-weight:500!important;color:var(--card-ink,var(--ad-ink))!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+#ambassador-ui[data-app-role=service] .ipad-room-column .room-row .guest-names strong:nth-of-type(n+3){display:none!important}
+#ambassador-ui[data-app-role=service] .ipad-room-column .room-row .guest-names strong:only-of-type{height:calc(2 * var(--card-name-line))!important;max-height:calc(2 * var(--card-name-line))!important;white-space:normal!important;display:-webkit-box!important;-webkit-line-clamp:2!important;-webkit-box-orient:vertical!important}
+#ambassador-ui[data-app-role=service] .ipad-room-column .room-row .guest-names strong[data-landscape-additional],
+#ambassador-ui[data-app-role=service] .ipad-room-column .room-row:has(.room-state:not(.redundant-open-status)) .guest-names strong[data-landscape-additional]:nth-of-type(2){padding-right:19px!important}
+#ambassador-ui[data-app-role=service] .ipad-room-column .room-row .guest-names strong[data-landscape-additional]::after{content:attr(data-landscape-additional)!important;position:absolute!important;right:0!important;top:0!important;font-size:12px!important;line-height:var(--card-name-line)!important;font-weight:400!important;color:var(--ad-muted)!important;background:#fff!important}
+#ambassador-ui[data-app-role=service] .ipad-room-column .room-row :is(.meta-line,.frozen-breakfast-note){position:absolute!important;top:calc(2 * var(--card-name-line))!important;bottom:auto!important;left:0!important;right:0!important;display:flex!important;align-items:center!important;height:var(--card-meta-line)!important;min-height:0!important;line-height:var(--card-meta-line)!important;font-size:12px!important;color:#596267!important;gap:4px!important;margin:0!important;padding:0!important;white-space:nowrap!important}
+#ambassador-ui[data-app-role=service] .ipad-room-column .room-row .frozen-breakfast-note[hidden]{display:none!important}
+#ambassador-ui[data-app-role=service] .ipad-room-column .room-row .meta-line{font-size:0!important;gap:0!important}
+#ambassador-ui[data-app-role=service] .ipad-room-column .room-row .meta-line::after{content:attr(data-landscape-breakfast)!important;font-size:12px!important;line-height:var(--card-meta-line)!important}
+#ambassador-ui[data-app-role=service] .ipad-room-column .room-row .meta-line svg{display:none!important}
+/* The existing footer stays on the same bottom line in every occupied card. */
+#ambassador-ui[data-app-role=service] .ipad-room-column .room-row .room-tail{position:absolute!important;left:46px!important;right:5px!important;top:auto!important;bottom:var(--card-inset)!important;display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:space-between!important;gap:4px!important;width:auto!important;height:var(--card-meta-line)!important;min-height:0!important;padding:0!important;margin:0!important}
+#ambassador-ui[data-app-role=service] .ipad-room-column .room-row .room-state{position:static!important;inset:auto!important;display:flex!important;order:0!important;flex:0 0 auto!important;align-items:center!important;justify-content:flex-start!important;gap:2px!important;width:auto!important;max-width:none!important;height:var(--card-meta-line)!important;min-height:0!important;padding:0!important;margin:0!important;border:0!important;background:transparent!important;font-size:12px!important;line-height:var(--card-meta-line)!important;font-weight:400!important;text-align:left!important;color:var(--card-status,var(--ad-accent))!important;white-space:nowrap!important}
+#ambassador-ui[data-app-role=service] .ipad-room-column .room-row .room-state.redundant-open-status{color:#596267!important}
+#ambassador-ui[data-app-role=service] .ipad-room-column .room-row .room-state[data-reference-capture]{font-size:0!important}
+#ambassador-ui[data-app-role=service] .ipad-room-column .room-row .room-state[data-reference-capture]::after{content:attr(data-reference-capture)!important;font-size:12px!important;line-height:var(--card-meta-line)!important}
+#ambassador-ui[data-app-role=service] .ipad-room-column .room-row .room-state svg{display:block!important;width:12px!important;height:12px!important;flex:0 0 12px!important}
+#ambassador-ui[data-app-role=service] .ipad-room-column .room-row .table-badge{position:static!important;inset:auto!important;display:block!important;order:1!important;flex:0 1 auto!important;width:auto!important;max-width:none!important;min-width:0!important;height:var(--card-meta-line)!important;min-height:0!important;padding:0!important;margin:0!important;border:0!important;background:transparent!important;border-radius:0!important;font-size:12px!important;line-height:var(--card-meta-line)!important;font-weight:400!important;text-align:right!important;color:#596267!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+#ambassador-ui[data-app-role=service] .ipad-room-column .room-row .status-note{display:none!important}
+#ambassador-ui[data-app-role=service] .ipad-room-column .room-row .vacant{position:static!important;font-size:13px!important;line-height:var(--card-name-line)!important;color:var(--ad-muted)!important}
+#ambassador-ui[data-app-role=service] .app-shell.open-only:not(.search-active) .ipad-room-column .room-row[data-open-match=false]{visibility:hidden!important;pointer-events:none!important}
+#ambassador-ui[data-app-role=service] .ipad-room-column .room-row.partial::before{background:#CBD2D5!important}
+#ambassador-ui[data-app-role=service] .ipad-room-column .room-row.included.partial::before{background:var(--ad-yellow)!important}
+/* Completion is derived only from the native full/partial state. Keep open
+   and partial rooms prominent; completed rooms stay readable and interactive.
+   No whole-card opacity, additional badges or changes to card geometry. */
+#ambassador-ui[data-app-role=service] .ipad-room-column .room-row.present:not(.partial){--card-ink:#657176;--card-status:#596267}
+#ambassador-ui[data-app-role=service] .ipad-room-column .room-row.present:not(.partial)::before{background:#E0E5E7!important}
+#ambassador-ui[data-app-role=service] .ipad-room-column .room-row.partial .room-state{font-weight:600!important}
+#ambassador-ui[data-app-role=service] .ipad-room-column .room-row.present:not(.partial) .room-state svg{color:var(--ad-accent)!important}
+}
+@media(min-width:1000px) and (min-height:780px) and (orientation:landscape){
+#ambassador-ui[data-app-role=service] .ipad-room-column{--card-name-size:14px;--card-name-line:16px;--card-meta-line:13px;--card-inset:1px}
 }
