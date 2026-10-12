@@ -1685,6 +1685,13 @@
     const button=footer.querySelector('button'),label=daily?tr('Tag als CSV exportieren'):tr('Abschlüsse als CSV exportieren');
     if(button.textContent!==label)button.textContent=label;
     button.disabled=!daily&&!readBreakfastHistory().length;
+    const nativeFinish=document.querySelector('.bottom-button.finish');
+    let finish=footer.querySelector('.v45-close-day');
+    if(daily&&nativeFinish&&!finish){
+      finish=document.createElement('button');finish.type='button';finish.className='modal-action v45-close-day';
+      finish.addEventListener('click',()=>document.querySelector('.bottom-button.finish')?.click());footer.append(finish);
+    }
+    if(finish){finish.hidden=!daily;finish.textContent=tr('Frühstück beenden');finish.disabled=Boolean(nativeFinish?.disabled);}
   }
   function v41Overview(){
     if(sessionStorage.getItem(roleKey)!=='reception')return;
