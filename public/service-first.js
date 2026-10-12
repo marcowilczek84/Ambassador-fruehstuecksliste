@@ -15,6 +15,66 @@ function effectiveArrivals(events){
  }
  return result.filter(e=>e.people>0);
 }
+// Count room attendance from persisted room state, including check-ins without an event log.
+// Additional guests are event-based; targeted corrections are applied before summing.
+function dayStatistics(rooms=[],events=[]){
+ const occupied=rooms.filter(r=>Number(r.people)>0&&r.guests?.length).map(normalize);
+ const arrived=effectiveArrivals(events),sum=(list,key)=>list.reduce((n,r)=>n+(Number(r[key])||0),0);
+ const included=occupied.filter(r=>r.included),includedExpected=sum(included,'people'),includedArrived=sum(included,'arrivedCount');
+ const hotelAdditional=sum(occupied.filter(r=>!r.included),'arrivedCount');
+ const opera=sum(arrived.filter(e=>e.guestType==='opera'),'people'),external=sum(arrived.filter(e=>e.guestType==='external'),'people');
+ const timed=arrived.filter(e=>Number.isFinite(Number(e.at))&&Number(e.at)>0).sort((a,b)=>a.at-b.at);
+ return {includedExpected,includedArrived,includedMissing:Math.max(0,includedExpected-includedArrived),hotelAdditional,opera,external,additional:hotelAdditional+opera+external,total:includedArrived+hotelAdditional+opera+external,first:timed[0]?.at||null,last:timed.at(-1)?.at||null};
+}
+function dailySnapshot(rooms,events,date,profile={}){
+ return {date,...dayStatistics(rooms,events),peak:profile.peak||'–',eighty:profile.eighty||'–'};
+}
+const statsHeaders={
+ de:['Datum','Inklusive erwartet','Inklusive erfasst','Inklusive nicht erfasst','Hotelgäste zusätzlich','Opera Gäste','Externe Gäste','Zusätzliche Gäste gesamt','Frühstücke gesamt','Erste Erfassung','Letzte Erfassung','Stärkste 30 Minuten','80 % der Ankünfte'],
+ en:['Date','Included expected','Included checked in','Included not checked in','Additional hotel guests','Opera guests','External guests','Additional guests total','Total breakfasts','First check-in','Last check-in','Busiest 30 minutes','80% of arrivals'],
+ vi:['Ngày','Khách bao gồm dự kiến','Khách bao gồm đã đến','Khách bao gồm chưa đến','Khách khách sạn bổ sung','Khách Opera','Khách bên ngoài','Tổng khách bổ sung','Tổng bữa sáng','Ghi nhận đầu tiên','Ghi nhận cuối cùng','30 phút đông nhất','80% lượt đến']
+};
+function statisticsCsv(rows,language='de'){
+ const cell=value=>'"'+String(value??'').replace(/^[=+@-]/,"'$&").replace(/"/g,'""')+'"';
+ const clock=at=>Number.isFinite(Number(at))&&Number(at)>0?new Intl.DateTimeFormat('en-GB',{hour:'2-digit',minute:'2-digit',timeZone:'Europe/Zurich'}).format(new Date(Number(at))):'';
+ const count=value=>value!==null&&value!==undefined&&value!==''&&Number.isFinite(Number(value))?Math.max(0,Number(value)):null;
+ const data=(rows||[]).filter(r=>/^\d{4}-\d{2}-\d{2}$/.test(r.date||'')).map(r=>{
+  const expected=count(r.includedExpected),arrived=count(r.includedArrived),additional=count(r.additional);
+  return [r.date,expected,arrived,expected!==null&&arrived!==null?Math.max(0,expected-arrived):null,count(r.hotelAdditional),count(r.opera),count(r.external),additional,arrived!==null&&additional!==null?arrived+additional:null,clock(r.first),clock(r.last),r.peak,r.eighty];
+ });
+ return '\uFEFF'+[statsHeaders[language]||statsHeaders.de,...data].map(row=>row.map(cell).join(';')).join('\r\n')+'\r\n';
+}
+function downloadStatistics(rows,language='de'){
+ if(typeof document==='undefined'||sessionStorage.getItem('ambassador-work-area')!=='reception'||!rows?.length)return false;
+ const blob=new Blob([statisticsCsv(rows,language)],{type:'text/csv;charset=utf-8'}),url=URL.createObjectURL(blob),link=document.createElement('a');
+ const suffix=rows.length===1&&/^\d{4}-\d{2}-\d{2}$/.test(rows[0].date)?rows[0].date:'Abschluesse';
+ link.href=url;link.download='Ambassador-Fruehstueck-'+suffix+'.csv';document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);return true;
+}
+function roomTables(room){
+ if(Number(room.arrivedCount||0)<=0)return [];
+ const bookings=Array.isArray(room.serviceBookings)?room.serviceBookings:[];
+ const names=bookings.filter(b=>Number(b.people)>0&&b.table).map(b=>String(b.table));
+ const booked=bookings.reduce((total,b)=>total+Math.max(0,Number(b.people)||0),0);
+ if(Number(room.arrivedCount)>booked){const legacy=String(room.serviceLegacyTable||room.table||'').trim();if(legacy)names.push(legacy)}
+ return [...new Set(names.map(s=>s.trim().replace(/^(?:Tisch|Table|Bàn)\s*/i,'')).filter(Boolean))];
+}
+// Latest *recorded* placement per table. A check-in is not proof that a table is still occupied.
+function latestTablePlacements(rooms){
+ const candidates=new Map();
+ for(const room of rooms){
+  if(normalize(room).arrivedCount<=0)continue;
+  for(const booking of Array.isArray(room.serviceBookings)?room.serviceBookings:[]){
+   if(!(Number(booking.people)>0)||!booking.table)continue;
+   const table=String(booking.table).trim().replace(/^(?:Tisch|Table|Bàn)\s*/i,'');
+   const at=Number(booking.at);
+   if(!table||!Number.isSafeInteger(at)||at<=0)continue; // Older bookings without timestamps remain neutral.
+   const previous=candidates.get(table),roomNumber=Number(room.room);
+   if(!previous||at>previous.at)candidates.set(table,{room:roomNumber,at});
+   else if(at===previous.at&&previous.room!==roomNumber)candidates.set(table,{room:null,at}); // Ambiguous ordering must not claim a winner.
+  }
+ }
+ return new Map([...candidates].filter(([,value])=>value.room!==null).map(([table,value])=>[table,value.room]));
+}
 function stayInfo(room,today){
  const day=s=>{if(!/^\d{4}-\d{2}-\d{2}$/.test(s||''))return null;const n=Date.parse(s+'T00:00:00Z');return Number.isFinite(n)&&new Date(n).toISOString().slice(0,10)===s?n/86400000:null};
  const a=day(room.arrival),d=day(room.departure),t=day(today);
@@ -84,6 +144,7 @@ function component(React){
   }
   const all=props.rooms.map(normalize).sort((a,b)=>a.room-b.room),occupied=all.filter(r=>r.people&&r.guests?.length),included=occupied.filter(r=>r.included),total=included.reduce((a,r)=>a+r.people,0),count=included.reduce((a,r)=>a+r.arrivedCount,0);
   const filtered=all.filter(r=>matches(r,query)&&(!onlyOpen||isOpen(r)));
+  const lastSeated=latestTablePlacements(all);
   const current=all.find(r=>r.room===selected);
   const blocked=busy||!!pending||props.finished;
   function openRoom(r,event){origin.current=event.currentTarget;setSelected(r.room);setAmount(Math.max(0,Number(r.people||0)-normalize(r).arrivedCount));setTable('');setReceipt(null)}
@@ -92,10 +153,13 @@ function component(React){
   function card(r){
    const occupied=r.people>0&&r.guests?.length,complete=occupied&&r.arrivedCount>=r.people,partial=occupied&&r.arrivedCount>0&&!complete;
    const state=complete?lang.registered:partial?text('Teilweise','Partial','Một phần'):r.included?lang.included:lang.excluded;
+   const tables=roomTables(r).sort((a,b)=>Number(lastSeated.get(b)===Number(r.room))-Number(lastSeated.get(a)===Number(r.room)));
+   const tableLabel=text('Tisch','Table','Bàn'),seating=tables.length?`${tableLabel} ${tables.join(' · ')}`:'';
+   const latestForRoom=tables.filter(t=>lastSeated.get(t)===Number(r.room));
    return h('article',{key:r.room,className:`v4-room ${complete?'is-complete':''} ${partial?'is-partial':''} ${!occupied?'is-vacant':''} ${r.included?'is-included':''}`,style:{'--room-row':r.room%10+1},'data-room':r.room,'aria-label':`${lang.room} ${r.room}`},
-    h(occupied?'button':'div',{className:'v4-room-open',...(occupied?{type:'button',onClick:e=>openRoom(r,e),'aria-label':`${lang.room} ${r.room}: ${r.guests.join(', ')}. ${r.people} ${lang.people}. ${state}`}:{})},
+    h(occupied?'button':'div',{className:'v4-room-open',...(occupied?{type:'button',onClick:e=>openRoom(r,e),'aria-label':`${lang.room} ${r.room}: ${r.guests.join(', ')}. ${r.people} ${lang.people}. ${state}${seating?'. '+seating:''}${latestForRoom.length?'. '+text('Zuletzt erfasst an Tisch','Last recorded at table','Ghi nhận gần nhất tại bàn')+' '+latestForRoom.join(' und '):''}`}:{})},
      h('span',{className:'v4-room-id'},h('strong',{className:'v4-number'},r.room),occupied&&h('span',{className:'v4-people'},icon('person'),r.people)),
-     h('span',{className:'v4-room-body'},occupied?h('span',{className:'v4-names'},r.guests.slice(0,2).map((name,i)=>h('span',{key:i},name)),r.guests.length>2&&h('small',{className:'v4-more'},`+${r.guests.length-2}`)):h('span',{className:'v4-vacant'},lang.vacant),partial&&h('span',{className:'v4-partial'},text('Teilweise','Partial','Một phần'))),
+     h('span',{className:'v4-room-body'},occupied?h('span',{className:'v4-names'},r.guests.slice(0,2).map((name,i)=>h('span',{key:i},name)),r.guests.length>2&&h('small',{className:'v4-more'},`+${r.guests.length-2}`)):h('span',{className:'v4-vacant'},lang.vacant),(partial||seating)&&h('span',{className:'v4-room-meta'},partial&&h('span',{className:'v4-partial'},text('Teilweise','Partial','Một phần')),seating&&h('span',{className:'v4-room-table',title:seating},h('span',{className:'v4-table-label'},`${tableLabel} `),tables.map((table,i)=>h(React.Fragment,{key:table},i?h('span',{className:'v4-table-divider'},' · '):null,h('span',{className:`v4-table-number ${lastSeated.get(table)===Number(r.room)?'is-latest':''}`,title:lastSeated.get(table)===Number(r.room)?text('Zuletzt an diesem Tisch erfasst (Belegung nicht bestätigt)','Latest recorded at this table (occupancy not confirmed)','Ghi nhận gần nhất tại bàn (chưa xác nhận còn ngồi)'):text('Frühere oder zeitlich unbekannte Tischzuweisung','Earlier or undated table assignment','Bàn được gán trước đó hoặc không rõ thời gian')},table)))))),
      complete&&h('span',{className:'v4-done','aria-label':lang.registered},icon('check')))
    );
   }
@@ -124,10 +188,10 @@ function component(React){
     ),
     h('footer',{className:'v41-dialog-footer'},receipt||current.arrivedCount>=current.people?h('button',{className:'v41-save',onClick:closeRoom},lang.close):h('button',{className:'v41-save',disabled:blocked||!table,onClick:()=>change(current,Math.min(amount,current.people-current.arrivedCount))},busy?lang.save:table?text(`${Math.min(amount,current.people-current.arrivedCount)} ${amount===1?'Gast':'Gäste'} · ${table} erfassen`,`Check in · ${table}`,`Ghi nhận · ${table}`):text('Tisch wählen','Choose table','Chọn bàn')))
    )),
-   stats&&h('div',{className:'v4-dialog-layer',onClick:e=>e.target===e.currentTarget&&setStats(false)},h('section',{className:'v4-dialog v41-stats',role:'dialog','aria-modal':true,'aria-labelledby':'v41-stats-title'},h('header',null,h('h2',{id:'v41-stats-title'},text('Frühstück heute','Breakfast today','Bữa sáng hôm nay')),h('button',{'aria-label':lang.close,onClick:()=>{setStats(false);origin.current?.focus()}},icon('close'))),h('div',{className:'v4-dialog-body'},(()=>{const events=effectiveArrivals(props.arrivals||[]),extra=events.filter(e=>e.guestType).reduce((n,e)=>n+e.people,0),roomTotal=occupied.reduce((n,r)=>n+r.arrivedCount,0),first=events[0];return h('dl',null,[[text('Inklusive erfasst','Included checked in','Đã đến · bao gồm'),`${count} / ${total}`],[text('Inklusive noch offen','Included still open','Chưa đến · bao gồm'),Math.max(0,total-count)],[text('Zusätzlich erfasst','Additional guests','Khách bổ sung'),roomTotal-count+extra],[text('Frühstücke gesamt','Total breakfasts','Tổng bữa sáng'),roomTotal+extra],[text('Erste Erfassung','First check-in','Lần đầu ghi nhận'),first?new Intl.DateTimeFormat(props.language==='de'?'de-CH':'en-GB',{hour:'2-digit',minute:'2-digit',timeZone:'Europe/Zurich'}).format(new Date(first.at)):'–']].map(([name,value])=>h('div',{key:name},h('dt',null,name),h('dd',null,value))))})())))
+   stats&&h('div',{className:'v4-dialog-layer',onClick:e=>e.target===e.currentTarget&&setStats(false)},h('section',{className:'v4-dialog v41-stats',role:'dialog','aria-modal':true,'aria-labelledby':'v41-stats-title'},h('header',null,h('h2',{id:'v41-stats-title'},text('Frühstück heute','Breakfast today','Bữa sáng hôm nay')),h('button',{'aria-label':lang.close,onClick:()=>{setStats(false);origin.current?.focus()}},icon('close'))),h('div',{className:'v4-dialog-body'},(()=>{const day=dayStatistics(props.rooms,props.arrivals||[]);return h('dl',null,[[text('Frühstücke gesamt','Total breakfasts','Tổng bữa sáng'),day.total],[text('Inklusive erfasst','Included checked in','Đã đến · bao gồm'),`${day.includedArrived} / ${day.includedExpected}`],[text('Inklusive noch offen','Included still open','Chưa đến · bao gồm'),day.includedMissing],[text('Hotelgäste zusätzlich','Additional hotel guests','Khách khách sạn bổ sung'),day.hotelAdditional],[text('Opera Gäste','Opera guests','Khách Opera'),day.opera],[text('Externe Gäste','External guests','Khách bên ngoài'),day.external]].map(([name,value])=>h('div',{key:name},h('dt',null,name),h('dd',null,value))))})())))
   );
  };
  return Component;
 }
-const api={component,normalize,isOpen,matches,effectiveArrivals,stayInfo,importList,editRoom};root.AmbassadorServiceV4=api;if(typeof module!=='undefined')module.exports=api;
+const api={component,normalize,isOpen,matches,effectiveArrivals,dayStatistics,dailySnapshot,statisticsCsv,downloadStatistics,stayInfo,importList,editRoom,roomTables,latestTablePlacements};root.AmbassadorServiceV4=api;if(typeof module!=='undefined')module.exports=api;
 })(typeof window!=='undefined'?window:globalThis);

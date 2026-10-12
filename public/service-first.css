@@ -180,6 +180,9 @@
 #ambassador-ui .v41-stats dl>div{display:flex;justify-content:space-between;align-items:center;gap:20px;border-bottom:1px solid #e5eaec;padding:16px 0;font-size:14px}
 #ambassador-ui .v41-stats dd{font-size:22px;font-weight:600;margin:0}
 #ambassador-ui .v41-stats dt{color:#647078}
+#ambassador-ui .v45-export-actions{flex:0 0 auto;display:flex;justify-content:flex-end;padding:14px 20px;border-top:1px solid #e5eaec;background:#fff}
+#ambassador-ui .v45-export-actions .modal-action{min-height:44px;border:1px solid #cad9dc;border-radius:6px;background:#fff;color:#176f73;padding:10px 16px;font:inherit}
+#ambassador-ui .v45-export-actions .modal-action:disabled{color:#647078;opacity:.6}
 @media(max-width:650px){#ambassador-ui .v4-logo{width:48px}#ambassador-ui .v4-header{gap:8px}#ambassador-ui .v4-header-actions .v4-statistics{min-width:36px;padding:0 5px}#ambassador-ui .v41-checkin>header,#ambassador-ui .v41-checkin .v4-dialog-body,#ambassador-ui .v41-dialog-footer{padding:14px}#ambassador-ui .v41-checkin{max-height:calc(100dvh - 20px)}#ambassador-ui .v4-dialog-layer:has(.v41-checkin){padding:10px}#ambassador-ui .v41-table-heading button{min-height:44px}#ambassador-ui .v41-stay{font-size:13px}}
 @media(max-width:360px){#ambassador-ui .v4-logo{display:block;width:30px}#ambassador-ui .v4-brand h1{font-size:15px}#ambassador-ui .v4-header-actions .v4-role{font-size:10px;padding:0 4px}}
 #ambassador-ui[data-app-role=reception] .header-actions .icon-button{display:none!important}
@@ -197,3 +200,14 @@
 #ambassador-ui .v4-tools .v4-special{display:flex;align-items:center;justify-content:center;gap:7px;flex-shrink:0;min-height:44px;padding:0 12px;border:1px solid #cad9dc;border-radius:6px;background:#fff!important;color:#176f73!important;font-size:13px;white-space:nowrap}
 #ambassador-ui .v4-special svg{width:18px;height:18px;flex-shrink:0}
 @media(max-width:650px){#ambassador-ui .v4-tools .v4-special{width:100%;order:4;font-size:14px}}
+
+/* Show persisted breakfast table placement inside the fixed-height V4 room card. */
+#ambassador-ui .v4-room-meta{display:flex;align-items:center;gap:4px;min-width:0;width:100%;margin-top:2px;line-height:13px}
+#ambassador-ui .v4-room-meta .v4-partial{flex:0 0 auto;margin-top:0;padding:0 4px;white-space:nowrap;font-size:10px;line-height:13px}
+#ambassador-ui .v4-room-table{display:block;min-width:0;flex:0 1 auto;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#53666d;font-size:10px;line-height:13px;font-weight:600;font-variant-numeric:tabular-nums}
+
+/* A single quiet highlight per table: latest recorded placement, not verified occupancy. */
+#ambassador-ui .v4-room-table .v4-table-label{font-size:10px;font-weight:400;color:#63747b}
+#ambassador-ui .v4-room-table .v4-table-divider{font-weight:400;color:#a1afb2}
+#ambassador-ui .v4-room-table .v4-table-number{display:inline-block;vertical-align:baseline;color:#89969c;font-size:10px;font-weight:500;line-height:13px}
+#ambassador-ui .v4-room-table .v4-table-number.is-latest{color:#176d72;background:#e5f1f1;border:1px solid #bad9d9;border-radius:3px;font-size:12px;font-weight:700;line-height:13px;padding:0 3px;margin:0 1px}
