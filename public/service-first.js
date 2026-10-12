@@ -15,6 +15,31 @@ function effectiveArrivals(events){
  }
  return result.filter(e=>e.people>0);
 }
+function roomTables(room){
+ if(Number(room.arrivedCount||0)<=0)return [];
+ const bookings=Array.isArray(room.serviceBookings)?room.serviceBookings:[];
+ const names=bookings.filter(b=>Number(b.people)>0&&b.table).map(b=>String(b.table));
+ const booked=bookings.reduce((total,b)=>total+Math.max(0,Number(b.people)||0),0);
+ if(Number(room.arrivedCount)>booked){const legacy=String(room.serviceLegacyTable||room.table||'').trim();if(legacy)names.push(legacy)}
+ return [...new Set(names.map(s=>s.trim().replace(/^(?:Tisch|Table|Bàn)\s*/i,'')).filter(Boolean))];
+}
+// Latest *recorded* placement per table. A check-in is not proof that a table is still occupied.
+function latestTablePlacements(rooms){
+ const candidates=new Map();
+ for(const room of rooms){
+  if(normalize(room).arrivedCount<=0)continue;
+  for(const booking of Array.isArray(room.serviceBookings)?room.serviceBookings:[]){
+   if(!(Number(booking.people)>0)||!booking.table)continue;
+   const table=String(booking.table).trim().replace(/^(?:Tisch|Table|Bàn)\s*/i,'');
+   const at=Number(booking.at);
+   if(!table||!Number.isSafeInteger(at)||at<=0)continue; // Older bookings without timestamps remain neutral.
+   const previous=candidates.get(table),roomNumber=Number(room.room);
+   if(!previous||at>previous.at)candidates.set(table,{room:roomNumber,at});
+   else if(at===previous.at&&previous.room!==roomNumber)candidates.set(table,{room:null,at}); // Ambiguous ordering must not claim a winner.
+  }
+ }
+ return new Map([...candidates].filter(([,value])=>value.room!==null).map(([table,value])=>[table,value.room]));
+}
 function stayInfo(room,today){
  const day=s=>{if(!/^\d{4}-\d{2}-\d{2}$/.test(s||''))return null;const n=Date.parse(s+'T00:00:00Z');return Number.isFinite(n)&&new Date(n).toISOString().slice(0,10)===s?n/86400000:null};
  const a=day(room.arrival),d=day(room.departure),t=day(today);
@@ -84,6 +109,7 @@ function component(React){
   }
   const all=props.rooms.map(normalize).sort((a,b)=>a.room-b.room),occupied=all.filter(r=>r.people&&r.guests?.length),included=occupied.filter(r=>r.included),total=included.reduce((a,r)=>a+r.people,0),count=included.reduce((a,r)=>a+r.arrivedCount,0);
   const filtered=all.filter(r=>matches(r,query)&&(!onlyOpen||isOpen(r)));
+  const lastSeated=latestTablePlacements(all);
   const current=all.find(r=>r.room===selected);
   const blocked=busy||!!pending||props.finished;
   function openRoom(r,event){origin.current=event.currentTarget;setSelected(r.room);setAmount(Math.max(0,Number(r.people||0)-normalize(r).arrivedCount));setTable('');setReceipt(null)}
@@ -92,10 +118,13 @@ function component(React){
   function card(r){
    const occupied=r.people>0&&r.guests?.length,complete=occupied&&r.arrivedCount>=r.people,partial=occupied&&r.arrivedCount>0&&!complete;
    const state=complete?lang.registered:partial?text('Teilweise','Partial','Một phần'):r.included?lang.included:lang.excluded;
+   const tables=roomTables(r).sort((a,b)=>Number(lastSeated.get(b)===Number(r.room))-Number(lastSeated.get(a)===Number(r.room)));
+   const tableLabel=text('Tisch','Table','Bàn'),seating=tables.length?`${tableLabel} ${tables.join(' · ')}`:'';
+   const latestForRoom=tables.filter(t=>lastSeated.get(t)===Number(r.room));
    return h('article',{key:r.room,className:`v4-room ${complete?'is-complete':''} ${partial?'is-partial':''} ${!occupied?'is-vacant':''} ${r.included?'is-included':''}`,style:{'--room-row':r.room%10+1},'data-room':r.room,'aria-label':`${lang.room} ${r.room}`},
-    h(occupied?'button':'div',{className:'v4-room-open',...(occupied?{type:'button',onClick:e=>openRoom(r,e),'aria-label':`${lang.room} ${r.room}: ${r.guests.join(', ')}. ${r.people} ${lang.people}. ${state}`}:{})},
+    h(occupied?'button':'div',{className:'v4-room-open',...(occupied?{type:'button',onClick:e=>openRoom(r,e),'aria-label':`${lang.room} ${r.room}: ${r.guests.join(', ')}. ${r.people} ${lang.people}. ${state}${seating?'. '+seating:''}${latestForRoom.length?'. '+text('Zuletzt erfasst an Tisch','Last recorded at table','Ghi nhận gần nhất tại bàn')+' '+latestForRoom.join(' und '):''}`}:{})},
      h('span',{className:'v4-room-id'},h('strong',{className:'v4-number'},r.room),occupied&&h('span',{className:'v4-people'},icon('person'),r.people)),
-     h('span',{className:'v4-room-body'},occupied?h('span',{className:'v4-names'},r.guests.slice(0,2).map((name,i)=>h('span',{key:i},name)),r.guests.length>2&&h('small',{className:'v4-more'},`+${r.guests.length-2}`)):h('span',{className:'v4-vacant'},lang.vacant),partial&&h('span',{className:'v4-partial'},text('Teilweise','Partial','Một phần'))),
+     h('span',{className:'v4-room-body'},occupied?h('span',{className:'v4-names'},r.guests.slice(0,2).map((name,i)=>h('span',{key:i},name)),r.guests.length>2&&h('small',{className:'v4-more'},`+${r.guests.length-2}`)):h('span',{className:'v4-vacant'},lang.vacant),(partial||seating)&&h('span',{className:'v4-room-meta'},partial&&h('span',{className:'v4-partial'},text('Teilweise','Partial','Một phần')),seating&&h('span',{className:'v4-room-table',title:seating},h('span',{className:'v4-table-label'},`${tableLabel} `),tables.map((table,i)=>h(React.Fragment,{key:table},i?h('span',{className:'v4-table-divider'},' · '):null,h('span',{className:`v4-table-number ${lastSeated.get(table)===Number(r.room)?'is-latest':''}`,title:lastSeated.get(table)===Number(r.room)?text('Zuletzt an diesem Tisch erfasst (Belegung nicht bestätigt)','Latest recorded at this table (occupancy not confirmed)','Ghi nhận gần nhất tại bàn (chưa xác nhận còn ngồi)'):text('Frühere oder zeitlich unbekannte Tischzuweisung','Earlier or undated table assignment','Bàn được gán trước đó hoặc không rõ thời gian')},table)))))),
      complete&&h('span',{className:'v4-done','aria-label':lang.registered},icon('check')))
    );
   }
@@ -129,5 +158,5 @@ function component(React){
  };
  return Component;
 }
-const api={component,normalize,isOpen,matches,effectiveArrivals,stayInfo,importList,editRoom};root.AmbassadorServiceV4=api;if(typeof module!=='undefined')module.exports=api;
+const api={component,normalize,isOpen,matches,effectiveArrivals,stayInfo,importList,editRoom,roomTables,latestTablePlacements};root.AmbassadorServiceV4=api;if(typeof module!=='undefined')module.exports=api;
 })(typeof window!=='undefined'?window:globalThis);
