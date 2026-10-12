@@ -1,3 +1,7 @@
+## 12.10.2026 — V3 Precision Service veröffentlicht
+
+Production `a4e72fb3aba5db1a7edca69cfaf7b876ec7de483`, `dpl_DrrK8T3rdCwrJqNajeaheQqbS5jf`, READY und offizieller Alias geprüft. Eigener Branch `breakfast-v3-precision-20261012`. Vorherige Premium-Production `67da031181abd62198ab0d0d618ac915dc1c2354`, Deployment `dpl_91RMjj7BbPc8MPKJFDBpFeCTCwva`, bleibt Rückfall. Build, fünf Tests, echte isolierte Browserprüfung und lesende Live-Prüfung erfolgreich. Details: `PRECISION-V3-20261012.md`. Historische „nur Preview“-Angaben darunter sind überholt.
+
 # Release-Historie – Ambassador Frühstück
 
 ## Bestehender Production-Stand

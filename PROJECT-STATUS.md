@@ -1,18 +1,11 @@
-## Aktueller Zusatzauftrag – 12.10.2026
+# Ambassador Frühstück — aktueller Projektstatus
 
-Premium UX für Frühstück und Inside in `premium-ux-20261012`. Preview, nicht abgenommen, keine Production-Freigabe. Ambassador-Logo links im Inside-Header ergänzt. Hub und Trinkgeld ausdrücklich außerhalb des Auftrags. Siehe `PREMIUM-UX-20261012.md`.
+12.10.2026: **V3 Precision Service ist live.**
 
-# Ambassador Frühstück – Arbeitsstand
+Production `a4e72fb3aba5db1a7edca69cfaf7b876ec7de483`, Deployment `dpl_DrrK8T3rdCwrJqNajeaheQqbS5jf`, offizieller Alias https://ambassador-fruehstuecksliste.vercel.app/. Branch `breakfast-v3-precision-20261012`; spätere Dokumentationscommits sind kein neuer Runtime-Release.
 
-11.10.2026, Europe/Zurich. Production zuletzt verifiziert: `e74d850597d6f68dbe182ef92cf235950690c279`. Neue, noch nicht veröffentlichte Korrektur auf `ambassador-start-header-20261011`, direkt auf diesem Production-Commit aufgebaut.
+Die Premium-UX-Version `67da031181abd62198ab0d0d618ac915dc1c2354` war tatsächlich Production und ist die gesicherte Rückfallversion. Ältere Aussagen, sie sei nur Preview, sind überholt. V3 wurde auf dieser Basis entwickelt, nicht auf dem älteren `main`.
 
-Der neue Nutzerauftrag korrigiert den tatsächlich aktiven React-Ladebildschirm (altes Tassenlogo), vereinheitlicht die Starttypografie und ergänzt einen Hub-Link im Header. Der kurze App-Name lautet Frühstück; Service/Rezeption bleiben als Arbeitsbereich sichtbar. Das originale Hotellogo führt zur Bereichswahl. Der Zusatz-App-Verweis entfällt. Zimmerkarten-Geometrie, Import, Check-in, Berechnung und Speicherung unverändert.
+[Umsetzung, QA, Einschränkungen und Rollback](PRECISION-V3-20261012.md). [Gemeinsames Designsystem](AMBASSADOR-DESIGN-SYSTEM.md). Zentrale Projektdokumentation: `marcowilczek84/silk-service`, Branch `silk-inside-v23-editorial-20261012`, `PROJECT-STATUS.md`.
 
-Kanonische Dokumentation im Repository `marcowilczek84/silk-service`, Branch `ambassador-start-header-20261011`:
-
-- [Projektstatus](https://github.com/marcowilczek84/silk-service/blob/ambassador-start-header-20261011/PROJECT-STATUS.md)
-- [Designsystem](https://github.com/marcowilczek84/silk-service/blob/ambassador-start-header-20261011/AMBASSADOR-DESIGN-SYSTEM.md)
-- [Release-Historie](https://github.com/marcowilczek84/silk-service/blob/ambassador-start-header-20261011/RELEASE-HISTORY.md)
-- [Gezielte Prüfungen](https://github.com/marcowilczek84/silk-service/blob/ambassador-start-header-20261011/docs/HEADER-STARTSEITEN-QA-20261011.md)
-
-Syntax und isolierte Header-DOM-Prüfungen bestanden. Im aktiven kompilierten Programm unterscheidet sich ausschließlich das Markup des Ladebildschirms. Neue Browserprüfung einschließlich Hydration und 44-Zimmer-Geometrie bei 1024 × 748 / 1194 × 834 noch offen. Ältere Screenshots und bestandene Geometrieprüfungen gelten für den vorherigen Stand, nicht als Abnahme dieser Änderung. Vercel-Neudeployments sind wegen des bereits gemeldeten Tageslimits blockiert. Keine neue Production-Veröffentlichung.
+Keine produktiven Gastdaten, Mews-Import-, Check-in-, Speicher-, Export- oder API-Logik verändert. Hub, Trinkgeld und die neue Inside-Editorial-Gestaltung in diesem Release unverändert. Vor neuen Änderungen aktuelle Deployment-/Branchspitzen und parallele Arbeit erneut prüfen.
