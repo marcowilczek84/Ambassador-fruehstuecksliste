@@ -98,3 +98,46 @@
 @media(max-width:999px){#ambassador-ui .v4-shell{height:auto;min-height:100dvh;grid-template-rows:60px auto 1fr 44px;padding:0 16px}#ambassador-ui .v4-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}#ambassador-ui .v4-column{display:contents}#ambassador-ui .v4-room{grid-row:auto;height:86px}#ambassador-ui .v4-header time{display:none}#ambassador-ui .v4-header-actions{margin-left:auto}#ambassador-ui .v4-tools{flex-wrap:wrap;gap:12px}#ambassador-ui .v4-progress{max-width:none;flex-basis:100%}#ambassador-ui .v4-search{flex:1}#ambassador-ui .v4-names{font-size:14px;line-height:18px}}
 @media(max-width:650px){#ambassador-ui .v4-shell{padding:0 14px;grid-template-rows:64px auto 1fr auto}#ambassador-ui .v4-header{gap:10px}#ambassador-ui .v4-logo{width:76px;height:30px}#ambassador-ui .v4-brand{display:block}#ambassador-ui .v4-brand h1{font-size:18px}#ambassador-ui .v4-brand span{font-size:10px}#ambassador-ui .v4-header-actions{gap:0}#ambassador-ui .v4-header-actions :is(button,select,a){padding:0 6px;font-size:11px;min-width:38px}#ambassador-ui .v4-header-actions a{display:none}#ambassador-ui .v4-grid{display:flex;flex-direction:column;gap:0}#ambassador-ui .v4-column{display:contents}#ambassador-ui .v4-room{grid-template-columns:50px minmax(0,1fr) 48px;gap:12px;height:92px;min-height:92px;padding-right:2px}#ambassador-ui .v4-number{font-size:28px;top:16px}#ambassador-ui .v4-count{font-size:13px;padding-bottom:17px}#ambassador-ui .v4-names{font-size:16px;line-height:20px}#ambassador-ui .v4-entitlement{font-size:11px;line-height:16px}#ambassador-ui .v4-progress span{font-size:11px}#ambassador-ui .v4-tools{padding:16px 0;gap:16px 10px}#ambassador-ui .v4-filter{min-width:110px;padding:0 8px}#ambassador-ui .v4-search{width:auto}#ambassador-ui .v4-search input{font-size:16px}#ambassador-ui .v4-footer{min-height:60px;flex-wrap:wrap;padding:10px 0;justify-content:space-between}#ambassador-ui .v4-footer button{min-height:44px}#ambassador-ui .v4-footer>span:nth-child(2){display:none}#ambassador-ui .v4-toast{bottom:14px;font-size:13px;gap:8px;min-width:calc(100% - 28px);flex-wrap:wrap}#ambassador-ui .v4-toast>span{flex:1;min-width:140px}#ambassador-ui .v4-dialog-layer{padding:14px}#ambassador-ui .v4-empty{min-height:300px}}
 @media(prefers-reduced-motion:reduce){#ambassador-ui *{animation-duration:.001ms!important;transition-duration:.001ms!important}}
+/* Legacy global button colours must not override the V4 controls. */
+#ambassador-ui .v4-shell :is(.v4-plus,.v4-count,.v4-filter),#ambassador-ui .v4-dialog .v4-stepper button,#ambassador-ui .v4-toast button{color:#176f73!important}
+#ambassador-ui .v4-shell .v4-room.is-complete .v4-count{color:#65757c!important}
+#ambassador-ui .v4-dialog .v4-dialog-close{color:#fff!important}
+#ambassador-ui .v4-room{grid-template-columns:44px minmax(0,1fr) 44px}
+#ambassador-ui .v4-room-id{min-width:44px}
+#ambassador-ui .v4-shell .v4-plus:active{color:#fff!important}
+@media(min-width:700px){
+ #ambassador-ui[data-app-role=reception]{--reception-list:100%!important;--ui-padding:20px!important}
+ #ambassador-ui[data-app-role=reception] .app-shell{display:grid!important;grid-template-rows:60px 76px 58px minmax(0,1fr)!important;width:100%!important;max-width:1800px!important;height:100dvh!important;padding:0!important;margin:auto!important;overflow:hidden!important}
+ #ambassador-ui[data-app-role=reception] .topbar{height:60px!important;min-height:60px!important;padding:8px 20px!important;border-bottom:1px solid #e5eaec!important;grid-template-columns:150px 1fr auto!important}
+ #ambassador-ui[data-app-role=reception] .header-logo{width:112px!important;max-height:36px!important}
+ #ambassador-ui[data-app-role=reception] .page-title{justify-self:start!important;text-align:left!important}
+ #ambassador-ui[data-app-role=reception] .page-title p{font-size:11px!important}
+ #ambassador-ui[data-app-role=reception] .hero{grid-row:2!important;width:100%!important;margin:0!important;padding:12px 20px!important;height:76px!important;min-height:0!important;border:0!important}
+ #ambassador-ui[data-app-role=reception] .reception-toolbar{flex-direction:row!important;align-items:center!important;justify-content:space-between!important;gap:16px!important}
+ #ambassador-ui[data-app-role=reception] .reception-actions{display:flex!important;gap:10px!important}
+ #ambassador-ui[data-app-role=reception] .reception-actions button{width:auto!important;height:44px!important;min-height:44px!important;padding:0 18px!important;border-radius:6px!important}
+ #ambassador-ui[data-app-role=reception] .reception-summary strong{font-size:18px!important}
+ #ambassador-ui[data-app-role=reception] .search-wrap{position:static!important;grid-row:3!important;width:100%!important;height:58px!important;padding:0 20px 14px!important}
+ #ambassador-ui[data-app-role=reception] .search-box{height:44px!important;min-height:44px!important;border-radius:6px!important}
+ #ambassador-ui[data-app-role=reception] .search-box input{height:42px!important;font-size:14px!important}
+ #ambassador-ui[data-app-role=reception] .content{grid-row:4!important;width:100%!important;height:100%!important;padding:0 20px!important;overflow-y:auto!important;overflow-x:hidden!important}
+ #ambassador-ui[data-app-role=reception] .reception-detail-empty{display:none!important}
+ #ambassador-ui[data-app-role=reception] .reception-table-head,#ambassador-ui[data-app-role=reception] .room-row{grid-template-columns:56px minmax(170px,2fr) 70px 90px 90px 104px minmax(110px,1.35fr)!important;gap:10px!important}
+ #ambassador-ui[data-app-role=reception] .reception-table-head{padding:10px 8px!important;font-size:11px!important;color:#647078!important;background:#f5f8f9!important}
+ #ambassador-ui[data-app-role=reception] .reception-table-head span:nth-child(n){display:block!important}
+ #ambassador-ui[data-app-role=reception] .room-row,#ambassador-ui[data-app-role=reception] .room-row:has(.has-remark){height:56px!important;min-height:56px!important;max-height:56px!important;grid-template-rows:1fr!important;padding:6px 8px!important}
+ #ambassador-ui[data-app-role=reception] .room-row .room-number{font-size:18px!important;font-weight:600!important}
+ #ambassador-ui[data-app-role=reception] .room-row .guest-names{grid-column:2!important;grid-row:1!important;align-self:center!important}
+ #ambassador-ui[data-app-role=reception] .room-row .guest-names strong{font-size:14px!important;line-height:18px!important}
+ #ambassador-ui[data-app-role=reception] .room-row .people{grid-column:3!important;grid-row:1!important;justify-self:start!important;font-size:14px!important}
+ #ambassador-ui[data-app-role=reception] .room-row>.reception-arrival{grid-column:4!important;grid-row:1!important}
+ #ambassador-ui[data-app-role=reception] .room-row>.reception-departure{grid-column:5!important;grid-row:1!important}
+ #ambassador-ui[data-app-role=reception] .room-row>.reception-breakfast{grid-column:6!important;grid-row:1!important}
+ #ambassador-ui[data-app-role=reception] .room-row>.reception-remark,#ambassador-ui[data-app-role=reception] .room-row>.reception-remark.has-remark{grid-column:7!important;grid-row:1!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+ #ambassador-ui[data-app-role=reception] .room-row>:is(.reception-arrival,.reception-departure,.reception-breakfast,.reception-remark){display:block!important;font-size:12px!important;line-height:18px!important;color:#53666d!important}
+ #ambassador-ui[data-app-role=reception] .reception-remark.has-remark::before{content:none!important}
+ #ambassador-ui[data-app-role=reception] .modal-layer:has(>.guest-edit-modal){position:fixed!important;inset:0!important;display:flex!important;align-items:center!important;justify-content:center!important;width:100%!important;padding:24px!important;background:#152a3540!important;z-index:300!important}
+ #ambassador-ui[data-app-role=reception] .guest-edit-modal{position:relative!important;inset:auto!important;width:640px!important;max-width:calc(100vw - 48px)!important;height:auto!important;max-height:calc(100dvh - 48px)!important;border:0!important;border-radius:10px!important;box-shadow:0 6px 24px #152a351a!important}
+ #ambassador-ui[data-app-role=reception] .guest-edit-modal .modal-body{max-height:calc(100dvh - 150px)!important;overflow:auto!important}
+}
+#ambassador-ui .v4-reception-service{min-width:62px;height:44px;border:0;background:#fff;color:#53666d!important;border-radius:4px;font-size:12px;cursor:pointer}

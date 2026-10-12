@@ -261,6 +261,9 @@
   function addViewSwitcher(shell, role) {
     const actions = shell.querySelector(".header-actions");
     if (!actions || actions.querySelector(".ad-hub-link")) return;
+    if(role === "reception"){
+      const service=document.createElement("button");service.className="v4-reception-service";service.type="button";service.textContent=tr("Service");service.addEventListener("click",()=>selectRole("service"));actions.append(service);
+    }
     // Preserve the existing area-selection action on the hotel logo.
     const logo = shell.querySelector(".header-logo");
     if (logo && !logo.closest("button")) {
@@ -585,7 +588,7 @@
       row.toggleAttribute("data-reception-selected", row.querySelector(".room-number")?.textContent.trim() === selectedRoom);
     });
     if (!modal) return;
-    modal.setAttribute("aria-modal", window.innerWidth >= 700 ? "false" : "true");
+    modal.setAttribute("aria-modal", "true");
     if (modal.dataset.viewRoom !== selectedRoom) {
       modal.dataset.viewRoom = selectedRoom;
       modal.dataset.uiEdit = String(window.innerWidth >= 700);
@@ -740,10 +743,15 @@
     const date = specialGuestDate();
     const updated = Date.now();
     const history = readBreakfastHistory();
+    const previous = readDailyState("ambassador-breakfast-rooms", "rooms", []);
+    const changes = rooms.filter(room => JSON.stringify(previous.find(old=>old.room===room.room)) !== JSON.stringify(room));
+    let pending;try{pending=JSON.parse(localStorage.getItem("ambassador-breakfast-pending-sync-v1")||"null")}catch{}
+    const delta = new Map((pending?.date===date ? pending.rooms||[] : []).map(room=>[room.room,room]));
+    changes.forEach(room=>delta.set(room.room,room));
     localStorage.setItem("ambassador-breakfast-rooms", JSON.stringify({ date, rooms }));
     localStorage.setItem("ambassador-breakfast-arrivals", JSON.stringify({ date, events: arrivals }));
     localStorage.setItem("ambassador-breakfast-activity-v1", JSON.stringify({ date, items: activity.slice(-30) }));
-    localStorage.setItem("ambassador-breakfast-pending-sync-v1", JSON.stringify({ date, rooms, arrivals, history, activity: activity.slice(-30), updated }));
+    localStorage.setItem("ambassador-breakfast-pending-sync-v1", JSON.stringify({ date, rooms: [...delta.values()], arrivals, history, activity: activity.slice(-30), updated }));
     window.dispatchEvent(new Event("focus"));
   }
 

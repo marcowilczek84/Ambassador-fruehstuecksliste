@@ -5,6 +5,16 @@ const PENDING='ambassador-service-v4-pending';
 const normalize=r=>({...r,arrivedCount:Math.max(0,Math.min(Number(r.people)||0,Number(r.arrivedCount??(r.present||r.departed?r.people:0))||0))});
 const isOpen=r=>r.people>0&&r.guests?.length&&r.included&&normalize(r).arrivedCount<r.people;
 const matches=(r,q)=>`${r.room} ${(r.guests||[]).join(' ')} ${r.table||''}`.toLocaleLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').includes(q.trim().toLocaleLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''));
+// Signed corrections reduce the newest matching arrival for existing reception statistics.
+function effectiveArrivals(events){
+ const result=[];
+ for(const event of [...events].sort((a,b)=>a.at-b.at)){
+  if(Number(event.people)>0){result.push({...event});continue}
+  let remaining=-Number(event.people||0);
+  for(let i=result.length-1;i>=0&&remaining>0;i--){const candidate=result[i];if(candidate.room===event.room&&candidate.included===event.included){const remove=Math.min(remaining,candidate.people);candidate.people-=remove;remaining-=remove}}
+ }
+ return result.filter(e=>e.people>0);
+}
 let Component;
 function component(React){
  if(Component)return Component;
@@ -61,7 +71,7 @@ function component(React){
     h('section',{className:'v4-tools','aria-label':lang.service},h('div',{className:'v4-progress'},h('div',null,h('strong',null,`${count} / ${total}`),h('span',null,props.language==='de'?'inklusive Gäste erfasst':props.language==='en'?'included guests checked in':'khách bao gồm đã đến')),h('progress',{value:count,max:Math.max(1,total),'aria-label':lang.registered})),h('label',{className:'v4-search'},icon('search'),h('input',{type:'search',value:query,placeholder:lang.search,'aria-label':lang.search,onChange:e=>setQuery(e.target.value)})),h('button',{className:'v4-filter','aria-pressed':onlyOpen,onClick:()=>setOpen(v=>!v)},h('span',{'aria-hidden':true},onlyOpen?'✓':''),lang.open)),
     props.finished&&h('p',{className:'v4-alert',role:'status'},lang.finished),
     h('section',{className:`v4-grid ${query||onlyOpen?'is-filtered':''}`,'aria-label':lang.all},filtered.length?[20,30,40,50,60].map(base=>h('div',{className:'v4-column',key:base,'aria-label':`${base}–${base+8}`},filtered.filter(r=>r.room>=base&&r.room<base+10).map(card))):h('div',{className:'v4-empty'},h('h2',null,occupied.length?lang.noResults:lang.empty),occupied.length>0&&h('button',{onClick:()=>{setQuery('');setOpen(false)}},lang.reset))),
-    h('footer',{className:'v4-footer'},h('span',{'aria-live':'polite',className:pending||/Offline/.test(props.status)?'v4-sync-wait':''},status),h('span',null,`${occupied.length} ${lang.room.toLowerCase()} · ${occupied.reduce((s,r)=>s+r.people,0)} ${lang.people}`),h('button',{onClick:()=>window.dispatchEvent(new Event('ambassador-open-special'))},lang.extra))
+    h('footer',{className:'v4-footer'},h('span',{'aria-live':'polite',className:pending||/Offline/.test(props.status)?'v4-sync-wait':''},status),h('span',null,`${occupied.length} ${lang.room} · ${occupied.reduce((s,r)=>s+r.people,0)} ${lang.people}`),h('button',{disabled:blocked,onClick:()=>window.dispatchEvent(new Event('ambassador-open-special'))},lang.extra))
    ),
    (busy||pending||notice)&&h('aside',{className:`v4-toast ${notice?.error?'is-error':''}`,role:'status','aria-live':'polite'},h('span',null,busy?lang.save:notice?.text||lang.pending),!busy&&pending&&h('button',{onClick:()=>send(pending)},lang.retry),!busy&&!pending&&notice?.undo&&h('button',{onClick:()=>{const r=all.find(r=>r.room===notice.undo.room);if(r)change(r,-1,notice.undo.expected)}},lang.undo),!busy&&!pending&&h('button',{'aria-label':lang.close,onClick:()=>setNotice(null)},'×')),
    current&&h('div',{className:'v4-dialog-layer',onClick:e=>e.target===e.currentTarget&&closeRoom()},h('section',{className:'v4-dialog',role:'dialog','aria-modal':true,'aria-labelledby':'v4-dialog-title'},h('header',null,h('h2',{id:'v4-dialog-title'},`${lang.room} ${current.room}`),h('button',{'aria-label':lang.close,onClick:closeRoom},icon('close'))),h('div',{className:'v4-dialog-body'},current.guests.map((name,i)=>h('p',{key:i,className:'v4-full-name'},name)),h('p',{className:'v4-dialog-meta'},`${current.people} ${lang.people} · ${current.included?(props.language==='de'?'Frühstück inklusive':lang.included):(props.language==='de'?'Frühstück nicht inklusive':lang.excluded)}`),h('div',{className:'v4-stepper'},h('button',{disabled:blocked||!current.arrivedCount,onClick:()=>change(current,-1),'aria-label':lang.minus},'−1'),h('strong',null,`${current.arrivedCount} / ${current.people}`,h('small',null,lang.registered)),h('button',{disabled:blocked||current.arrivedCount>=current.people,onClick:()=>change(current,1),'aria-label':`${lang.room} ${current.room}: +1`},'+1')),current.table&&h('p',null,current.table),current.note&&h('p',{className:'v4-note'},current.note),current.guestInfo?.length>0&&h('p',{className:'v4-note'},current.guestInfo.map(x=>typeof x==='string'?x:x.label||x.text||'').join(' · ')),h('button',{className:'v4-dialog-close',onClick:closeRoom},lang.close))))
@@ -69,5 +79,5 @@ function component(React){
  };
  return Component;
 }
-const api={component,normalize,isOpen,matches};root.AmbassadorServiceV4=api;if(typeof module!=='undefined')module.exports=api;
+const api={component,normalize,isOpen,matches,effectiveArrivals};root.AmbassadorServiceV4=api;if(typeof module!=='undefined')module.exports=api;
 })(typeof window!=='undefined'?window:globalThis);
