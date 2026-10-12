@@ -153,7 +153,7 @@
     location.reload();
   }
 
-  const workAreaTransition = Object.freeze({ duration: 2300, reducedDuration: 80 });
+  const workAreaTransition = Object.freeze({ duration: 4700, serviceDuration: 2300, reducedDuration: 80 });
 
   function showSharedListReadyAnimation(duration = workAreaTransition.duration) {
     document.querySelector(".success-overlay")?.remove();
@@ -189,9 +189,9 @@
         <div class="success-metric green"><svg viewBox="0 0 120 120" aria-hidden="true"><circle class="ring-track" cx="60" cy="60" r="50"></circle><circle class="ring-value" cx="60" cy="60" r="50" style="--ring-offset:${ringOffset(occupied.length / Math.max(1, rooms.length))}"></circle></svg><div><strong>${occupancy}%</strong><small>${copy.occupancy}</small></div></div>
       </div>
       <dl class="v4-entry-summary" aria-label="${copy.summary}">
-        <div><dd>${occupied.length}</dd><dt>${copy.rooms}</dt></div>
-        <div><dd>${guests}</dd><dt>${copy.guests}</dt></div>
-        <div><dd>${included}</dd><dt>${copy.breakfast}</dt></div>
+        <div><dt>${copy.rooms}</dt><dd>${occupied.length}</dd></div>
+        <div><dt>${copy.guests}</dt><dd>${guests}</dd></div>
+        <div><dt>${copy.breakfast}</dt><dd>${included}</dd></div>
       </dl>
     </div>`;
     document.body.append(layer);
@@ -1422,7 +1422,7 @@
     const rooms = readDailyState("ambassador-breakfast-rooms", "rooms", []);
     sessionStorage.removeItem("ambassador-service-entry-transition");
     if (!rooms.some((room) => Number(room.people || 0) > 0)) return;
-    showSharedListReadyAnimation();
+    showSharedListReadyAnimation(role === "service" ? workAreaTransition.serviceDuration : workAreaTransition.duration);
     const layer = document.querySelector(".success-overlay");
     if (!layer) return;
     layer.classList.add("work-area-entry-transition");
