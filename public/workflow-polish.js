@@ -854,11 +854,16 @@
     persistBreakfastState(rooms, nextArrivals, nextActivity);
   }
 
+  function activeSpecialGuestArrivals(events) {
+    return window.AmbassadorServiceV4.effectiveArrivals(events)
+      .filter(event => event.guestType && event.actionId);
+  }
+
   function undoSpecialGuestCheckin(actionId) {
     const rooms = readDailyState("ambassador-breakfast-rooms", "rooms", []);
     const arrivals = readDailyState("ambassador-breakfast-arrivals", "events", []);
     const activity = readDailyState("ambassador-breakfast-activity-v1", "items", []);
-    const event = arrivals.find((item) => item.actionId === actionId && item.guestType);
+    const event = activeSpecialGuestArrivals(arrivals).find((item) => item.actionId === actionId);
     if (!event) return false;
     const action = activity.find((item) => item.id === actionId);
     const at = Date.now();
@@ -876,13 +881,15 @@
       afterRooms: [],
       targetId: action?.id || actionId
     });
-    persistBreakfastState(rooms, arrivals.filter((item) => item.actionId !== actionId), nextActivity);
+    // The server merges arrival events additively. Keep a signed, targeted correction
+    // so a stale device or reload cannot restore this booking.
+    const correction = { ...event, at, people: -Number(event.people), actionId: `undo-special-${actionId}`, undoActionId: actionId };
+    persistBreakfastState(rooms, [...arrivals, correction], nextActivity);
     return true;
   }
 
   function specialGuestEntriesMarkup() {
-    const entries = readDailyState("ambassador-breakfast-arrivals", "events", [])
-      .filter((event) => event.guestType && event.actionId)
+    const entries = activeSpecialGuestArrivals(readDailyState("ambassador-breakfast-arrivals", "events", []))
       .sort((a, b) => Number(b.at || 0) - Number(a.at || 0));
     if (!entries.length) return "";
     return `<details class="special-guest-today"><summary>${tr("Heute erfasst")} · ${entries.reduce((sum, entry) => sum + Number(entry.people || 0), 0)} ›</summary><div class="special-guest-entry-list">${entries.map((entry) => {
@@ -916,6 +923,7 @@
     let type = "";
     let count = 1;
     let table = "";
+    let saving = false;
     const save = layer.querySelector("[data-special-save]");
     const update = () => {
       layer.querySelector("[data-special-count]").textContent = String(count);
@@ -925,6 +933,7 @@
     };
     const close = () => layer.remove();
     layer.addEventListener("click", (event) => {
+      if (saving) return;
       if (event.target === layer || event.target.closest(".close-button") || event.target.closest("[data-special-cancel]")) return close();
       const typeButton = event.target.closest("[data-special-type]");
       if (typeButton) {
@@ -947,6 +956,7 @@
         return;
       }
       if (event.target.closest("[data-special-save]") && type) {
+        saving = true;
         saveSpecialGuestCheckin(type, count, table ? `Tisch ${table}` : "Kein Tisch");
         save.textContent = tr("Erfasst ✓");
         save.disabled = true;
@@ -955,6 +965,7 @@
           close();
           schedule();
         }, 650);
+        return;
       }
       update();
     });

@@ -192,3 +192,8 @@
 @media(max-width:699px){#ambassador-ui .v41-admin-tasks{gap:8px;padding:0 12px;justify-content:space-between}#ambassador-ui .v41-admin-tasks button{font-size:11px;max-width:32%}}
 
 @media(max-width:650px){#ambassador-ui .v4-grid{gap:6px}#ambassador-ui .v4-room-open{grid-template-columns:50px minmax(0,1fr);gap:12px;padding:8px}#ambassador-ui .v4-partial{font-size:11px;margin-top:5px}}
+
+/* External and Opera guests remain reachable before the room list on every device. */
+#ambassador-ui .v4-tools .v4-special{display:flex;align-items:center;justify-content:center;gap:7px;flex-shrink:0;min-height:44px;padding:0 12px;border:1px solid #cad9dc;border-radius:6px;background:#fff!important;color:#176f73!important;font-size:13px;white-space:nowrap}
+#ambassador-ui .v4-special svg{width:18px;height:18px;flex-shrink:0}
+@media(max-width:650px){#ambassador-ui .v4-tools .v4-special{width:100%;order:4;font-size:14px}}
