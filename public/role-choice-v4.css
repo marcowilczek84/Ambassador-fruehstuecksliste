@@ -1,0 +1,134 @@
+/* Ambassador Frühstück V4 – role chooser only.
+   No changes to service cards, reception, splash or data flows. */
+#ambassador-ui .entry-screen.role-pending .role-selection.v4-role-picker{
+  position:relative!important;top:auto!important;left:auto!important;right:auto!important;
+  transform:none!important;display:flex!important;flex-direction:column!important;
+  align-items:stretch!important;gap:0!important;
+  width:min(660px,calc(100vw - 48px))!important;max-width:100%!important;
+  margin:0 auto!important;padding:0!important;
+  background:transparent!important;text-align:center!important;
+  font-family:Arial,Helvetica,sans-serif!important;
+}
+#ambassador-ui .role-selection.v4-role-picker .v4-role-intro{
+  order:0!important;align-self:stretch!important;margin:0 0 32px!important;
+}
+#ambassador-ui .role-selection.v4-role-picker .v4-role-intro h1{
+  display:block!important;order:0!important;margin:0!important;padding:0!important;
+  color:#202b30!important;font:500 29px/1.2 Arial,Helvetica,sans-serif!important;
+  letter-spacing:-.035em!important;text-transform:none!important;
+}
+#ambassador-ui .role-selection.v4-role-picker .v4-role-intro p{
+  margin:9px 0 0!important;color:#647078!important;
+  font:400 13px/1.5 Arial,Helvetica,sans-serif!important;
+}
+#ambassador-ui .role-selection.v4-role-picker .role-options{
+  display:grid!important;order:1!important;width:100%!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:16px!important;margin:0!important;padding:0!important;
+}
+#ambassador-ui .role-selection.v4-role-picker .role-options button{
+  box-sizing:border-box!important;position:relative!important;
+  display:flex!important;flex-direction:column!important;justify-content:center!important;
+  align-items:center!important;gap:0!important;min-width:0!important;
+  min-height:190px!important;margin:0!important;padding:20px 18px!important;
+  border:1px solid #dce3e6!important;border-radius:9px!important;
+  background:#fff!important;box-shadow:0 3px 12px rgba(27,46,50,.045)!important;
+  color:#202b30!important;text-align:center!important;
+  cursor:pointer!important;touch-action:manipulation;
+  transition:border-color .16s ease,box-shadow .16s ease,background-color .16s ease!important;
+}
+#ambassador-ui .role-selection.v4-role-picker .role-options .role-icon{
+  display:flex!important;flex:0 0 auto!important;align-items:center!important;justify-content:center!important;
+  width:56px!important;height:56px!important;margin:0 0 15px!important;padding:0!important;
+  background:#edf5f5!important;border:0!important;border-radius:9px!important;
+  box-shadow:none!important;color:#176f73!important;
+}
+#ambassador-ui .role-selection.v4-role-picker .role-options .role-icon svg{
+  width:28px!important;height:28px!important;stroke:#176f73!important;
+  stroke-width:1.7!important;fill:none!important;
+}
+#ambassador-ui .role-selection.v4-role-picker .role-options .v4-role-label{
+  display:flex!important;flex-direction:column!important;align-items:center!important;
+  justify-content:center!important;min-width:0!important;gap:6px!important;
+}
+#ambassador-ui .role-selection.v4-role-picker .role-options strong{
+  color:#202b30!important;font:500 18px/1.3 Arial,Helvetica,sans-serif!important;
+  letter-spacing:-.012em!important;
+}
+#ambassador-ui .role-selection.v4-role-picker .role-options small{
+  color:#697880!important;font:400 12px/1.45 Arial,Helvetica,sans-serif!important;
+}
+#ambassador-ui .role-selection.v4-role-picker .role-options .v4-role-next{
+  position:absolute!important;right:15px!important;top:15px!important;
+  width:17px!important;height:17px!important;color:#8fa1a6!important;
+}
+#ambassador-ui .role-selection.v4-role-picker .role-options .v4-role-next svg{
+  display:block;width:100%;height:100%;
+}
+#ambassador-ui .role-selection.v4-role-picker .v4-role-hub{
+  display:inline-flex!important;order:2!important;align-self:center!important;
+  align-items:center!important;justify-content:center!important;gap:8px!important;
+  min-height:44px!important;margin-top:25px!important;padding:8px 12px!important;
+  color:#647078!important;text-decoration:none!important;
+  font:400 12px/1.3 Arial,Helvetica,sans-serif!important;
+  border-radius:7px!important;
+}
+#ambassador-ui .role-selection.v4-role-picker .v4-role-hub svg{
+  width:15px;height:15px;flex:0 0 auto;
+}
+#ambassador-ui .role-selection.v4-role-picker .v4-role-hub:hover{
+  color:#176f73!important;
+}
+#ambassador-ui .role-selection.v4-role-picker :is(button,a):focus-visible{
+  outline:2px solid #176f73!important;outline-offset:3px!important;
+}
+@media(hover:hover){
+  #ambassador-ui .role-selection.v4-role-picker .role-options button:hover{
+    border-color:#8bbabc!important;box-shadow:0 5px 16px rgba(27,66,68,.085)!important;
+  }
+}
+@media(max-width:650px){
+  #ambassador-ui .entry-screen.role-pending .role-selection.v4-role-picker{
+    width:min(425px,calc(100vw - 40px))!important;
+  }
+  #ambassador-ui .role-selection.v4-role-picker .v4-role-intro{
+    margin-bottom:25px!important;
+  }
+  #ambassador-ui .role-selection.v4-role-picker .v4-role-intro h1{
+    font-size:25px!important;
+  }
+  #ambassador-ui .role-selection.v4-role-picker .v4-role-intro p{
+    font-size:12px!important;
+  }
+  #ambassador-ui .role-selection.v4-role-picker .role-options{
+    grid-template-columns:1fr!important;gap:11px!important;
+  }
+  #ambassador-ui .role-selection.v4-role-picker .role-options button{
+    flex-direction:row!important;justify-content:flex-start!important;
+    text-align:left!important;min-height:100px!important;
+    padding:16px 40px 16px 16px!important;gap:15px!important;
+  }
+  #ambassador-ui .role-selection.v4-role-picker .role-options .role-icon{
+    width:48px!important;height:48px!important;margin:0!important;flex:0 0 48px!important;
+  }
+  #ambassador-ui .role-selection.v4-role-picker .role-options .role-icon svg{
+    width:24px!important;height:24px!important;
+  }
+  #ambassador-ui .role-selection.v4-role-picker .role-options .v4-role-label{
+    align-items:flex-start!important;text-align:left!important;
+  }
+  #ambassador-ui .role-selection.v4-role-picker .role-options strong{font-size:16px!important}
+  #ambassador-ui .role-selection.v4-role-picker .role-options small{font-size:12px!important}
+  #ambassador-ui .role-selection.v4-role-picker .role-options .v4-role-next{
+    right:14px!important;top:calc(50% - 8px)!important;
+  }
+  #ambassador-ui .role-selection.v4-role-picker .v4-role-hub{margin-top:16px!important}
+}
+@media(max-height:630px){
+  #ambassador-ui .role-selection.v4-role-picker .v4-role-intro{margin-bottom:16px!important}
+  #ambassador-ui .role-selection.v4-role-picker .role-options button{min-height:86px!important}
+  #ambassador-ui .role-selection.v4-role-picker .v4-role-hub{margin-top:7px!important}
+}
+@media(prefers-reduced-motion:reduce){
+  #ambassador-ui .role-selection.v4-role-picker .role-options button{transition:none!important}
+}
