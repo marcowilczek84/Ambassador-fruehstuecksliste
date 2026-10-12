@@ -142,3 +142,48 @@
 }
 #ambassador-ui .v4-reception-service{min-width:62px;height:44px;border:0;background:#fff;color:#53666d!important;border-radius:4px;font-size:12px;cursor:pointer}
 @media(max-width:360px){#ambassador-ui .v4-header{gap:8px}#ambassador-ui .v4-logo{width:48px}#ambassador-ui .v4-header-actions select{min-width:44px}}
+/* V4.1: table-based partial check-in and compact service statistics. */
+#ambassador-ui .v41-checkin{width:600px;max-width:100%;max-height:calc(100dvh - 32px);display:flex;flex-direction:column;padding:0}
+#ambassador-ui .v41-checkin>header{padding:18px 24px;border-bottom:1px solid #e5eaec;flex-shrink:0}
+#ambassador-ui .v41-subtitle{font-size:12px;margin:5px 0 0;color:#647078}
+#ambassador-ui .v41-checkin .v4-dialog-body{padding:18px 24px;overflow:auto;min-height:0;overscroll-behavior:contain}
+#ambassador-ui .v41-count{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;font-size:15px}
+#ambassador-ui .v41-count>div{display:flex;align-items:center;gap:18px}
+#ambassador-ui .v41-count button{height:44px;width:44px;font-size:23px;border:1px solid #dce4e7;background:#fff!important;color:#176f73!important;border-radius:6px}
+#ambassador-ui .v41-count strong{font-size:22px;min-width:16px;text-align:center}
+#ambassador-ui .v41-table-heading{display:flex;align-items:center;justify-content:space-between;font-size:13px;margin-bottom:10px}
+#ambassador-ui .v41-table-heading>div{display:flex;gap:4px}
+#ambassador-ui .v41-table-heading button{height:36px;min-width:62px;background:#fff!important;color:#647078!important;border:0;border-bottom:2px solid transparent;font-size:12px}
+#ambassador-ui .v41-table-heading button[aria-pressed=true]{border-bottom-color:#176f73;color:#176f73!important}
+#ambassador-ui .v41-tables{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+#ambassador-ui .v41-tables button{height:44px;min-width:44px;background:#f4f7f8!important;border:1px solid transparent;border-radius:5px;color:#26363d!important;font-size:15px;font-weight:500}
+#ambassador-ui .v41-tables button[aria-pressed=true]{background:#176f73!important;color:#fff!important;border-color:#176f73}
+#ambassador-ui .v41-guest-info{border-top:1px solid #e5eaec;margin-top:18px;padding-top:16px}
+#ambassador-ui .v41-names{display:flex;flex-wrap:wrap;gap:4px 14px}
+#ambassador-ui .v41-names .v4-full-name{font-size:15px;line-height:21px;margin:0;font-weight:500}
+#ambassador-ui .v41-entitlement{display:block;font-size:12px;color:#647078;margin:8px 0 14px;font-weight:400}
+#ambassador-ui .v41-stay{display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:14px}
+#ambassador-ui .v41-stay small{display:block;font-size:11px;color:#647078;margin-bottom:4px}
+#ambassador-ui .v41-dialog-footer{border-top:1px solid #e5eaec;padding:14px 24px;flex-shrink:0}
+#ambassador-ui .v41-save{width:100%;min-height:48px;background:#176f73!important;color:#fff!important;border:0;border-radius:6px;font-size:15px}
+#ambassador-ui .v41-save:disabled{background:#edf2f3!important;color:#728087!important}
+#ambassador-ui .v41-bookings{margin-top:18px;border-top:1px solid #e5eaec;padding-top:12px;font-size:12px}
+#ambassador-ui .v41-bookings>div{display:flex;justify-content:space-between;align-items:center;gap:8px}
+#ambassador-ui .v41-bookings button{height:44px;background:#fff!important;color:#176f73!important;border:0;font-size:12px}
+#ambassador-ui .v41-receipt{display:flex;flex-wrap:wrap;align-items:center;gap:8px;color:#176f73;background:#edf5f5;padding:14px;border-radius:6px;font-size:14px}
+#ambassador-ui .v41-receipt svg{width:20px;height:20px}
+#ambassador-ui .v41-receipt span{margin-left:auto}
+#ambassador-ui .v41-stats dl{margin:0}
+#ambassador-ui .v41-stats dl>div{display:flex;justify-content:space-between;align-items:center;gap:20px;border-bottom:1px solid #e5eaec;padding:16px 0;font-size:14px}
+#ambassador-ui .v41-stats dd{font-size:22px;font-weight:600;margin:0}
+#ambassador-ui .v41-stats dt{color:#647078}
+@media(max-width:650px){#ambassador-ui .v4-logo{width:48px}#ambassador-ui .v4-header{gap:8px}#ambassador-ui .v4-header-actions .v4-statistics{min-width:36px;padding:0 5px}#ambassador-ui .v41-checkin>header,#ambassador-ui .v41-checkin .v4-dialog-body,#ambassador-ui .v41-dialog-footer{padding:14px}#ambassador-ui .v41-checkin{max-height:calc(100dvh - 20px)}#ambassador-ui .v4-dialog-layer:has(.v41-checkin){padding:10px}#ambassador-ui .v41-table-heading button{min-height:44px}#ambassador-ui .v41-stay{font-size:13px}}
+@media(max-width:360px){#ambassador-ui .v4-logo{display:block;width:30px}#ambassador-ui .v4-brand h1{font-size:15px}#ambassador-ui .v4-header-actions .v4-role{font-size:10px;padding:0 4px}}
+#ambassador-ui[data-app-role=reception] .header-actions .icon-button{display:none!important}
+#ambassador-ui[data-app-role=reception] .reception-upload{display:none!important}
+#ambassador-ui .v41-admin-tasks{display:flex;gap:26px;padding:0 20px;border-bottom:1px solid #e5eaec;align-items:center;min-height:54px}
+#ambassador-ui .v41-admin-tasks button{font:500 14px Arial,sans-serif;min-height:44px;background:#fff!important;color:#53666d!important;border:0;padding:0 4px;cursor:pointer}
+#ambassador-ui .v41-admin-tasks button:nth-child(2){color:#176f73!important;border-bottom:2px solid #176f73}
+#ambassador-ui :is(.guest-info-live,.guest-info-edit-link,.guest-info-block,.guest-info-inline,.guest-memory-panel,.guest-history){display:none!important}
+@media(min-width:700px){#ambassador-ui[data-app-role=reception] .app-shell{grid-template-rows:60px 54px 70px 58px minmax(0,1fr)!important}#ambassador-ui[data-app-role=reception] .v41-admin-tasks{grid-row:2}#ambassador-ui[data-app-role=reception] .hero{grid-row:3!important;height:70px!important}#ambassador-ui[data-app-role=reception] .search-wrap{grid-row:4!important}#ambassador-ui[data-app-role=reception] .content{grid-row:5!important}}
+@media(max-width:699px){#ambassador-ui .v41-admin-tasks{gap:8px;padding:0 12px;justify-content:space-between}#ambassador-ui .v41-admin-tasks button{font-size:11px;max-width:32%}}

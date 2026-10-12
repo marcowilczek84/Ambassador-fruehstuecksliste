@@ -1,0 +1,17 @@
+DO $$
+DECLARE d date:=(CURRENT_TIMESTAMP AT TIME ZONE 'Europe/Zurich')::date; r jsonb:='{"room":20,"people":2,"guests":["QA One","QA Two"],"included":true,"arrivedCount":0,"note":"Keep note"}'; result jsonb; a uuid:='00000000-0000-4000-8000-000000000011'; b uuid:='00000000-0000-4000-8000-000000000012'; imported jsonb; before_data jsonb;
+BEGIN
+ INSERT INTO v41_test_lists VALUES(d,jsonb_build_object('date',d,'rooms',jsonb_build_array(r),'v8Arrivals','[]'::jsonb,'v8Activity','[]'::jsonb,'v8History','[]'::jsonb,'updated',1),1);
+ result:=pg_temp.breakfast_service_action_v41(d,20,r,1,a,'Tisch 3');ASSERT result->>'status'='saved','first save';r:=result#>'{payload,rooms,0}';ASSERT r->>'arrivedCount'='1','partial';ASSERT r->>'table'='Tisch 3','table 3';
+ result:=pg_temp.breakfast_service_action_v41(d,20,r,1,a,'Tisch 3');ASSERT result->>'status'='duplicate','idempotent';ASSERT result#>>'{payload,rooms,0,arrivedCount}'='1','no duplicate';
+ result:=pg_temp.breakfast_service_action_v41(d,20,r,1,b,'Tisch 8');ASSERT result->>'status'='saved','second save';r:=result#>'{payload,rooms,0}';ASSERT r->>'arrivedCount'='2','full';ASSERT jsonb_array_length(r->'serviceBookings')=2,'two separate bookings';ASSERT r#>>'{serviceBookings,0,table}'='Tisch 3','first table retained';ASSERT r#>>'{serviceBookings,1,table}'='Tisch 8','second table retained';
+ result:=pg_temp.breakfast_service_action_v41(d,20,r,1,'00000000-0000-4000-8000-000000000013','Tisch 1');ASSERT result->>'status'='conflict','overcount blocked';
+ result:=pg_temp.breakfast_service_action_v41(d,20,r,-1,'00000000-0000-4000-8000-000000000014',NULL,a);r:=result#>'{payload,rooms,0}';ASSERT r->>'arrivedCount'='1','undo first';ASSERT r->>'table'='Tisch 8','second table survives';ASSERT r#>>'{serviceBookings,0,id}'=b::text,'correct booking survives';
+ result:=pg_temp.breakfast_service_action_v41(d,20,r,-1,'00000000-0000-4000-8000-000000000015',NULL,a);ASSERT result->>'status'='conflict','second undo blocked';
+ result:=pg_temp.breakfast_service_action_v41(d,20,r||'{"arrivedCount":0}',1,'00000000-0000-4000-8000-000000000016','Tisch 4');ASSERT result->>'status'='conflict','stale device blocked';
+ ASSERT (SELECT sum((value->>'people')::integer) FROM jsonb_array_elements(result#>'{payload,v8Arrivals}'))=1,'net events correct';ASSERT r->>'note'='Keep note','note preserved';
+ SELECT jsonb_agg(CASE WHEN n=20 THEN r||'{"arrival":"2026-10-11","departure":"2026-10-14","arrivedCount":0,"table":""}' ELSE jsonb_build_object('room',n,'guests','[]'::jsonb,'people',0,'included',false) END) INTO imported FROM unnest(ARRAY[20,21,22,23,24,25,26,27,28,30,31,32,33,34,35,36,37,38,40,41,42,43,44,45,46,47,48,50,51,52,53,54,56,57,58,60,61,62,63,64,65,66,67,68]) n;
+ result:=pg_temp.breakfast_import_v41(d,imported);ASSERT result->>'status'='saved','import saved';ASSERT result#>>'{payload,rooms,0,arrivedCount}'='1','import attendance retained';ASSERT result#>>'{payload,rooms,0,table}'='Tisch 8','import table retained';ASSERT jsonb_array_length(result#>'{payload,v8Arrivals}')=3,'import events retained';
+ before_data:=result->'payload';imported:=jsonb_set(imported,'{0,guests}','["Other Guest"]');result:=pg_temp.breakfast_import_v41(d,imported);ASSERT result->>'status'='conflict','new guest import rejected';ASSERT (SELECT payload FROM v41_test_lists WHERE list_date=d)=before_data,'failed import leaves data unchanged';
+END $$;
+SELECT '24 table-checkin and safe-import assertions passed in temporary tables' AS result;

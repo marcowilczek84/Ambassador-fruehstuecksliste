@@ -4,7 +4,7 @@
   let openOnly = false;
   let scheduled = false;
   const roleKey = "ambassador-work-area";
-  const previewVersion = "4.0.0";
+  const previewVersion = "4.1.0";
   const languageKey = "ambassador-ui-language";
   const supportedLanguages = ["DE", "EN", "VI"];
   let activeLanguage = (() => {
@@ -18,7 +18,7 @@
 
   const translations = {
     "MENÜ": ["MENU", "MENU"], "Frühstücksliste": ["Breakfast list", "Danh sách bữa sáng"],
-    "REZEPTION": ["RECEPTION", "LỄ TÂN"], "SERVICE": ["SERVICE", "PHỤC VỤ"], "Service": ["Service", "Phục vụ"],
+    "VERWALTUNG": ["RECEPTION", "LỄ TÂN"], "SERVICE": ["SERVICE", "PHỤC VỤ"], "Service": ["Service", "Phục vụ"],
     "EINSTELLUNGEN": ["SETTINGS", "CÀI ĐẶT"], "ZUSATZ-APP": ["ADDITIONAL APP", "ỨNG DỤNG BỔ SUNG"],
     "Sprache": ["Language", "Ngôn ngữ"], "Hauptmenü": ["Main menu", "Menu chính"],
     "Menü schließen": ["Close menu", "Đóng menu"], "Menü öffnen": ["Open menu", "Mở menu"],
@@ -35,7 +35,7 @@
     "Abmelden": ["Log out", "Đăng xuất"], "Arbeitsbereich auswählen": ["Select work area", "Chọn khu vực làm việc"],
     "Arbeitsbereich wechseln": ["Change work area", "Đổi khu vực làm việc"], "Zur Startseite": ["Go to home", "Về trang chủ"],
     "Guten Morgen": ["Good morning", "Chào buổi sáng"], "Bereich auswählen": ["Select work area", "Chọn khu vực"], "Bereich wählen": ["Choose work area", "Chọn khu vực"],
-    "Rezeption": ["Reception", "Lễ tân"], "Liste laden und Gäste bearbeiten": ["Load list and edit guests", "Tải danh sách và chỉnh sửa khách"],
+    "Verwaltung": ["Management", "Quản lý"], "Liste laden und Gäste bearbeiten": ["Load list and edit guests", "Tải danh sách và chỉnh sửa khách"],
     "Frühstücksservice": ["Breakfast service", "Phục vụ bữa sáng"], "Frühstück & Check-in": ["Breakfast & check-in", "Bữa sáng & check-in"],
     "Gästeliste & Verwaltung": ["Guest list & management", "Danh sách khách & quản lý"], "Heutige Liste öffnen": ["Open today's list", "Mở danh sách hôm nay"],
     "Gäste erfassen und Tische verwalten": ["Check in guests and manage tables", "Ghi nhận khách và quản lý bàn"],
@@ -77,7 +77,7 @@
     "Alle anzeigen": ["Show all", "Hiển thị tất cả"], "Nur offene anzeigen": ["Show open only", "Chỉ hiển thị phòng còn mở"],
     "Noch offen": ["Still open", "Chưa phục vụ"], "Roomservice erfassen": ["Record room service", "Ghi nhận phục vụ tại phòng"],
     "Kein Tisch": ["No table", "Không có bàn"], "Tisch / Service": ["Table / service", "Bàn / phục vụ"],
-    "Die Rezeption hat noch keine heutige Liste bereitgestellt.": ["Reception has not provided today's list yet.", "Lễ tân chưa cung cấp danh sách hôm nay."],
+    "Die Verwaltung hat noch keine heutige Liste bereitgestellt.": ["Reception has not provided today's list yet.", "Lễ tân chưa cung cấp danh sách hôm nay."],
     "Arbeitsbereich": ["Work area", "Khu vực làm việc"],
     "Noch keine Frühstücksliste": ["No breakfast list yet", "Chưa có danh sách bữa sáng"],
     "Noch keine Liste geladen": ["No list loaded yet", "Chưa tải danh sách"],
@@ -231,7 +231,7 @@
         </button>
         <button type="button" data-role="reception">
           <span class="role-icon">${roleSelectionIcon("reception")}</span>
-          <span><strong>${tr("Rezeption")}</strong><small>${tr("Gästeliste & Verwaltung")}</small></span>
+          <span><strong>${tr("Verwaltung")}</strong><small>${tr("Gästeliste & Verwaltung")}</small></span>
         </button>
       </div>`;
     chooser.querySelectorAll("[data-role]").forEach((button) => {
@@ -255,7 +255,7 @@
       });
       title.append(badge);
     }
-    badge.textContent = tr(role === "reception" ? "Rezeption" : "Service");
+    badge.textContent = tr(role === "reception" ? "Verwaltung" : "Service");
   }
 
   function addViewSwitcher(shell, role) {
@@ -363,7 +363,7 @@
       layer.innerHTML = `<section class="reliable-app-menu structured-app-menu" role="menu" aria-label="${tr("Hauptmenü")}">
         <header><span><small>${tr("MENÜ")}</small><strong>Ambassador Frühstück</strong></span><button type="button" aria-label="${tr("Menü schließen")}">×</button></header>
         <div class="structured-menu-scroll">
-          <section><h3>${tr(currentRole === "reception" ? "REZEPTION" : "SERVICE")}</h3>${roleActions}</section>
+          <section><h3>${tr(currentRole === "reception" ? "VERWALTUNG" : "SERVICE")}</h3>${roleActions}</section>
           <section><h3>${tr("EINSTELLUNGEN")}</h3>
             <div class="structured-language"><span class="structured-menu-icon">${icon("globe")}</span><strong>${tr("Sprache")}</strong><div role="group" aria-label="${tr("Sprache")}">
               ${supportedLanguages.map((code) => `<button type="button" data-language="${code}" aria-pressed="${String(activeLanguage === code)}">${code}</button>`).join("")}
@@ -970,7 +970,7 @@
     addViewSwitcher(shell, role);
     const title = shell.querySelector(".page-title h1");
     if (title) {
-      const area = tr(role === "reception" ? "Rezeption" : "Service");
+      const area = tr(role === "reception" ? "Verwaltung" : "Service");
       const label = `<span data-no-auto-translate="">Frühstück</span> <span class="ad-header-area">${area}</span>`;
       if (title.innerHTML !== label) title.innerHTML = label;
     }
@@ -1007,7 +1007,7 @@
       content.prepend(state);
     }
     const html = role === "service"
-      ? `<h2>${tr("Noch keine Frühstücksliste")}</h2><p>${tr("Die Rezeption hat noch keine heutige Liste bereitgestellt.")}</p>`
+      ? `<h2>${tr("Noch keine Frühstücksliste")}</h2><p>${tr("Die Verwaltung hat noch keine heutige Liste bereitgestellt.")}</p>`
       : `<h2>${activeLanguage === "DE" ? "Für heute ist noch keine Frühstücksliste geladen." : tr("Noch keine Liste geladen")}</h2><p>${activeLanguage === "DE" ? "Lade die aktuelle Mews-Liste, um zu beginnen." : tr("Lade den aktuellen Mews-Export, um den heutigen Arbeitstag zu beginnen.")}</p>`;
     if (state.innerHTML !== html) {
       state.innerHTML = html;
@@ -1118,7 +1118,7 @@
     if (!role || entry.classList.contains("role-pending")) return;
     entry.dataset.role = role;
     const heading = entry.querySelector("h1");
-    if (heading) heading.textContent = tr(role === "service" ? "Service" : "Rezeption");
+    if (heading) heading.textContent = tr(role === "service" ? "Service" : "Verwaltung");
     let subtitle = entry.querySelector(".entry-role-subtitle");
     if (!subtitle && heading) {
       subtitle = document.createElement("p");
@@ -1137,7 +1137,7 @@
       if (!note) {
         note = document.createElement("p");
         note.className = "service-waiting-note";
-        note.textContent = tr("Die Rezeption hat noch keine heutige Liste bereitgestellt.");
+        note.textContent = tr("Die Verwaltung hat noch keine heutige Liste bereitgestellt.");
         entry.querySelector(".load-actions")?.append(note);
       }
     } else {
@@ -1386,7 +1386,7 @@
     layer.classList.add("work-area-entry-transition");
     if (role === "service") layer.classList.add("service-entry-transition");
     layer.dataset.workArea = role;
-    layer.querySelector(".entry-eyebrow").textContent = tr(role === "service" ? "Service" : "Rezeption");
+    layer.querySelector(".entry-eyebrow").textContent = tr(role === "service" ? "Service" : "Verwaltung");
     layer.querySelector("h2").textContent = tr("Frühstücksliste");
   }
 
@@ -1600,7 +1600,31 @@
       const editButton = shell.querySelector(".bottom-bar .bottom-button:not(.finish)");
       if (editButton) editButton.disabled = finished;
     }
+    if(shell)v41Management(shell);
     translateUi(document);
+  }
+
+  function v41Management(shell) {
+    if(sessionStorage.getItem(roleKey)!=='reception')return;
+    const hero=shell.querySelector('.hero');if(!hero)return;
+    if(!shell.querySelector('.v41-admin-tasks')){
+      const nav=document.createElement('nav');nav.className='v41-admin-tasks';nav.setAttribute('aria-label','Verwaltung');
+      const tasks=[['Mews-Liste importieren',()=>shell.querySelector('.reception-upload')?.click()],['Gäste & Zimmer',()=>shell.querySelector('.search-box input')?.focus()],['Frühstücksübersicht',()=>v41Overview()]];
+      tasks.forEach(([label,action])=>{const b=document.createElement('button');b.type='button';b.textContent=label;b.addEventListener('click',action);nav.append(b)});hero.before(nav);
+    }
+  }
+  function v41Overview(){
+    if(sessionStorage.getItem(roleKey)!=='reception')return;
+    const rooms=readDailyState('ambassador-breakfast-rooms','rooms',[]).filter(r=>r.guests?.length),included=rooms.filter(r=>r.included),people=rooms.reduce((n,r)=>n+Number(r.people||0),0),eligible=included.reduce((n,r)=>n+Number(r.people||0),0);
+    const invalid=rooms.filter(r=>window.AmbassadorServiceV4.stayInfo(r,specialGuestDate()).nights===null);
+    const layer=document.createElement('div');layer.className='v4-dialog-layer';
+    const box=document.createElement('section');box.className='v4-dialog v41-stats';box.setAttribute('role','dialog');box.setAttribute('aria-modal','true');box.setAttribute('aria-label','Frühstücksübersicht');
+    const head=document.createElement('header'),title=document.createElement('h2'),close=document.createElement('button');title.textContent='Frühstücksübersicht';close.textContent='×';close.setAttribute('aria-label','Schließen');head.append(title,close);box.append(head);
+    const body=document.createElement('div');body.className='v4-dialog-body';const dl=document.createElement('dl');
+    [['Importierte Zimmer',rooms.length],['Gäste insgesamt',people],['Frühstück inklusive',eligible],['Frühstück nicht inklusive',people-eligible]].forEach(([label,value])=>{const row=document.createElement('div'),dt=document.createElement('dt'),dd=document.createElement('dd');dt.textContent=label;dd.textContent=value;row.append(dt,dd);dl.append(row)});body.append(dl);
+    if(invalid.length){const note=document.createElement('p');note.className='v4-note';note.textContent='Aufenthaltsdaten prüfen: Zimmer '+invalid.map(r=>r.room).join(', ')+'. Keine verlässliche Frühstücksfolge berechenbar.';body.append(note)}
+    box.append(body);layer.append(box);const previous=document.activeElement,background=[...document.body.children].map(el=>[el,el.inert]);background.forEach(([el])=>el.inert=true);document.body.append(layer);
+    const exit=()=>{layer.remove();background.forEach(([el,inert])=>el.inert=inert);previous?.focus()};close.onclick=exit;layer.onclick=e=>{if(e.target===layer)exit()};layer.onkeydown=e=>{if(e.key==='Escape')exit();if(e.key==='Tab'){e.preventDefault();close.focus()}};close.focus();
   }
 
   function schedule() {
