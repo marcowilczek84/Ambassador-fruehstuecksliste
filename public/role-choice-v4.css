@@ -132,3 +132,47 @@
 @media(prefers-reduced-motion:reduce){
   #ambassador-ui .role-selection.v4-role-picker .role-options button{transition:none!important}
 }
+
+/* Refined editorial alignment: one consistent left-to-right reading path on all devices. */
+#ambassador-ui .entry-screen.role-pending .role-selection.v4-role-picker{
+  text-align:left!important;
+}
+#ambassador-ui .role-selection.v4-role-picker .v4-role-intro{
+  text-align:left!important;
+}
+#ambassador-ui .role-selection.v4-role-picker .role-options button{
+  flex-direction:row!important;justify-content:flex-start!important;
+  align-items:center!important;text-align:left!important;
+  gap:15px!important;min-height:115px!important;
+  padding:16px 42px 16px 16px!important;
+}
+#ambassador-ui .role-selection.v4-role-picker .role-options .role-icon{
+  width:52px!important;height:52px!important;flex:0 0 52px!important;
+  margin:0!important;border:0!important;
+  background:#edf5f5!important;border-radius:8px!important;
+}
+#ambassador-ui .role-selection.v4-role-picker .role-options .role-icon svg{
+  width:26px!important;height:26px!important;
+}
+#ambassador-ui .role-selection.v4-role-picker .role-options .v4-role-label{
+  align-items:flex-start!important;text-align:left!important;
+}
+#ambassador-ui .role-selection.v4-role-picker .role-options .v4-role-next{
+  right:15px!important;top:calc(50% - 8px)!important;
+}
+#ambassador-ui .role-selection.v4-role-picker .v4-role-hub{
+  align-self:flex-start!important;margin-left:0!important;
+}
+@media(max-width:650px){
+  #ambassador-ui .role-selection.v4-role-picker .role-options button{
+    min-height:100px!important;
+  }
+  #ambassador-ui .role-selection.v4-role-picker .role-options .role-icon{
+    width:48px!important;height:48px!important;flex:0 0 48px!important;
+  }
+}
+@media(max-height:630px){
+  #ambassador-ui .role-selection.v4-role-picker .role-options button{
+    min-height:86px!important;
+  }
+}
