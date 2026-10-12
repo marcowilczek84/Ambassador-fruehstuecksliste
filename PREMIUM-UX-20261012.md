@@ -47,4 +47,20 @@ Inside-API, Supabase-Dateien, Authentifizierung, Rezepturen, Import, Dokumentenv
 - Sehr lange Namen werden in der 44-Zimmer-Übersicht gekürzt. Kein Ausblenden ganzer Zimmer und keine kleinere Schrift als oben angegeben.
 - Isolierte Inside-Preview hat einen kleineren Datenbestand als Production. Das aktuell fällige Mittagsmenü ist dort nicht eindeutig als gültige Original-PDF hinterlegt; dies wird sichtbar angezeigt. Der Datenbestand wird dafür nicht aus Production kopiert.
 - Neuer Mews-Import und vollständiger PDF-Neuimport nicht erneut ausgeführt; betroffene Logik blieb unverändert, bestehende gezielte Regressionstests liefen.
-- Finale Desktop-Prüfung und Screenshots folgen im separaten QA-Nachtrag.
+
+## Abschluss der gezielten QA
+
+- Desktop 1920 × 1080: Frühstück 44 sichtbare Zimmer, fünf Gruppen, Content 1920 × 846 px ohne Überlauf und ohne Textüberschneidungen (44 px Systemreserve). Inside: Content 1628 × 1016 px ohne Überlauf, bewusst auf 1320 px begrenzte Editorial-Breite.
+- Zimmer-Suche „Winter“ findet ausschließlich Zimmer 20.
+- Originalkarte FALL-MENU-2026 öffnet innerhalb der App; 20 PDF-Canvasflächen geladen, keine PDF-Fehleranzeige. Bestehende Gerichtverknüpfungen sichtbar.
+- Laufzeitprotokoll der finalen beiden Preview-Tabs: keine anwendungseigenen Fehler beobachtet. Browser-Erweiterungsfehler wurden von App-Fehlern getrennt.
+- Vier echte Screenshots: je 1194 × 834 und 1024 × 748 für Frühstück und Inside. Keine montierten oder generierten UI-Abbildungen.
+- Auf sehr schmalen Telefonen wird die SILK/Inside-Titelgruppe ausdrücklich in einer Zeile gehalten, mit 16 px App-Name unter 360 px.
+
+## Übergabe / Parallelentwicklung
+
+- Zur visuellen Abnahme empfohlen. Production bleibt unverändert; spätere Veröffentlichung erfordert ausdrücklich neue Abnahme dieses Redesigns.
+- Inside-Laufzeitbasis für die dokumentierten großen Ansichten: 73d84841085a30315642e4bdd8fc1816712ac70f; nachfolgend ausschließlich schmale Headerkorrektur und Dokumentation.
+- Frühstück geprüfter Stand: fe6fd9810012b89d63a4b951a9b919866ab8acac; nachfolgend nur Dokumentation.
+- Während dieser Arbeit erschien der separate Branch `ambassador-hub-v3-20261012` im silk-service-Repository. Er wurde weder übernommen noch überschrieben. Bei einer späteren Veröffentlichung müssen die getrennten Änderungen ausdrücklich berücksichtigt werden; nicht einfach den neuesten beliebigen Vercel-Build wählen.
+
