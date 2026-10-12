@@ -1409,6 +1409,7 @@
 
   // F01/F03/F10: validation and navigation protection around the existing React editor.
   // Persisting still uses the application's one existing save handler; never autosave.
+  const editorBaselines=new WeakMap();
   const editorFields = (modal) => ({
     guests: modal?.querySelector('.guest-edit-grid > label.wide textarea'),
     people: modal?.querySelector('input[type="number"]'),
@@ -1424,6 +1425,7 @@
     const room = Number(modal.querySelector('.modal-kicker')?.textContent.match(/\d+/)?.[0]);
     const original = readDailyState('ambassador-breakfast-rooms', 'rooms', []).find(r => r.room === room);
     if (!original) return null;
+    if(!editorBaselines.has(modal))editorBaselines.set(modal,JSON.parse(JSON.stringify(original)));
     const f = editorFields(modal);
     const draft = {room, guests:(f.guests?.value || '').split('\n'), people:f.people?.value, arrival:f.arrival?.value || '', departure:f.departure?.value || '', included:!!f.included?.checked, note:f.note?.value || ''};
     const canonical = r => JSON.stringify({guests:(r.guests || []).map(x=>x.trim()).filter(Boolean),people:Number(r.people),arrival:r.arrival || '',departure:r.departure || '',included:!!r.included,note:r.note || ''});
@@ -1474,6 +1476,7 @@
   function afterEditorSave() {
     const modal=document.querySelector('.guest-edit-modal');
     if (!modal) return;
+    editorBaselines.delete(modal);
     if (innerWidth < 700) modal.dataset.uiEdit='false';
     modal.querySelector('.reception-view-body')?.remove();
     modal.querySelector('.reception-view-actions')?.remove();
@@ -1494,7 +1497,7 @@
     if(Object.keys(errors).length)fields[Object.keys(errors)[0]]?.focus();
     return !Object.keys(errors).length;
   }
-  window.ambassadorFinal = {validate:validateEditor, saved:afterEditorSave, validateRoomAdd};
+  window.ambassadorFinal = {validate:validateEditor, saved:afterEditorSave, validateRoomAdd, original:()=>{const state=editorState();return state?editorBaselines.get(state.modal):null}};
   let allowEditorLeave=false;
   function continueEditorAction(action) {
     allowEditorLeave=true;

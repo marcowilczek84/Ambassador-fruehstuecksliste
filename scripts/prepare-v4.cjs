@@ -14,6 +14,11 @@ const importAccept='onClick:()=>{let e=eA.filter(e=>e.guests.length).length,s=eA
 if(input.split(importAccept).length!==2)throw Error('Import accept boundary changed');
 input=input.replace(importAccept,'onClick:()=>window.AmbassadorServiceV4.importList({rooms:eA,date:E(),endpoint:P,headers:R(),apply:v4Apply,onComplete:()=>{eC(null);ez("Mews-Liste übernommen · Erfassungen erhalten")}})');
 
+// Only master-data edits use the new atomic path; legacy APIs remain available.
+const editorAnchor='const saved=Z({...original,...e});e7(ea.map(s=>s.room===e.room?saved:s));';
+if(input.split(editorAnchor).length!==2)throw Error('Guest editor boundary changed');
+input=input.replace(editorAnchor,'if(canEditGuestMaster()){window.AmbassadorServiceV4.editRoom({room:e,expected:window.ambassadorFinal.original()||original,date:E(),endpoint:P,headers:R(),apply:v4Apply,onComplete:saved=>{eh(saved);window.ambassadorFinal.saved(saved)}});return;}'+editorAnchor);
+
 fs.writeFileSync('public/recovered/_next/static/chunks/0nkyeaxka~cd7-service-v4.js',input.replace(anchor,bridge));
 
 const entry=fs.readFileSync('public/index-live.html','utf8');

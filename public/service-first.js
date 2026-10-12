@@ -28,12 +28,29 @@ async function importList({rooms,date,endpoint,headers,apply,onComplete}){
  const button=document.querySelector('.import-modal .modal-action.primary');if(button?.disabled)return;if(button)button.disabled=true;
  try{const r=await fetch(endpoint+'/rest/v1/rpc/breakfast_import_v41',{method:'POST',headers,body:JSON.stringify({p_list_date:date,p_rooms:rooms}),signal:AbortSignal.timeout(15000)});if(!r.ok)throw Error('Import nicht gespeichert. Bitte die erkannten Zimmer und Personenzahlen prüfen.');const result=await r.json();if(result.payload)apply(result.payload);if(result.status==='conflict')throw Error('Zimmer '+result.room+' hat bereits Check-ins für andere Gastdaten. Import nicht übernommen; bestehende Erfassungen bleiben erhalten.');if(result.status!=='saved')throw Error('Import nicht gespeichert.');onComplete();}catch(e){window.alert(e.message||'Verbindung unterbrochen. Import bitte erneut versuchen.')}finally{if(button?.isConnected)button.disabled=false}
 }
+const editRequests=new Map();let editBusy=false;
+async function editRoom({room,expected,date,endpoint,headers,apply,onComplete}){
+ if(editBusy||sessionStorage.getItem('ambassador-work-area')!=='reception')return;
+ if(localStorage.getItem('ambassador-breakfast-pending-sync-v1')||localStorage.getItem(PENDING)){window.alert('Bitte zuerst ausstehende Änderungen synchronisieren.');return}
+ const changes=Object.fromEntries(['guests','people','included','arrival','departure','note'].map(k=>[k,room[k]??(k==='guests'?[]:k==='included'?false:k==='people'?0:'')]));
+ changes.guests=changes.guests.map(x=>x.trim()).filter(Boolean);changes.people=Number(changes.people);
+ const key=JSON.stringify([date,room.room,expected,changes]);
+ const action=editRequests.get(key)||{p_list_date:date,p_room:room.room,p_expected:expected,p_changes:changes,p_action_id:crypto.randomUUID()};editRequests.set(key,action);
+ editBusy=true;const modal=document.querySelector('.guest-edit-modal');if(modal)modal.inert=true;
+ try{
+  const response=await fetch(endpoint+'/rest/v1/rpc/breakfast_room_edit_v42',{method:'POST',headers,body:JSON.stringify(action),signal:AbortSignal.timeout(15000)});
+  if(!response.ok)throw Error('Nicht gespeichert. Bitte Verbindung und Eingaben prüfen. Deine Änderungen bleiben im Formular.');
+  const result=await response.json();if(result.payload)apply(result.payload);
+  if(!['saved','duplicate'].includes(result.status))throw Error('Zimmer wurde inzwischen geändert. Bitte Formular schliessen, neu öffnen und den aktuellen Stand prüfen. Check-ins und Tische bleiben erhalten.');
+  editRequests.delete(key);onComplete(result.payload.rooms.find(r=>r.room===room.room));
+ }catch(e){window.alert(e.message||'Nicht gespeichert. Bitte erneut versuchen.')}finally{editBusy=false;if(modal?.isConnected)modal.inert=false}
+}
 let Component;
 function component(React){
  if(Component)return Component;
  const h=React.createElement;
  const labels={de:{service:'Service',reception:'Verwaltung',search:'Zimmer oder Name',open:'Nur offene',all:'Alle Zimmer',included:'inkl.',excluded:'nicht inkl.',vacant:'Nicht belegt',registered:'erfasst',close:'Schließen',correct:'Korrigieren',minus:'Eine Person zurücknehmen',save:'Wird gespeichert …',saved:'Gespeichert',failed:'Verbindung unterbrochen. Erfassung wird beim Wiederholen sicher geprüft.',retry:'Erneut versuchen',pending:'Speicherung offen',conflict:'Zimmer wurde inzwischen geändert. Aktuellen Stand prüfen und erneut erfassen.',finished:'Frühstück abgeschlossen. Die Verwaltung kann den Tag wieder öffnen.',missing:'Die heutige Liste ist nicht verfügbar.',empty:'Die Verwaltung hat noch keine heutige Liste bereitgestellt.',noResults:'Keine passenden Zimmer',reset:'Filter zurücksetzen',undo:'Rückgängig',people:'Personen',room:'Zimmer',note:'Bemerkung',synced:'Synchronisiert',waiting:'Verbindung wird geprüft',offline:'Offline',extra:'Gäste ohne Zimmer'},en:{service:'Service',reception:'Management',search:'Room or name',open:'Only open',all:'All rooms',included:'incl.',excluded:'not incl.',vacant:'Vacant',registered:'checked in',close:'Close',correct:'Correct',minus:'Remove one person',save:'Saving …',saved:'Saved',failed:'Connection interrupted. Retrying safely checks this check-in.',retry:'Try again',pending:'Save pending',conflict:'This room has changed. Check the current status and try again.',finished:'Breakfast is closed. Reception can reopen the day.',missing:"Today's list is unavailable.",empty:"Reception has not provided today's list yet.",noResults:'No matching rooms',reset:'Reset filters',undo:'Undo',people:'people',room:'Room',note:'Note',synced:'Synchronised',waiting:'Checking connection',offline:'Offline',extra:'Guests without a room'},vi:{service:'Phục vụ',reception:'Quản lý',search:'Phòng hoặc tên',open:'Chỉ còn mở',all:'Tất cả phòng',included:'bao gồm',excluded:'không gồm',vacant:'Phòng trống',registered:'đã ghi nhận',close:'Đóng',correct:'Sửa',minus:'Bớt một khách',save:'Đang lưu …',saved:'Đã lưu',failed:'Mất kết nối. Thử lại để kiểm tra an toàn.',retry:'Thử lại',pending:'Chờ lưu',conflict:'Phòng đã thay đổi. Kiểm tra và thử lại.',finished:'Bữa sáng đã kết thúc. Liên hệ lễ tân.',missing:'Không có danh sách hôm nay.',empty:'Lễ tân chưa cung cấp danh sách hôm nay.',noResults:'Không tìm thấy phòng',reset:'Xóa bộ lọc',undo:'Hoàn tác',people:'khách',room:'Phòng',note:'Ghi chú',synced:'Đã đồng bộ',waiting:'Đang kiểm tra kết nối',offline:'Ngoại tuyến',extra:'Khách không có phòng'}};
- const icon=(name)=>h('svg',{viewBox:'0 0 24 24',fill:'none',stroke:'currentColor',strokeWidth:1.7,strokeLinecap:'round',strokeLinejoin:'round','aria-hidden':true},h('path',{d:{search:'m21 21-5-5 M18 10a8 8 0 1 1-16 0a8 8 0 1 1 16 0',check:'m5 12 4 4L19 6',hub:'M3 3h7v7H3z M14 3h7v7h-7z M3 14h7v7H3z M14 14h7v7h-7z',close:'m6 6 12 12 M6 18 18 6',stats:'M4 20V12 M10 20V4 M16 20V8 M22 20V16',info:'M12 11v6 M12 7h.01 M21 12a9 9 0 1 1-18 0a9 9 0 1 1 18 0'}[name]}));
+ const icon=(name)=>h('svg',{viewBox:'0 0 24 24',fill:'none',stroke:'currentColor',strokeWidth:1.7,strokeLinecap:'round',strokeLinejoin:'round','aria-hidden':true},h('path',{d:{search:'m21 21-5-5 M18 10a8 8 0 1 1-16 0a8 8 0 1 1 16 0',check:'m5 12 4 4L19 6',hub:'M3 3h7v7H3z M14 3h7v7h-7z M3 14h7v7H3z M14 14h7v7h-7z',close:'m6 6 12 12 M6 18 18 6',stats:'M4 20V12 M10 20V4 M16 20V8 M22 20V16',person:'M5 21v-2a7 7 0 0 1 14 0v2 M12 3a4 4 0 1 1 0 8a4 4 0 1 1 0-8',info:'M12 11v6 M12 7h.01 M21 12a9 9 0 1 1-18 0a9 9 0 1 1 18 0'}[name]}));
  Component=function ServiceFirst(props){
   const lang=labels[props.language]||labels.de;
   const text=(de,en,vi)=>props.language==='en'?en:props.language==='vi'?vi:de;
@@ -73,11 +90,13 @@ function component(React){
   function closeRoom(){setSelected(null);setTimeout(()=>origin.current?.isConnected&&origin.current.focus(),0)}
   React.useEffect(()=>{if(selected===null&&!stats)return;const dialog=document.querySelector('.v4-dialog');dialog?.querySelector('button')?.focus();const key=e=>{if(e.key==='Escape'){e.preventDefault();closeRoom();setStats(false)}if(e.key==='Tab'){const controls=[...dialog.querySelectorAll('button:not(:disabled)')];const first=controls[0],last=controls.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last?.focus()}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first?.focus()}}};dialog?.addEventListener('keydown',key);return()=>dialog?.removeEventListener('keydown',key)},[selected,stats]);
   function card(r){
-   const occupied=r.people>0&&r.guests?.length,complete=occupied&&r.arrivedCount>=r.people;
-   return h('article',{key:r.room,className:`v4-room ${complete?'is-complete':''} ${!occupied?'is-vacant':''} ${r.included?'is-included':''}`,style:{'--room-row':r.room%10+1},'data-room':r.room,'aria-label':`${lang.room} ${r.room}`},
-    h('div',{className:'v4-room-id'},h('strong',{className:'v4-number'},r.room),occupied&&h('button',{type:'button',className:'v4-count',onClick:e=>openRoom(r,e),'aria-label':`${lang.room} ${r.room}: ${r.arrivedCount} / ${r.people} ${lang.registered}. ${lang.correct}`},`${r.arrivedCount}/${r.people}`)),
-    h('div',{className:'v4-room-body'},occupied?h('button',{className:'v4-names',onClick:e=>openRoom(r,e),'aria-label':`${r.guests.join(', ')}. ${lang.room} ${r.room}. ${lang.people}: ${r.people}`},r.guests.slice(0,2).map((name,i)=>h('span',{key:i},name)),r.guests.length>2&&h('small',{className:'v4-more'},`+${r.guests.length-2}`)):h('span',{className:'v4-vacant'},lang.vacant),occupied&&h('span',{className:'v4-entitlement'},r.included?lang.included:lang.excluded,r.note?icon('info'):null)),
-    occupied&&(!complete?h('button',{className:'v4-plus',type:'button',disabled:blocked,onClick:e=>openRoom(r,e),'aria-label':`${lang.room} ${r.room}: +1`},busy&&pending?.p_room===r.room?'…':'+1'):h('span',{className:'v4-done','aria-label':lang.registered},icon('check')))
+   const occupied=r.people>0&&r.guests?.length,complete=occupied&&r.arrivedCount>=r.people,partial=occupied&&r.arrivedCount>0&&!complete;
+   const state=complete?lang.registered:partial?text('Teilweise','Partial','Một phần'):r.included?lang.included:lang.excluded;
+   return h('article',{key:r.room,className:`v4-room ${complete?'is-complete':''} ${partial?'is-partial':''} ${!occupied?'is-vacant':''} ${r.included?'is-included':''}`,style:{'--room-row':r.room%10+1},'data-room':r.room,'aria-label':`${lang.room} ${r.room}`},
+    h(occupied?'button':'div',{className:'v4-room-open',...(occupied?{type:'button',onClick:e=>openRoom(r,e),'aria-label':`${lang.room} ${r.room}: ${r.guests.join(', ')}. ${r.people} ${lang.people}. ${state}`}:{})},
+     h('span',{className:'v4-room-id'},h('strong',{className:'v4-number'},r.room),occupied&&h('span',{className:'v4-people'},icon('person'),r.people)),
+     h('span',{className:'v4-room-body'},occupied?h('span',{className:'v4-names'},r.guests.slice(0,2).map((name,i)=>h('span',{key:i},name)),r.guests.length>2&&h('small',{className:'v4-more'},`+${r.guests.length-2}`)):h('span',{className:'v4-vacant'},lang.vacant),partial&&h('span',{className:'v4-partial'},text('Teilweise','Partial','Một phần'))),
+     complete&&h('span',{className:'v4-done','aria-label':lang.registered},icon('check')))
    );
   }
   const status=pending?lang.pending:/Offline/.test(props.status)?lang.offline:/gespeichert|Aktuell auf allen/.test(props.status)?lang.synced:lang.waiting;
@@ -110,5 +129,5 @@ function component(React){
  };
  return Component;
 }
-const api={component,normalize,isOpen,matches,effectiveArrivals,stayInfo,importList};root.AmbassadorServiceV4=api;if(typeof module!=='undefined')module.exports=api;
+const api={component,normalize,isOpen,matches,effectiveArrivals,stayInfo,importList,editRoom};root.AmbassadorServiceV4=api;if(typeof module!=='undefined')module.exports=api;
 })(typeof window!=='undefined'?window:globalThis);

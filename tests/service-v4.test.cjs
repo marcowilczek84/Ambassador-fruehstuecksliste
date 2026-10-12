@@ -12,10 +12,10 @@ test('rendered table check-ins, independent bookings, corrections, retries, stat
  const root=createRoot(document.getElementById('root'));const C=api.component(React);let props={rooms:payload.rooms,language:'de',date:payload.date,status:'Aktuell auf allen Geräten',endpoint:'https://example.test',headers:()=>({}),legacyPending:()=>false,applyPayload:p=>{props={...props,rooms:p.rooms};root.render(React.createElement(C,props))}};
  const render=()=>React.act(async()=>root.render(React.createElement(C,props)));const click=selector=>React.act(async()=>document.querySelector(selector).click());await render();
  await click('article[data-room="20"]');assert.equal(calls.length,0,'whole card does not save');
- const checkin=async(number,table)=>{await click(`[data-room="${number}"] .v4-plus`);assert.equal(document.querySelector('.v41-save').disabled,true,'table required');await click(`[aria-label="Tisch ${table}"]`);await click('.v41-save')};
- await checkin(20,3);assert.equal(payload.rooms[0].arrivedCount,1);assert.equal(payload.rooms[0].serviceBookings[0].table,'Tisch 3');assert.match(document.querySelector('.v41-receipt').textContent,/Gespeichert/);await click('.v41-save');
+ const checkin=async(number,table)=>{await click(`[data-room="${number}"] .v4-room-open`);assert.equal(document.querySelector('.v41-save').disabled,true,'table required');await click(`[aria-label="Tisch ${table}"]`);await click('.v41-save')};
+ await checkin(20,3);assert.equal(payload.rooms[0].arrivedCount,1);assert.match(document.querySelector('[data-room="20"] .v4-partial').textContent,/Teilweise/);assert.doesNotMatch(document.querySelector('[data-room="20"]').textContent,/1\/2|inkl\./);assert.equal(payload.rooms[0].serviceBookings[0].table,'Tisch 3');assert.match(document.querySelector('.v41-receipt').textContent,/Gespeichert/);await click('.v41-save');
  await checkin(20,8);assert.equal(payload.rooms[0].arrivedCount,2);assert.deepEqual(payload.rooms[0].serviceBookings.map(b=>b.table),['Tisch 3','Tisch 8']);await click('.v41-save');
- await click('[data-room="20"] .v4-count');await click('.v41-bookings button');assert.equal(payload.rooms[0].arrivedCount,1);assert.equal(payload.rooms[0].serviceBookings[0].table,'Tisch 8','undo preserves second table');await click('.v4-dialog header button');
+ await click('[data-room="20"] .v4-room-open');await click('.v41-bookings button');assert.equal(payload.rooms[0].arrivedCount,1);assert.equal(payload.rooms[0].serviceBookings[0].table,'Tisch 8','undo preserves second table');await click('.v4-dialog header button');
  fail=true;await checkin(21,6);assert.equal(payload.rooms[1].arrivedCount,0);assert.ok(localStorage.getItem('ambassador-service-v4-pending'));const id=calls.at(-1).p_action_id;await click('.v4-toast button');assert.equal(calls.at(-1).p_action_id,id);assert.equal(payload.rooms[1].arrivedCount,1);assert.equal(localStorage.getItem('ambassador-service-v4-pending'),null);await click('.v41-save');
  await click('.v4-filter');assert.ok(document.querySelector('[data-room="20"]'));assert.equal(document.querySelector('[data-room="21"]'),null);assert.equal(document.querySelector('[data-room="22"]'),null);
  conflict=true;await checkin(20,9);assert.match(document.querySelector('.v4-toast').textContent,/inzwischen geändert/);assert.equal(payload.rooms[0].arrivedCount,1);await click('.v4-dialog header button');
@@ -34,4 +34,19 @@ test('stay calculation uses calendar dates, arrival excluded and departure inclu
 test('undo a specific table booking preserves the later guest arrival',()=>{
  const events=[{room:20,people:1,included:true,at:1,actionId:'first',table:'Tisch 3'},{room:20,people:1,included:true,at:2,actionId:'second',table:'Tisch 8'},{room:20,people:-1,included:true,at:3,undoActionId:'first'}];
  assert.deepEqual(api.effectiveArrivals(events).map(e=>e.table),['Tisch 8']);
+});
+
+test('reception saves only master fields, waits for confirmation and retries with the same action id',async()=>{
+ const {JSDOM}=require('jsdom');const dom=new JSDOM('<section class="guest-edit-modal"></section>',{url:'https://example.test'});
+ for(const k of ['window','document','sessionStorage','localStorage'])global[k]=dom.window[k];sessionStorage.setItem('ambassador-work-area','reception');
+ const alerts=[],calls=[];window.alert=x=>alerts.push(x);let fail=true,completed=0,applied=0;
+ const current={...room,arrivedCount:1,table:'Tisch 8',serviceBookings:[{id:'other',people:1,table:'Tisch 8'}]};
+ global.fetch=async(url,options)=>{calls.push({url,body:JSON.parse(options.body)});if(fail){fail=false;throw Error('lost response')}return{ok:true,json:async()=>({status:'duplicate',payload:{rooms:[current]}})}};
+ const args={room:{...room,note:'New note'},expected:room,date:'2026-10-12',endpoint:'https://example.test',headers:{},apply:()=>applied++,onComplete:saved=>{completed++;assert.equal(saved.arrivedCount,1);assert.equal(saved.table,'Tisch 8')}};
+ await api.editRoom(args);assert.equal(completed,0);assert.equal(applied,0);assert.equal(alerts.length,1);assert.equal(document.querySelector('section').inert,false);
+ await api.editRoom(args);assert.equal(completed,1);assert.equal(applied,1);assert.equal(calls[0].body.p_action_id,calls[1].body.p_action_id);assert.match(calls[1].url,/breakfast_room_edit_v42$/);
+ assert.deepEqual(Object.keys(calls[1].body.p_changes).sort(),['arrival','departure','guests','included','note','people']);
+ global.fetch=async()=>({ok:true,json:async()=>({status:'conflict',payload:{rooms:[current]}})});
+ await api.editRoom({...args,room:{...room,note:'Another note'}});assert.equal(completed,1);assert.equal(applied,2);assert.match(alerts.at(-1),/neu öffnen/);
+ dom.window.close();
 });

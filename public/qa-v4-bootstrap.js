@@ -16,6 +16,13 @@ function bootstrap(){
    cloud.rooms=a.p_rooms.map(r=>{const old=cloud.rooms.find(o=>o.room===r.room);return old?.arrivedCount>0?{...old,guests:r.guests,people:r.people,included:r.included,arrival:r.arrival,departure:r.departure}:r});cloud.updated=Math.max(Date.now(),cloud.updated+1);
    return new Response(JSON.stringify({status:'saved',payload:clone(cloud)}),{status:200});
   }
+  if(url.pathname==='/rest/v1/rpc/breakfast_room_edit_v42'&&method==='POST'){
+   const a=JSON.parse(options.body),cloud=parent.qaCloud;parent.qaCalls.push(clone(a));const current=cloud.rooms.find(r=>r.room===a.p_room);cloud.v42RoomEdits=cloud.v42RoomEdits||{};
+   let status=cloud.v42RoomEdits[a.p_action_id]?'duplicate':'saved';
+   if(status==='saved'&&(!current||['guests','people','included','arrival','departure','note'].some(k=>JSON.stringify(current[k]??null)!==JSON.stringify(a.p_expected[k]??null))||a.p_changes.people<current.arrivedCount))status='conflict';
+   if(status==='saved'){Object.assign(current,a.p_changes);cloud.v42RoomEdits[a.p_action_id]=true;cloud.updated=Math.max(Date.now(),cloud.updated+1)}
+   return new Response(JSON.stringify({status,payload:clone(cloud)}),{status:200});
+  }
   if(url.pathname==='/rest/v1/rpc/merge_breakfast_changes'&&method==='POST'){
    const a=JSON.parse(options.body),cloud=parent.qaCloud;parent.qaCalls.push(clone(a));
    const changed=new Map((a.p_rooms||[]).map(r=>[r.room,r]));
