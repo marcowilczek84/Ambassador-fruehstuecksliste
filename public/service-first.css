@@ -197,3 +197,14 @@
 #ambassador-ui .v4-tools .v4-special{display:flex;align-items:center;justify-content:center;gap:7px;flex-shrink:0;min-height:44px;padding:0 12px;border:1px solid #cad9dc;border-radius:6px;background:#fff!important;color:#176f73!important;font-size:13px;white-space:nowrap}
 #ambassador-ui .v4-special svg{width:18px;height:18px;flex-shrink:0}
 @media(max-width:650px){#ambassador-ui .v4-tools .v4-special{width:100%;order:4;font-size:14px}}
+
+/* Show persisted breakfast table placement inside the fixed-height V4 room card. */
+#ambassador-ui .v4-room-meta{display:flex;align-items:center;gap:4px;min-width:0;width:100%;margin-top:2px;line-height:13px}
+#ambassador-ui .v4-room-meta .v4-partial{flex:0 0 auto;margin-top:0;padding:0 4px;white-space:nowrap;font-size:10px;line-height:13px}
+#ambassador-ui .v4-room-table{display:block;min-width:0;flex:0 1 auto;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#53666d;font-size:10px;line-height:13px;font-weight:600;font-variant-numeric:tabular-nums}
+
+/* A single quiet highlight per table: latest recorded placement, not verified occupancy. */
+#ambassador-ui .v4-room-table .v4-table-label{font-size:10px;font-weight:400;color:#63747b}
+#ambassador-ui .v4-room-table .v4-table-divider{font-weight:400;color:#a1afb2}
+#ambassador-ui .v4-room-table .v4-table-number{display:inline-block;vertical-align:baseline;color:#89969c;font-size:10px;font-weight:500;line-height:13px}
+#ambassador-ui .v4-room-table .v4-table-number.is-latest{color:#176d72;background:#e5f1f1;border:1px solid #bad9d9;border-radius:3px;font-size:12px;font-weight:700;line-height:13px;padding:0 3px;margin:0 1px}
