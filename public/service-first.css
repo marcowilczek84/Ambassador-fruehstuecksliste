@@ -222,3 +222,4 @@
 #ambassador-ui[data-app-role=reception] .page-title p .ad-header-area{display:inline!important;margin:0!important;font-size:inherit!important;line-height:inherit!important;color:inherit!important}
 #ambassador-ui[data-app-role=reception] .page-title p .ad-header-area::after{content:' · ';white-space:pre}
 @media(max-width:650px){#ambassador-ui .v48-header-meta{gap:4px}#ambassador-ui .v48-header-meta :is(span,time){font-size:10px}}
+@media(max-width:360px){#ambassador-ui .v4-header{gap:4px}#ambassador-ui .v4-logo{width:26px}}
