@@ -15,6 +15,15 @@ function effectiveArrivals(events){
  }
  return result.filter(e=>e.people>0);
 }
+// Visible table assignments are derived from persisted check-ins, not unsaved selections.
+function roomTables(room){
+ if(Number(room.arrivedCount||0)<=0)return [];
+ const bookings=Array.isArray(room.serviceBookings)?room.serviceBookings:[];
+ const names=bookings.filter(b=>Number(b.people)>0&&b.table).map(b=>String(b.table));
+ const booked=bookings.reduce((total,b)=>total+Math.max(0,Number(b.people)||0),0);
+ if(Number(room.arrivedCount)>booked){const legacy=String(room.serviceLegacyTable||room.table||'').trim();if(legacy)names.push(legacy)}
+ return [...new Set(names.map(s=>s.trim().replace(/^(?:Tisch|Table|Bàn)\s*/i,'')).filter(Boolean))];
+}
 function stayInfo(room,today){
  const day=s=>{if(!/^\d{4}-\d{2}-\d{2}$/.test(s||''))return null;const n=Date.parse(s+'T00:00:00Z');return Number.isFinite(n)&&new Date(n).toISOString().slice(0,10)===s?n/86400000:null};
  const a=day(room.arrival),d=day(room.departure),t=day(today);
@@ -92,10 +101,11 @@ function component(React){
   function card(r){
    const occupied=r.people>0&&r.guests?.length,complete=occupied&&r.arrivedCount>=r.people,partial=occupied&&r.arrivedCount>0&&!complete;
    const state=complete?lang.registered:partial?text('Teilweise','Partial','Một phần'):r.included?lang.included:lang.excluded;
+   const tables=roomTables(r),seating=tables.length?`${text('Tisch','Table','Bàn')} ${tables.join(' · ')}`:'';
    return h('article',{key:r.room,className:`v4-room ${complete?'is-complete':''} ${partial?'is-partial':''} ${!occupied?'is-vacant':''} ${r.included?'is-included':''}`,style:{'--room-row':r.room%10+1},'data-room':r.room,'aria-label':`${lang.room} ${r.room}`},
-    h(occupied?'button':'div',{className:'v4-room-open',...(occupied?{type:'button',onClick:e=>openRoom(r,e),'aria-label':`${lang.room} ${r.room}: ${r.guests.join(', ')}. ${r.people} ${lang.people}. ${state}`}:{})},
+    h(occupied?'button':'div',{className:'v4-room-open',...(occupied?{type:'button',onClick:e=>openRoom(r,e),'aria-label':`${lang.room} ${r.room}: ${r.guests.join(', ')}. ${r.people} ${lang.people}. ${state}${seating?'. '+seating:''}`}:{})},
      h('span',{className:'v4-room-id'},h('strong',{className:'v4-number'},r.room),occupied&&h('span',{className:'v4-people'},icon('person'),r.people)),
-     h('span',{className:'v4-room-body'},occupied?h('span',{className:'v4-names'},r.guests.slice(0,2).map((name,i)=>h('span',{key:i},name)),r.guests.length>2&&h('small',{className:'v4-more'},`+${r.guests.length-2}`)):h('span',{className:'v4-vacant'},lang.vacant),partial&&h('span',{className:'v4-partial'},text('Teilweise','Partial','Một phần'))),
+     h('span',{className:'v4-room-body'},occupied?h('span',{className:'v4-names'},r.guests.slice(0,2).map((name,i)=>h('span',{key:i},name)),r.guests.length>2&&h('small',{className:'v4-more'},`+${r.guests.length-2}`)):h('span',{className:'v4-vacant'},lang.vacant),(partial||seating)&&h('span',{className:'v4-room-meta'},partial&&h('span',{className:'v4-partial'},text('Teilweise','Partial','Một phần')),seating&&h('span',{className:'v4-room-table',title:seating},seating))),
      complete&&h('span',{className:'v4-done','aria-label':lang.registered},icon('check')))
    );
   }
@@ -129,5 +139,5 @@ function component(React){
  };
  return Component;
 }
-const api={component,normalize,isOpen,matches,effectiveArrivals,stayInfo,importList,editRoom};root.AmbassadorServiceV4=api;if(typeof module!=='undefined')module.exports=api;
+const api={component,normalize,isOpen,matches,effectiveArrivals,stayInfo,importList,editRoom,roomTables};root.AmbassadorServiceV4=api;if(typeof module!=='undefined')module.exports=api;
 })(typeof window!=='undefined'?window:globalThis);
