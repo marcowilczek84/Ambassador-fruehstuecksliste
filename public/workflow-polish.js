@@ -1009,7 +1009,7 @@
     const content = shell.querySelector(".content");
     if (!content) return;
     const query = normalize(shell.querySelector(".search-box input")?.value || "");
-    const rows = [...content.querySelectorAll('.room-row')].filter(row=>row.getClientRects().length && getComputedStyle(row).display!=='none');
+    const rows = [...content.querySelectorAll('.room-row')].filter(row=>row.getClientRects().length && getComputedStyle(row).display!=='none' && getComputedStyle(row).visibility!=='hidden');
     const count = new Set(rows.map(row=>row.querySelector('.room-number')?.textContent.trim())).size;
     let summary=content.querySelector('.final-search-summary');
     if(!summary){summary=document.createElement('p');summary.className='final-search-summary';summary.setAttribute('role','status');content.prepend(summary);}
@@ -1150,6 +1150,7 @@
   function markOpenRooms(shell) {
     shell.querySelectorAll(".room-row").forEach((row) => {
       const isOpen = row.classList.contains("included") &&
+        !row.querySelector(".vacant") &&
         !row.classList.contains("departed") &&
         (!row.classList.contains("present") || row.classList.contains("partial"));
       row.dataset.openMatch = String(isOpen);
@@ -1174,6 +1175,7 @@
         event.stopPropagation();
         openOnly = !openOnly;
         updateFilter(shell);
+        updateWorkspaceFeedback(shell);
       });
       heading.append(button);
     }
@@ -1184,7 +1186,7 @@
     shell.classList.toggle("compact-results", openOnly || searchActive);
     shell.classList.toggle("search-active",searchActive);
     button.setAttribute("aria-pressed", String(openOnly));
-    button.textContent = openOnly ? tr("Nur offene") : tr("Alle anzeigen");
+    button.textContent = tr("Nur offene");
     markOpenRooms(shell);
   }
 
