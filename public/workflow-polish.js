@@ -127,6 +127,7 @@
     if (name === "reception") return roleSelectionIcon("reception");
 
     const paths = {
+      guestAdd: '<circle cx="10" cy="8" r="5"/><path d="M2 21a8 8 0 0 1 13.292-6M19 16v6M16 19h6"/>',
       guests: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>',
       finish: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
       stats: '<path d="M4 20V10M10 20V4M16 20v-7M22 20V7"/>',
@@ -197,6 +198,14 @@
     return `<svg class="role-hybrid-icon" viewBox="0 0 32 32" aria-hidden="true" data-role-symbol="${role === "service" ? "person-tablet" : "person-counter"}">${glyph}</svg>`;
   }
 
+  // Icons dedicated to the entry choices; existing navigation glyphs remain untouched.
+  function roleChoiceV4Icon(role) {
+    const lines = role === "service"
+      ? '<rect x="5" y="5" width="14" height="16" rx="2"/><path d="M9 5V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v1"/><path d="m9 13 2 2 4-4"/>'
+      : '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>';
+    return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${lines}</svg>`;
+  }
+
   function renderRoleSelection(entry) {
     if (!entry.querySelector(".load-card")) return;
     const role = sessionStorage.getItem(roleKey);
@@ -209,31 +218,43 @@
 
     entry.classList.add("role-pending");
     if (entry.querySelector(".role-selection")) return;
-    const currentDate = entry.querySelector(".load-date")?.textContent || "";
-    const dateParts = currentDate.match(/(\d{1,2})\.(\d{1,2})\.(\d{4})/);
-    const displayDate = dateParts && activeLanguage === "DE"
-      ? new Intl.DateTimeFormat("de-CH", { weekday: "long", day: "numeric", month: "long", year: "numeric" })
-        .format(new Date(Number(dateParts[3]), Number(dateParts[2]) - 1, Number(dateParts[1])))
-      : currentDate;
+    const copy = activeLanguage === "EN" ? {
+      title: "Choose your work area", hint: "Select a work area to continue.",
+      service: "Service", serviceHint: "Check in breakfast guests",
+      management: "Management", managementHint: "Manage rooms & guests", hub: "Back to app hub"
+    } : activeLanguage === "VI" ? {
+      title: "Chọn khu vực làm việc", hint: "Chọn khu vực để tiếp tục.",
+      service: "Dịch vụ", serviceHint: "Ghi nhận khách ăn sáng",
+      management: "Quản lý", managementHint: "Quản lý phòng & khách", hub: "Về trung tâm ứng dụng"
+    } : {
+      title: "Arbeitsbereich wählen", hint: "Wähle deinen Bereich, um fortzufahren.",
+      service: "Service", serviceHint: "Frühstücksgäste erfassen",
+      management: "Verwaltung", managementHint: "Zimmer & Gäste bearbeiten", hub: "Zurück zum App-Hub"
+    };
     const chooser = document.createElement("section");
-    chooser.className = "role-selection ad-start-brand";
-    chooser.setAttribute("aria-label", "Arbeitsbereich auswählen");
+    chooser.className = "role-selection v4-role-picker";
+    chooser.setAttribute("aria-label", copy.title);
     chooser.innerHTML = `
-      <img class="role-logo ad-hotel-logo" src="/ambassador-logo.svg?v=confirmed-20260816-0517" alt="Ambassador Hotel Zürich">
-      <img class="role-app-logo ad-app-icon" src="/app-icon-breakfast.svg" width="44" height="44" alt="" aria-hidden="true">
-      <span class="role-eyebrow ad-app-name">Frühstück</span>
-      <h1>${tr("Arbeitsbereich")}</h1>
-      <p class="role-date">${displayDate}</p>
+      <div class="v4-role-intro">
+        <h1>${copy.title}</h1>
+        <p>${copy.hint}</p>
+      </div>
       <div class="role-options">
         <button type="button" data-role="service">
-          <span class="role-icon">${roleSelectionIcon("service")}</span>
-          <span><strong>${tr("Service")}</strong><small>${tr("Frühstück & Check-in")}</small></span>
+          <span class="role-icon">${roleChoiceV4Icon("service")}</span>
+          <span class="v4-role-label"><strong>${copy.service}</strong><small>${copy.serviceHint}</small></span>
+          <span class="v4-role-next" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></span>
         </button>
         <button type="button" data-role="reception">
-          <span class="role-icon">${roleSelectionIcon("reception")}</span>
-          <span><strong>${tr("Verwaltung")}</strong><small>${tr("Gästeliste & Verwaltung")}</small></span>
+          <span class="role-icon">${roleChoiceV4Icon("reception")}</span>
+          <span class="v4-role-label"><strong>${copy.management}</strong><small>${copy.managementHint}</small></span>
+          <span class="v4-role-next" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></span>
         </button>
-      </div>`;
+      </div>
+      <a class="v4-role-hub" href="https://ambassador-apps.vercel.app/" rel="noopener noreferrer">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 10 9-7 9 7"/><path d="M5 9v11h14V9"/><path d="M9 20v-7h6v7"/></svg>
+        <span>${copy.hub}</span>
+      </a>`;
     chooser.querySelectorAll("[data-role]").forEach((button) => {
       button.addEventListener("click", () => selectRole(button.dataset.role));
     });
@@ -909,7 +930,7 @@
         <span class="choice-label">GASTART</span>
         <div class="special-type-picker">
           <button type="button" data-special-type="opera"><span class="special-guest-icon opera-logo"><img src="/opera-hotel-logo.webp" alt="Opera Hotel"></span><span class="opera-choice-copy"><strong>Opera Gäste</strong><small>Gäste aus dem Hotel Opera</small></span></button>
-          <button type="button" data-special-type="external"><span class="special-guest-icon">${icon("service")}</span><span><strong>Externe Gäste</strong><small>Frühstück ohne Übernachtung</small></span></button>
+          <button type="button" data-special-type="external"><span class="special-guest-icon">${icon("guestAdd")}</span><span><strong>Externe Gäste</strong><small>Frühstück ohne Übernachtung</small></span></button>
         </div>
         <div data-special-guest-history>${specialGuestEntriesMarkup()}</div>
         <div class="special-count"><span><strong>Gästeanzahl</strong><small>Wie viele Gäste kommen zum Frühstück?</small></span><div><button type="button" data-count-change="-1">−</button><strong data-special-count>1</strong><button type="button" data-count-change="1">+</button></div></div>
