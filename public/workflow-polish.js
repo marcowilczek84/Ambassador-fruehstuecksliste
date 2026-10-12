@@ -127,6 +127,7 @@
     if (name === "reception") return roleSelectionIcon("reception");
 
     const paths = {
+      guestAdd: '<circle cx="10" cy="8" r="5"/><path d="M2 21a8 8 0 0 1 13.292-6M19 16v6M16 19h6"/>',
       guests: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>',
       finish: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
       stats: '<path d="M4 20V10M10 20V4M16 20v-7M22 20V7"/>',
@@ -909,7 +910,7 @@
         <span class="choice-label">GASTART</span>
         <div class="special-type-picker">
           <button type="button" data-special-type="opera"><span class="special-guest-icon opera-logo"><img src="/opera-hotel-logo.webp" alt="Opera Hotel"></span><span class="opera-choice-copy"><strong>Opera Gäste</strong><small>Gäste aus dem Hotel Opera</small></span></button>
-          <button type="button" data-special-type="external"><span class="special-guest-icon">${icon("service")}</span><span><strong>Externe Gäste</strong><small>Frühstück ohne Übernachtung</small></span></button>
+          <button type="button" data-special-type="external"><span class="special-guest-icon">${icon("guestAdd")}</span><span><strong>Externe Gäste</strong><small>Frühstück ohne Übernachtung</small></span></button>
         </div>
         <div data-special-guest-history>${specialGuestEntriesMarkup()}</div>
         <div class="special-count"><span><strong>Gästeanzahl</strong><small>Wie viele Gäste kommen zum Frühstück?</small></span><div><button type="button" data-count-change="-1">−</button><strong data-special-count>1</strong><button type="button" data-count-change="1">+</button></div></div>
