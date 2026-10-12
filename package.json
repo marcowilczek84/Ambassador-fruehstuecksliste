@@ -2,7 +2,7 @@
   "name": "ambassador-live-preview",
   "private": true,
   "scripts": {
-    "build": "next build",
+    "build": "node scripts/prepare-v4.cjs && next build",
     "test": "node --test tests/*.test.cjs"
   },
   "dependencies": {

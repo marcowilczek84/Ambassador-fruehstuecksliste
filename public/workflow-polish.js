@@ -4,7 +4,7 @@
   let openOnly = false;
   let scheduled = false;
   const roleKey = "ambassador-work-area";
-  const previewVersion = "8.51.0";
+  const previewVersion = "4.0.0";
   const languageKey = "ambassador-ui-language";
   const supportedLanguages = ["DE", "EN", "VI"];
   let activeLanguage = (() => {
@@ -350,7 +350,9 @@
       layer.className = "reliable-app-menu-layer";
       const currentRole = sessionStorage.getItem(roleKey) || role;
       const roleActions = currentRole === "reception"
-        ? `${menuItem("Zimmer hinzufügen", "add", "Zimmer hinzufügen", "Gast manuell zur heutigen Liste ergänzen")}
+        ? `${menuItem("Statistik", "stats", "Statistik")}
+           ${menuItem("Frühstück beenden", "finish", "Frühstück beenden")}
+           ${menuItem("Zimmer hinzufügen", "add", "Zimmer hinzufügen")}
            ${menuItem("Frühstücksliste löschen", "trash", "Frühstücksliste löschen", "Heutige Liste entfernen")}`
         : `${menuItem("special-guests", "guests", "Gäste ohne Zimmer erfassen", "Opera- oder externe Gäste")}
            ${menuItem("Frühstück beenden", "finish", "Frühstück beenden", "Tagesabschluss vorbereiten")}
@@ -1048,10 +1050,7 @@
         label === "Zimmer hinzufügen" ||
         label === "Frühstücksliste löschen"
       )) button.remove();
-      if (role === "reception" && (
-        label === "Frühstück beenden" ||
-        label === "Statistik"
-      )) button.remove();
+      
     });
 
     root.querySelectorAll(".menu-card").forEach((menu) => {
@@ -1629,5 +1628,6 @@
     subtree: true,
     characterData: true
   });
+  window.addEventListener("ambassador-open-special",openSpecialGuestDialog);
   schedule();
 })();
