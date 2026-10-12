@@ -1,5 +1,5 @@
 // Reproducible, bounded bridge into the recovered production runtime.
-// All legacy APIs, import/export, auth and reception logic remain byte-for-byte.
+// Legacy APIs, import/export and auth are preserved. Statistics discount corrections.
 const fs=require('node:fs');
 const path='public/recovered/_next/static/chunks/0nkyeaxka~cd7-meili-v9.js';
 let input=fs.readFileSync(path,'utf8');

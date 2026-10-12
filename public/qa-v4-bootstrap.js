@@ -9,6 +9,16 @@ function bootstrap(){
   const clone=x=>JSON.parse(JSON.stringify(x));
   if(url.pathname==='/rest/v1/breakfast_lists'&&method==='GET')return new Response(JSON.stringify([{payload:clone(parent.qaCloud),updated_at:parent.qaCloud.updated}]),{status:200});
   if(url.pathname.includes('guest_preferences')&&method==='GET')return new Response('[]',{status:200});
+  if(url.pathname==='/rest/v1/rpc/merge_breakfast_changes'&&method==='POST'){
+   const a=JSON.parse(options.body),cloud=parent.qaCloud;parent.qaCalls.push(clone(a));
+   const changed=new Map((a.p_rooms||[]).map(r=>[r.room,r]));
+   cloud.rooms=cloud.rooms.map(r=>changed.get(r.room)||r);
+   for(const r of changed.values())if(!cloud.rooms.some(old=>old.room===r.room))cloud.rooms.push(r);
+   cloud.v8Arrivals=[...new Map([...cloud.v8Arrivals,...a.p_arrivals||[]].map(e=>[JSON.stringify(e),e])).values()];
+   cloud.v8Activity=[...new Map([...cloud.v8Activity,...a.p_activity||[]].map(e=>[e.id,e])).values()].slice(-30);
+   if(Array.isArray(a.p_history))cloud.v8History=a.p_history;
+   cloud.updated=Math.max(a.p_updated||0,cloud.updated);return new Response(JSON.stringify(clone(cloud)),{status:200});
+  }
   if(url.pathname==='/rest/v1/rpc/breakfast_service_action_v4'&&method==='POST'){
    const a=JSON.parse(options.body);parent.qaCalls.push(clone(a));const cloud=parent.qaCloud,current=cloud.rooms.find(r=>r.room===a.p_room);let status='saved';
    if(cloud.v4ServiceActions[a.p_action_id])status='duplicate';

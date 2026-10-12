@@ -10,7 +10,7 @@
 #ambassador-ui.service-first{margin:0!important;padding:0!important;overflow:auto!important;min-width:320px}
 #ambassador-ui.service-first:before,#ambassador-ui.service-first:after{display:none!important}
 #ambassador-ui .v4-shell,#ambassador-ui .v4-shell *{box-sizing:border-box;letter-spacing:normal;font-family:Arial,Helvetica,sans-serif;font-style:normal;box-shadow:none}
-#ambassador-ui .v4-shell{display:grid;grid-template-rows:60px 82px minmax(0,1fr) 32px;width:100%;max-width:1800px;height:100dvh;min-height:640px;margin:auto;padding:0 20px;background:#fff;color:#202b30}
+#ambassador-ui .v4-shell{display:grid;grid-template-rows:60px 76px minmax(0,1fr) 44px;width:100%;max-width:1800px;height:100dvh;min-height:640px;margin:auto;padding:0 20px;background:#fff;color:#202b30}
 #ambassador-ui .v4-shell button,#ambassador-ui .v4-dialog button{cursor:pointer;touch-action:manipulation}
 #ambassador-ui .v4-shell button:disabled,#ambassador-ui .v4-dialog button:disabled{cursor:default;opacity:.48}
 #ambassador-ui :is(.v4-shell,.v4-dialog,.v4-toast) :is(button,a,input,select):focus-visible{outline:2px solid #176f73;outline-offset:3px}
@@ -63,7 +63,7 @@
 #ambassador-ui .v4-footer{display:flex;align-items:center;justify-content:space-between;color:#728087;font-size:10px;gap:12px}
 #ambassador-ui .v4-footer>span:first-child:before{content:'';display:inline-block;width:5px;height:5px;background:#176f73;border-radius:50%;margin-right:6px}
 #ambassador-ui .v4-footer>.v4-sync-wait:before{background:#647078!important}
-#ambassador-ui .v4-footer button{border:0;color:#53666d;background:#fff;font-size:11px;min-height:32px;padding:0 4px}
+#ambassador-ui .v4-footer button{border:0;color:#53666d;background:#fff;font-size:11px;min-height:44px;padding:0 4px}
 #ambassador-ui .v4-empty{grid-column:1/-1;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:20px;height:100%}
 #ambassador-ui .v4-empty h2{font-size:18px;font-weight:400;color:#647078;text-align:center}
 #ambassador-ui .v4-empty button{height:44px;border:1px solid #d4dfe3;border-radius:5px;background:#fff;color:#176f73;padding:0 16px}
