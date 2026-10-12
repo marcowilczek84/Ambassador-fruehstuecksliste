@@ -218,7 +218,7 @@
 #ambassador-ui .v48-header-meta :is(span,time){display:inline;margin:0;font-size:11px;color:#647078}
 #ambassador-ui .v4-header-actions{margin-left:auto;flex-shrink:0}
 #ambassador-ui[data-app-role=reception] .page-title{text-align:left!important}
-#ambassador-ui[data-app-role=reception] .topbar .page-title-line{justify-content:flex-start!important}
+#ambassador-ui[data-app-role=reception] .topbar .page-title-line{justify-content:flex-start!important;margin-left:0!important;margin-right:0!important}
 #ambassador-ui[data-app-role=reception] .topbar .page-title :is(h1,p){text-align:left!important}
 #ambassador-ui[data-app-role=reception] .page-title p{margin-top:4px!important;line-height:1.25!important}
 #ambassador-ui[data-app-role=reception] .page-title p .ad-header-area{display:inline!important;margin:0!important;font-size:inherit!important;line-height:inherit!important;color:inherit!important}
