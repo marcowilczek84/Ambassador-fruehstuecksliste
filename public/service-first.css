@@ -192,3 +192,8 @@
 @media(max-width:699px){#ambassador-ui .v41-admin-tasks{gap:8px;padding:0 12px;justify-content:space-between}#ambassador-ui .v41-admin-tasks button{font-size:11px;max-width:32%}}
 
 @media(max-width:650px){#ambassador-ui .v4-grid{gap:6px}#ambassador-ui .v4-room-open{grid-template-columns:50px minmax(0,1fr);gap:12px;padding:8px}#ambassador-ui .v4-partial{font-size:11px;margin-top:5px}}
+
+/* Show persisted breakfast table placement inside the fixed-height V4 room card. */
+#ambassador-ui .v4-room-meta{display:flex;align-items:center;gap:4px;min-width:0;width:100%;margin-top:2px;line-height:13px}
+#ambassador-ui .v4-room-meta .v4-partial{flex:0 0 auto;margin-top:0;padding:0 4px;white-space:nowrap;font-size:10px;line-height:13px}
+#ambassador-ui .v4-room-table{display:block;min-width:0;flex:0 1 auto;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#53666d;font-size:10px;line-height:13px;font-weight:600;font-variant-numeric:tabular-nums}
