@@ -647,8 +647,9 @@
 #ambassador-ui .search-empty-state button { min-height:44px; border:1px solid #1c777b; border-radius:8px; padding:8px 16px; background:#fff; color:#1c777b; font-size:14px; }
 #ambassador-ui .final-search-summary { margin:0; padding:8px 0; color:#141918; font-size:14px; line-height:20px; }
 #ambassador-ui .search-active .section-head { display:none!important; }
-#ambassador-ui .search-active.open-only .room-row[data-open-match=false] { display:block!important; }
-#ambassador-ui .search-active.open-only .section[data-open-section=false] { display:block!important; }
+/* Search and the open-room filter are an intersection, never an override. */
+#ambassador-ui .search-active.open-only .room-row[data-open-match=false] { display:none!important; }
+#ambassador-ui .search-active.open-only .section[data-open-section=false] { display:none!important; }
 #ambassador-ui[data-app-role=service] .room-row.partial::before { background:#cdd7d4!important; }
 #ambassador-ui[data-app-role=service] .room-row.included.partial::before { background:#f3cf24!important; }
 #ambassador-ui[data-app-role=service] .room-row.present:not(.partial)::before { background:#1c777b!important; }
