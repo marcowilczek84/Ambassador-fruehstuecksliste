@@ -1017,8 +1017,14 @@
     const title = shell.querySelector(".page-title h1");
     if (title) {
       const area = tr(role === "reception" ? "Verwaltung" : "Service");
-      const label = `<span data-no-auto-translate="">Frühstück</span> <span class="ad-header-area">${area}</span>`;
+      const label = `<span data-no-auto-translate="">Frühstück</span>`;
       if (title.innerHTML !== label) title.innerHTML = label;
+      const subtitle=shell.querySelector('.page-title p');
+      if(subtitle){
+        let areaLabel=subtitle.querySelector('.ad-header-area');
+        if(!areaLabel){areaLabel=document.createElement('span');areaLabel.className='ad-header-area';subtitle.prepend(areaLabel)}
+        if(areaLabel.textContent!==area)areaLabel.textContent=area;
+      }
     }
     const search = shell.querySelector('.search-box input');
     if (search) search.placeholder = tr(role === "reception" ? "Zimmer oder Name suchen" : "Zimmer, Name oder Tisch suchen");
