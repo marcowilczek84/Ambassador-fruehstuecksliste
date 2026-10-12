@@ -157,26 +157,31 @@
     location.reload();
   }
 
-  const workAreaTransition = Object.freeze({ duration: 4700, reducedDuration: 80 });
+  const workAreaTransition = Object.freeze({ duration: 4700, serviceDuration: 2300, reducedDuration: 80 });
 
   function showSharedListReadyAnimation(duration = workAreaTransition.duration) {
     document.querySelector(".success-overlay")?.remove();
     const rooms = readDailyState("ambassador-breakfast-rooms", "rooms", []);
-    const occupied = rooms.filter((room) => room && !room.vacant && Number(room.people || room.guests || 0) > 0);
-    const guests = occupied.reduce((sum, room) => sum + Number(room.people || room.guests || 0), 0);
+    const peopleIn = (room) => {
+      const count = Number(room?.people);
+      return Number.isFinite(count) && count >= 0 ? count
+        : Array.isArray(room?.guests) ? room.guests.length : 0;
+    };
+    const occupied = rooms.filter((room) => room && !room.vacant && peopleIn(room) > 0);
+    const guests = occupied.reduce((sum, room) => sum + peopleIn(room), 0);
     const included = occupied
       .filter((room) => Boolean(room.included || room.breakfastIncluded))
-      .reduce((sum, room) => sum + Number(room.people || room.guests || 0), 0);
+      .reduce((sum, room) => sum + peopleIn(room), 0);
     const occupancy = Math.min(100, Math.round((occupied.length / Math.max(1, rooms.length)) * 100));
     const layer = document.createElement("div");
     layer.className = "success-overlay";
     layer.setAttribute("role", "status");
     layer.setAttribute("aria-live", "polite");
     const copy = activeLanguage === "EN"
-      ? { complete: "IMPORT COMPLETE", loaded: "List loaded successfully", ready: "Today’s breakfast list is ready.", included: "included guests", occupancy: "Hotel occupancy" }
+      ? { complete: "IMPORT COMPLETE", loaded: "List loaded successfully", ready: "Today’s breakfast list is ready.", included: "included guests", occupancy: "Hotel occupancy", summary: "Breakfast overview", rooms: "Rooms occupied", guests: "Guests total", breakfast: "Breakfast included" }
       : activeLanguage === "VI"
-        ? { complete: "ĐÃ NHẬP DỮ LIỆU", loaded: "Đã tải danh sách thành công", ready: "Danh sách ăn sáng hôm nay đã sẵn sàng.", included: "khách bao gồm ăn sáng", occupancy: "Công suất khách sạn" }
-        : { complete: "IMPORT ABGESCHLOSSEN", loaded: "Liste erfolgreich geladen", ready: "Die heutige Frühstücksliste ist bereit.", included: "inklusive Gäste", occupancy: "Hotelauslastung" };
+        ? { complete: "ĐÃ NHẬP DỮ LIỆU", loaded: "Đã tải danh sách thành công", ready: "Danh sách ăn sáng hôm nay đã sẵn sàng.", included: "khách bao gồm ăn sáng", occupancy: "Công suất khách sạn", summary: "Tổng quan bữa sáng", rooms: "Phòng có khách", guests: "Tổng số khách", breakfast: "Gồm bữa sáng" }
+        : { complete: "IMPORT ABGESCHLOSSEN", loaded: "Liste erfolgreich geladen", ready: "Die heutige Frühstücksliste ist bereit.", included: "inklusive Gäste", occupancy: "Hotelauslastung", summary: "Frühstück im Überblick", rooms: "Zimmer belegt", guests: "Gäste gesamt", breakfast: "Frühstück inkl." };
     const ringOffset = (ratio) => 314 - 314 * Math.max(0, Math.min(1, ratio));
     layer.innerHTML = `<div class="success-panel">
       <div class="success-check"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg></div>
@@ -187,6 +192,11 @@
         <div class="success-metric yellow"><svg viewBox="0 0 120 120" aria-hidden="true"><circle class="ring-track" cx="60" cy="60" r="50"></circle><circle class="ring-value" cx="60" cy="60" r="50" style="--ring-offset:${ringOffset(guests ? included / guests : 0)}"></circle></svg><div><strong>${included}</strong><small>${copy.included}</small></div></div>
         <div class="success-metric green"><svg viewBox="0 0 120 120" aria-hidden="true"><circle class="ring-track" cx="60" cy="60" r="50"></circle><circle class="ring-value" cx="60" cy="60" r="50" style="--ring-offset:${ringOffset(occupied.length / Math.max(1, rooms.length))}"></circle></svg><div><strong>${occupancy}%</strong><small>${copy.occupancy}</small></div></div>
       </div>
+      <dl class="v4-entry-summary" aria-label="${copy.summary}">
+        <div><dt>${copy.rooms}</dt><dd>${occupied.length}</dd></div>
+        <div><dt>${copy.guests}</dt><dd>${guests}</dd></div>
+        <div><dt>${copy.breakfast}</dt><dd>${included}</dd></div>
+      </dl>
     </div>`;
     document.body.append(layer);
     layer.style.setProperty("--entry-transition-duration", `${duration}ms`);
@@ -1416,7 +1426,7 @@
     const rooms = readDailyState("ambassador-breakfast-rooms", "rooms", []);
     sessionStorage.removeItem("ambassador-service-entry-transition");
     if (!rooms.some((room) => Number(room.people || 0) > 0)) return;
-    showSharedListReadyAnimation();
+    showSharedListReadyAnimation(role === "service" ? workAreaTransition.serviceDuration : workAreaTransition.duration);
     const layer = document.querySelector(".success-overlay");
     if (!layer) return;
     layer.classList.add("work-area-entry-transition");

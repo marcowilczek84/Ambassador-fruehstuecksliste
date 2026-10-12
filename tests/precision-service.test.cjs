@@ -59,8 +59,9 @@ test('search result feedback excludes invisible fixed-position rooms and shows t
  row('partial').style.visibility='visible';w.updateWorkspaceFeedback(shell);assert.equal(shell.querySelector('.final-search-summary').textContent,'1 Treffer');assert.equal(shell.querySelector('.search-empty-state').hidden,true);
  dom.window.close();
 });
-test('production data, native calculations/import/check-in, API, and service animation are unchanged',()=>{
+test('production data, native calculations/import/check-in, API, and entry flow are preserved',()=>{
  const guard=JSON.parse(fs.readFileSync('tests/protected-baseline.json','utf8'));
  for(const [file,expected] of Object.entries(guard.files))assert.equal(crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex'),expected,file);
- for(const [name,expected] of Object.entries(guard.functions))assert.equal(crypto.createHash('sha256').update(name==='serviceEntryTransition'?functionSource(name).replace('\"Verwaltung\"','\"Rezeption\"'):functionSource(name)).digest('hex'),expected,name);
+ // Approved role-choice changes rename Reception and shorten only the Service transition.
+ for(const [name,expected] of Object.entries(guard.functions))assert.equal(crypto.createHash('sha256').update(name==='serviceEntryTransition'?functionSource(name).replace('\"Verwaltung\"','\"Rezeption\"').replace('showSharedListReadyAnimation(role === \"service\" ? workAreaTransition.serviceDuration : workAreaTransition.duration);','showSharedListReadyAnimation();'):functionSource(name)).digest('hex'),expected,name);
 });

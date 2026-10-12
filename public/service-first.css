@@ -189,7 +189,7 @@
 #ambassador-ui[data-app-role=reception] .reception-upload{display:none!important}
 #ambassador-ui .v41-admin-tasks{display:flex;gap:26px;padding:0 20px;border-bottom:1px solid #e5eaec;align-items:center;min-height:54px}
 #ambassador-ui .v41-admin-tasks button{font:500 14px Arial,sans-serif;min-height:44px;background:#fff!important;color:#53666d!important;border:0;padding:0 4px;cursor:pointer}
-#ambassador-ui .v41-admin-tasks button:nth-child(2){color:#176f73!important;border-bottom:2px solid #176f73}
+#ambassador-ui .v41-admin-tasks button:nth-child(2){color:#263b43!important;font-weight:600}
 #ambassador-ui :is(.guest-info-live,.guest-info-edit-link,.guest-info-block,.guest-info-inline,.guest-memory-panel,.guest-history){display:none!important}
 @media(min-width:700px){#ambassador-ui[data-app-role=reception] .app-shell{grid-template-rows:60px 54px 70px 58px minmax(0,1fr)!important}#ambassador-ui[data-app-role=reception] .v41-admin-tasks{grid-row:2}#ambassador-ui[data-app-role=reception] .hero{grid-row:3!important;height:70px!important}#ambassador-ui[data-app-role=reception] .search-wrap{grid-row:4!important}#ambassador-ui[data-app-role=reception] .content{grid-row:5!important}}
 @media(max-width:699px){#ambassador-ui .v41-admin-tasks{gap:8px;padding:0 12px;justify-content:space-between}#ambassador-ui .v41-admin-tasks button{font-size:11px;max-width:32%}}
