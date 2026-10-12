@@ -2,6 +2,24 @@ const {test}=require('node:test');const assert=require('node:assert/strict');con
 const api=require('../public/service-first.js');
 const room={room:20,people:2,guests:['Clara Winter','Jonas Winter'],included:true,arrivedCount:0};
 test('service filter covers partial, full, vacant, excluded and accented search',()=>{assert.ok(api.isOpen(room));assert.ok(api.isOpen({...room,arrivedCount:1}));assert.ok(!api.isOpen({...room,arrivedCount:2}));assert.ok(!api.isOpen({...room,included:false}));assert.ok(!api.isOpen({...room,guests:[]}));assert.ok(api.matches({...room,guests:['Renée Dubois']},'renee'));assert.ok(api.matches(room,'20'));assert.ok(!api.matches(room,'Meier'));});
+test('room cards display only persisted, distinct tables and keep different bookings',()=>{
+ assert.deepEqual(api.roomTables({...room,arrivedCount:0,table:'Tisch 4'}),[],'an unarrived guest is not shown as seated');
+ assert.deepEqual(api.roomTables({...room,arrivedCount:2,serviceBookings:[{people:1,table:'Tisch 3'},{people:1,table:'Tisch 8'}],table:'Tisch 8'}),['3','8']);
+ assert.deepEqual(api.roomTables({...room,arrivedCount:2,serviceBookings:[{people:1,table:'Tisch 3'},{people:1,table:'Tisch 3'}]}),['3'],'duplicate tables are shown once');
+ assert.deepEqual(api.roomTables({...room,arrivedCount:2,serviceBookings:[{people:1,table:'Tisch 3'}],serviceLegacyTable:'Tisch 8'}),['3','8'],'legacy placement is kept when earlier arrivals exist');
+ assert.deepEqual(api.roomTables({...room,arrivedCount:1,serviceBookings:[{people:1,table:'Tisch 3'}],serviceLegacyTable:'Tisch 8'}),['3'],'unmatched legacy placement is not invented');
+});
+test('latest recorded table placement wins per table, follows corrections and never guesses timestamps',()=>{
+ const mk=(number,bookings,count=bookings.reduce((n,b)=>n+b.people,0))=>({...room,room:number,arrivedCount:count,people:Math.max(2,count),serviceBookings:bookings});
+ const old=mk(20,[{id:'a',people:1,table:'Tisch 1',at:1000},{id:'b',people:1,table:'Tisch 2',at:1500}]);
+ const recent=mk(35,[{id:'c',people:1,table:'Tisch 1',at:2000}]);
+ assert.deepEqual([...api.latestTablePlacements([old,recent])],[['1',35],['2',20]],'room 35 replaces room 20 only at table 1');
+ assert.equal(api.latestTablePlacements([old]).get('1'),20,'after undo the previous recorded placement becomes latest');
+ assert.equal(api.latestTablePlacements([old,{...recent,serviceBookings:[{id:'missing',people:1,table:'Tisch 1'}]}]).get('1'),20,'unknown booking time is not treated as newest');
+ assert.equal(api.latestTablePlacements([old,mk(35,[{id:'same',people:1,table:'Tisch 1',at:1000}])]).has('1'),false,'same timestamp in different rooms is ambiguous');
+ assert.equal(api.latestTablePlacements([mk(20,[{people:1,table:'Tisch 1',at:2500}],0)]).has('1'),false,'an undone or unarrived room is not marked');
+ assert.equal(api.latestTablePlacements([mk(20,[{people:0,table:'Tisch 1',at:2500}],1)]).has('1'),false,'zero-person booking is ignored');
+});
 test('legacy attendance normalization remains compatible and bounded',()=>{assert.equal(api.normalize({...room,arrivedCount:undefined,present:true}).arrivedCount,2);assert.equal(api.normalize({...room,arrivedCount:9}).arrivedCount,2);assert.equal(api.normalize({...room,arrivedCount:-2}).arrivedCount,0)});
 test('corrected arrivals retain exact people totals and valid positive events for statistics',()=>{const result=api.effectiveArrivals([{room:20,people:1,included:true,at:1},{room:20,people:1,included:true,at:2},{room:21,people:1,included:true,at:3},{room:20,people:-1,included:true,at:4}]);assert.deepEqual(result.map(e=>[e.room,e.people,e.at]),[[20,1,1],[21,1,3]]);});
 test('rendered table check-ins, independent bookings, corrections, retries, statistics and filters',async()=>{
@@ -23,6 +41,24 @@ test('rendered table check-ins, independent bookings, corrections, retries, stat
  await React.act(async()=>root.unmount());dom.window.close();
 });
 
+test('room badges move to the newest table assignment without suggesting live occupancy',async()=>{
+ const {JSDOM}=require('jsdom');const dom=new JSDOM('<div id="root"></div>',{url:'https://example.test'});
+ const w=dom.window;for(const name of ['window','document','localStorage','sessionStorage','Event','CustomEvent'])global[name]=w[name];
+ global.IS_REACT_ACT_ENVIRONMENT=true;
+ const React=require('react'),{createRoot}=require('react-dom/client');
+ const mk=(number,at)=>({...room,room:number,people:2,arrivedCount:1,serviceBookings:[{id:String(number),people:1,table:'Tisch 1',at}]});
+ const root=createRoot(document.getElementById('root')),C=api.component(React);
+ let rooms=[mk(20,1000),mk(21,2000)];
+ const props=()=>({rooms,language:'de',date:'2026-10-12',status:'Aktuell auf allen Geräten',endpoint:'https://example.test',headers:()=>({}),legacyPending:()=>false,applyPayload:()=>{}});
+ const render=()=>React.act(async()=>root.render(React.createElement(C,props())));
+ await render();
+ const active=()=>[...document.querySelectorAll('.v4-table-number.is-latest')].map(e=>e.closest('[data-room]').dataset.room);
+ assert.deepEqual(active(),['21'],'newer check-in at table 1 is highlighted');
+ assert.equal(document.querySelector('[data-room="20"] .v4-table-number').textContent,'1');
+ rooms=[mk(20,3000),mk(21,2000)];await render();assert.deepEqual(active(),['20'],'highlight switches when room 20 has the newest assignment');
+ rooms=[mk(20,1000),mk(21,2000)];await render();assert.deepEqual(active(),['21'],'after correction the earlier valid assignment is highlighted');
+ await React.act(async()=>root.unmount());dom.window.close();
+});
 test('stay calculation uses calendar dates, arrival excluded and departure included',()=>{
  const info=(a,d,t)=>api.stayInfo({arrival:a,departure:d},t);
  assert.deepEqual(info('2026-10-11','2026-10-14','2026-10-13'),{nights:1,breakfast:2,total:3});
