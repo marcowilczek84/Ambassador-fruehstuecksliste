@@ -86,7 +86,7 @@ function component(React){
   const filtered=all.filter(r=>matches(r,query)&&(!onlyOpen||isOpen(r)));
   const current=all.find(r=>r.room===selected);
   const blocked=busy||!!pending||props.finished;
-  function openRoom(r,event){origin.current=event.currentTarget;setSelected(r.room);setAmount(1);setTable('');setReceipt(null)}
+  function openRoom(r,event){origin.current=event.currentTarget;setSelected(r.room);setAmount(Math.max(0,Number(r.people||0)-normalize(r).arrivedCount));setTable('');setReceipt(null)}
   function closeRoom(){setSelected(null);setTimeout(()=>origin.current?.isConnected&&origin.current.focus(),0)}
   React.useEffect(()=>{if(selected===null&&!stats)return;const dialog=document.querySelector('.v4-dialog');dialog?.querySelector('button')?.focus();const key=e=>{if(e.key==='Escape'){e.preventDefault();closeRoom();setStats(false)}if(e.key==='Tab'){const controls=[...dialog.querySelectorAll('button:not(:disabled)')];const first=controls[0],last=controls.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last?.focus()}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first?.focus()}}};dialog?.addEventListener('keydown',key);return()=>dialog?.removeEventListener('keydown',key)},[selected,stats]);
   function card(r){
