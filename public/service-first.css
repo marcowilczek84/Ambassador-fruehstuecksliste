@@ -7,7 +7,7 @@
 #ambassador-ui .role-options button{box-shadow:none!important;border:1px solid #dce3e6!important;border-radius:8px!important}
 #ambassador-ui :is(.role-selection .ad-app-name,.breakfast-splash-content .ad-app-name){font-size:25px!important;font-weight:500!important;letter-spacing:-.025em!important}
 #ambassador-ui .success-metric.yellow{color:#176f73!important}
-#ambassador-ui.service-first{margin:0!important;padding:0!important;overflow:auto!important;min-width:320px}
+#ambassador-ui.service-first{margin:0!important;padding:0!important;overflow:auto!important;min-width:0}
 #ambassador-ui.service-first:before,#ambassador-ui.service-first:after{display:none!important}
 #ambassador-ui .v4-shell,#ambassador-ui .v4-shell *{box-sizing:border-box;letter-spacing:normal;font-family:Arial,Helvetica,sans-serif;font-style:normal;box-shadow:none}
 #ambassador-ui .v4-shell{display:grid;grid-template-rows:60px 76px minmax(0,1fr) 44px;width:100%;max-width:1800px;height:100dvh;min-height:640px;margin:auto;padding:0 20px;background:#fff;color:#202b30}
@@ -141,3 +141,4 @@
  #ambassador-ui[data-app-role=reception] .guest-edit-modal .modal-body{max-height:calc(100dvh - 150px)!important;overflow:auto!important}
 }
 #ambassador-ui .v4-reception-service{min-width:62px;height:44px;border:0;background:#fff;color:#53666d!important;border-radius:4px;font-size:12px;cursor:pointer}
+@media(max-width:360px){#ambassador-ui .v4-header{gap:8px}#ambassador-ui .v4-logo{width:48px}#ambassador-ui .v4-header-actions select{min-width:44px}}
