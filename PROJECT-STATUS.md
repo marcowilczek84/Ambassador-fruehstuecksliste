@@ -1,3 +1,7 @@
+## Aktueller Zusatzauftrag – 12.10.2026
+
+Premium UX für Frühstück und Inside in `premium-ux-20261012`. Preview, nicht abgenommen, keine Production-Freigabe. Ambassador-Logo links im Inside-Header ergänzt. Hub und Trinkgeld ausdrücklich außerhalb des Auftrags. Siehe `PREMIUM-UX-20261012.md`.
+
 # Ambassador Frühstück – Arbeitsstand
 
 11.10.2026, Europe/Zurich. Production zuletzt verifiziert: `e74d850597d6f68dbe182ef92cf235950690c279`. Neue, noch nicht veröffentlichte Korrektur auf `ambassador-start-header-20261011`, direkt auf diesem Production-Commit aufgebaut.
