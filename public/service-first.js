@@ -67,7 +67,7 @@ function latestTablePlacements(rooms){
    if(!(Number(booking.people)>0)||!booking.table)continue;
    const table=String(booking.table).trim().replace(/^(?:Tisch|Table|Bàn)\s*/i,'');
    const at=Number(booking.at);
-   if(!table||!Number.isSafeInteger(at)||at<=0)continue; // Older bookings without timestamps remain neutral.
+   if(!table||table==='Roomservice'||!Number.isSafeInteger(at)||at<=0)continue; // Roomservice is not a restaurant table; older bookings without timestamps remain neutral.
    const previous=candidates.get(table),roomNumber=Number(room.room);
    if(!previous||at>previous.at)candidates.set(table,{room:roomNumber,at});
    else if(at===previous.at&&previous.room!==roomNumber)candidates.set(table,{room:null,at}); // Ambiguous ordering must not claim a winner.
@@ -114,7 +114,7 @@ function component(React){
  Component=function ServiceFirst(props){
   const lang=labels[props.language]||labels.de;
   const text=(de,en,vi)=>props.language==='en'?en:props.language==='vi'?vi:de;
-  const [amount,setAmount]=React.useState(1),[table,setTable]=React.useState(''),[tableRange,setTableRange]=React.useState(0),[receipt,setReceipt]=React.useState(null),[stats,setStats]=React.useState(false);
+  const [amount,setAmount]=React.useState(1),[table,setTable]=React.useState(''),[receipt,setReceipt]=React.useState(null),[stats,setStats]=React.useState(false);
   const [query,setQuery]=React.useState(''),[onlyOpen,setOpen]=React.useState(false),[selected,setSelected]=React.useState(null),[busy,setBusy]=React.useState(false),[notice,setNotice]=React.useState(null),[pending,setPending]=React.useState(()=>{try{const p=JSON.parse(localStorage.getItem(PENDING)||'null');return p?.p_list_date===props.date?p:null}catch{return null}});
   const lock=React.useRef(false),latest=React.useRef(props),origin=React.useRef(null),noticeTimer=React.useRef(null);latest.current=props;
   React.useEffect(()=>{document.body.dataset.appRole='service';document.body.classList.add('service-first');return()=>{document.body.classList.remove('service-first');clearTimeout(noticeTimer.current)}},[]);
@@ -154,12 +154,17 @@ function component(React){
    const occupied=r.people>0&&r.guests?.length,complete=occupied&&r.arrivedCount>=r.people,partial=occupied&&r.arrivedCount>0&&!complete;
    const state=complete?lang.registered:partial?text('Teilweise','Partial','Một phần'):r.included?lang.included:lang.excluded;
    const tables=roomTables(r).sort((a,b)=>Number(lastSeated.get(b)===Number(r.room))-Number(lastSeated.get(a)===Number(r.room)));
-   const tableLabel=text('Tisch','Table','Bàn'),seating=tables.length?`${tableLabel} ${tables.join(' · ')}`:'';
-   const latestForRoom=tables.filter(t=>lastSeated.get(t)===Number(r.room));
+   const tableLabel=text('Tisch','Table','Bàn'),serviceLabel=text('Roomservice','Room service','Phục vụ tại phòng');
+   const seating=tables.map(t=>t==='Roomservice'?serviceLabel:`${tableLabel} ${t}`).join(' · ');
+   const latestForRoom=tables.filter(t=>t!=='Roomservice'&&lastSeated.get(t)===Number(r.room));
    return h('article',{key:r.room,className:`v4-room ${complete?'is-complete':''} ${partial?'is-partial':''} ${!occupied?'is-vacant':''} ${r.included?'is-included':''}`,style:{'--room-row':r.room%10+1},'data-room':r.room,'aria-label':`${lang.room} ${r.room}`},
     h(occupied?'button':'div',{className:'v4-room-open',...(occupied?{type:'button',onClick:e=>openRoom(r,e),'aria-label':`${lang.room} ${r.room}: ${r.guests.join(', ')}. ${r.people} ${lang.people}. ${state}${seating?'. '+seating:''}${latestForRoom.length?'. '+text('Zuletzt erfasst an Tisch','Last recorded at table','Ghi nhận gần nhất tại bàn')+' '+latestForRoom.join(' und '):''}`}:{})},
      h('span',{className:'v4-room-id'},h('strong',{className:'v4-number'},r.room),occupied&&h('span',{className:'v4-people'},icon('person'),r.people)),
-     h('span',{className:'v4-room-body'},occupied?h('span',{className:'v4-names'},r.guests.slice(0,2).map((name,i)=>h('span',{key:i},name)),r.guests.length>2&&h('small',{className:'v4-more'},`+${r.guests.length-2}`)):h('span',{className:'v4-vacant'},lang.vacant),(partial||seating)&&h('span',{className:'v4-room-meta'},partial&&h('span',{className:'v4-partial'},text('Teilweise','Partial','Một phần')),seating&&h('span',{className:'v4-room-table',title:seating},h('span',{className:'v4-table-label'},`${tableLabel} `),tables.map((table,i)=>h(React.Fragment,{key:table},i?h('span',{className:'v4-table-divider'},' · '):null,h('span',{className:`v4-table-number ${lastSeated.get(table)===Number(r.room)?'is-latest':''}`,title:lastSeated.get(table)===Number(r.room)?text('Zuletzt an diesem Tisch erfasst (Belegung nicht bestätigt)','Latest recorded at this table (occupancy not confirmed)','Ghi nhận gần nhất tại bàn (chưa xác nhận còn ngồi)'):text('Frühere oder zeitlich unbekannte Tischzuweisung','Earlier or undated table assignment','Bàn được gán trước đó hoặc không rõ thời gian')},table)))))),
+     h('span',{className:'v4-room-body'},occupied?h('span',{className:'v4-names'},r.guests.slice(0,2).map((name,i)=>h('span',{key:i},name)),r.guests.length>2&&h('small',{className:'v4-more'},`+${r.guests.length-2}`)):h('span',{className:'v4-vacant'},lang.vacant),(partial||seating)&&h('span',{className:'v4-room-meta'},partial&&h('span',{className:'v4-partial'},text('Teilweise','Partial','Một phần')),seating&&h('span',{className:'v4-room-table',title:seating},tables.map((table,i)=>h(React.Fragment,{key:table},
+       i?h('span',{className:'v4-table-divider'},' · '):null,
+       table==='Roomservice'?h('span',{className:'v4-table-service'},serviceLabel):h(React.Fragment,null,
+        h('span',{className:'v4-table-label'},`${tableLabel} `),
+        h('span',{className:`v4-table-number ${lastSeated.get(table)===Number(r.room)?'is-latest':''}`,title:lastSeated.get(table)===Number(r.room)?text('Zuletzt an diesem Tisch erfasst (Belegung nicht bestätigt)','Latest recorded at this table (occupancy not confirmed)','Ghi nhận gần nhất tại bàn (chưa xác nhận còn ngồi)'):text('Frühere oder zeitlich unbekannte Tischzuweisung','Earlier or undated table assignment','Bàn được gán trước đó hoặc không rõ thời gian')},table))))))),
      complete&&h('span',{className:'v4-done','aria-label':lang.registered},icon('check')))
    );
   }
@@ -179,8 +184,8 @@ function component(React){
      receipt&&h('div',{className:'v41-receipt',role:'status'},icon('check'),h('strong',null,text('Gespeichert','Saved','Đã lưu')),h('span',null,`${receipt.people} ${lang.people} · ${receipt.table}`)),
      !receipt&&current.arrivedCount<current.people&&h(React.Fragment,null,
       h('div',{className:'v41-count'},h('label',{id:'v41-amount'},text('Gäste jetzt','Guests now','Số khách đến')),h('div',{'aria-labelledby':'v41-amount'},h('button',{disabled:blocked||amount<=1,onClick:()=>setAmount(a=>a-1),'aria-label':text('Weniger Gäste','Fewer guests','Bớt khách')},'−'),h('strong',null,Math.min(amount,current.people-current.arrivedCount)),h('button',{disabled:blocked||amount>=current.people-current.arrivedCount,onClick:()=>setAmount(a=>a+1),'aria-label':text('Mehr Gäste','More guests','Thêm khách')},'+'))),
-      h('div',{className:'v41-table-heading'},h('strong',null,text('Tisch wählen','Choose table','Chọn bàn')),h('div',null,[0,1].map(n=>h('button',{key:n,'aria-pressed':tableRange===n,onClick:()=>setTableRange(n)},n?'26–50':'1–25')))),
-      h('div',{className:'v41-tables','aria-label':text('Tischwahl','Tables','Bàn')},Array.from({length:25},(_,i)=>i+1+tableRange*25).map(n=>h('button',{key:n,'aria-label':`Tisch ${n}`,'aria-pressed':table===`Tisch ${n}`,disabled:blocked,onClick:()=>setTable(`Tisch ${n}`)},n)))
+      h('div',{className:'v41-table-heading'},h('strong',null,text('Tisch wählen','Choose table','Chọn bàn')),h('div',null,h('button',{className:'v41-roomservice','aria-pressed':table==='Roomservice',disabled:blocked,onClick:()=>setTable('Roomservice')},text('Roomservice','Room service','Phục vụ tại phòng')))),
+      h('div',{className:'v41-tables','aria-label':text('Tischwahl 1 bis 14','Tables 1 to 14','Bàn 1 đến 14')},Array.from({length:14},(_,i)=>i+1).map(n=>h('button',{key:n,'aria-label':`${text('Tisch','Table','Bàn')} ${n}`,'aria-pressed':table===`Tisch ${n}`,disabled:blocked,onClick:()=>setTable(`Tisch ${n}`)},n)))
      ),
      h('div',{className:'v41-guest-info'},h('div',{className:'v41-names'},current.guests.map((name,i)=>h('p',{key:i,className:'v4-full-name'},name))),h('strong',{className:'v41-entitlement'},current.included?text('Frühstück inklusive','Breakfast included','Bao gồm bữa sáng'):text('Frühstück nicht inklusive','Breakfast not included','Không bao gồm bữa sáng')),
       h('div',{className:'v41-stay'},(()=>{const stay=stayInfo(current,props.date);return[h('div',{key:'nights'},h('small',null,text('Aufenthalt','Stay','Lưu trú')),h('span',null,stay.nights===null?text('Keine Angabe','Not available','Không có thông tin'):stay.nights===0?text('Abreise heute','Departure today','Trả phòng hôm nay'):text(`Noch ${stay.nights} ${stay.nights===1?'Nacht':'Nächte'}`,`${stay.nights} nights remaining`,`Còn ${stay.nights} đêm`))),h('div',{key:'breakfast',title:text('Morgen nach Anreise bis einschliesslich Abreise.','Mornings after arrival through departure day.','Từ sáng sau ngày nhận phòng đến ngày trả phòng.')},h('small',null,text('Frühstück heute','Breakfast today','Bữa sáng hôm nay')),h('span',null,stay.breakfast===null?text('Keine Angabe','Not available','Không có thông tin'):text(`${stay.breakfast}. von ${stay.total} Frühstücken`,`${stay.breakfast} of ${stay.total} breakfasts`,`${stay.breakfast} / ${stay.total} bữa sáng`)))]})()),current.note&&h('p',{className:'v4-note'},current.note)),
