@@ -87,19 +87,72 @@ test('reception saves only master fields, waits for confirmation and retries wit
  dom.window.close();
 });
 
-test('iPad check-in keeps the 25 tables in three rows with safe touch targets',()=>{
+test('iPad check-in keeps 14 restaurant tables in two rows with safe touch targets',()=>{
  const css=fs.readFileSync(require('node:path').join(__dirname,'../public/service-first.css'),'utf8');
  const compact=css.split('/* V4.3 · iPad check-in:')[1];
  assert.ok(compact,'dedicated iPad layout is present');
  assert.match(compact,/@media \(min-width:700px\) and \(min-height:650px\)/);
- assert.match(compact,/\.v41-tables\{\s*grid-template-columns:repeat\(10,minmax\(0,1fr\)\)!important/);
+ assert.match(compact,/\.v41-tables\{\s*grid-template-columns:repeat\(7,minmax\(0,1fr\)\)!important/);
  assert.match(compact,/\.v41-tables button\{[^}]*min-width:44px!important;[^}]*min-height:44px!important/s);
  assert.match(compact,/\.v41-dialog-footer\{[^}]*flex:0 0 auto!important/s);
  assert.match(compact,/overflow-y:auto!important;\s*\/\* safe fallback/);
  for(const [width,height] of [[1024,768],[1194,834]]){
   const dialogWidth=Math.min(680,width-32);
-  const buttonWidth=(dialogWidth-40-9*6)/10;
+  const buttonWidth=(dialogWidth-40-6*6)/7;
   assert.ok(buttonWidth>=44,`iPad ${width}x${height}: button width is ${buttonWidth}`);
   assert.ok(height-24>=700,`iPad ${width}x${height}: dialog can use a complete-height viewport`);
  }
+});
+
+
+test('only 14 restaurant table numbers and separate Roomservice remain in V4',()=>{
+ const source=fs.readFileSync(require('node:path').join(__dirname,'../public/service-first.js'),'utf8');
+ const css=fs.readFileSync(require('node:path').join(__dirname,'../public/service-first.css'),'utf8');
+ assert.match(source,/Array.from\(\{length:14\},\(_,i\)=>i\+1\)/);
+ assert.doesNotMatch(source,/tableRange/);
+ assert.match(source,/className:'v41-roomservice'/);
+ assert.match(source,/className:'v4-special v4-roomservice-action'/);
+ assert.match(source,/className:'v4-dialog v41-roomservice-picker'/);
+ assert.match(css,/\.v41-checkin \.v41-tables\{\s*grid-template-columns:repeat\(7,minmax\(0,1fr\)\)!important/);
+ assert.match(css,/\.v41-roomservice-rooms\{/);
+ const served={...room,arrivedCount:2,serviceBookings:[{id:'s',people:2,table:'Roomservice',at:2000}]};
+ assert.deepEqual(api.roomTables(served),['Roomservice']);
+ assert.equal(api.latestTablePlacements([served]).size,0,'Roomservice must not be treated as a physical table');
+});
+test('Roomservice shortcut opens a room picker and records through the original check-in RPC',async()=>{
+ const {JSDOM}=require('jsdom');
+ const dom=new JSDOM('<div id="root"></div>',{url:'https://example.test'});
+ for(const key of ['window','document','localStorage','sessionStorage','Event','CustomEvent'])global[key]=dom.window[key];
+ global.IS_REACT_ACT_ENVIRONMENT=true;
+ const React=require('react'),{createRoot}=require('react-dom/client');
+ let payload={date:'2026-10-13',rooms:[{...room},{...room,room:21,people:1,guests:['Test One']}],v8Arrivals:[],v8Activity:[],v8History:[],updated:1};
+ const calls=[];
+ global.fetch=async(url,options)=>{
+  const a=JSON.parse(options.body);
+  calls.push({url,body:a});
+  payload={...payload,rooms:payload.rooms.map(r=>r.room===a.p_room?{...r,arrivedCount:Number(r.arrivedCount||0)+a.p_delta,serviceBookings:[...(r.serviceBookings||[]),{id:a.p_action_id,people:a.p_delta,table:a.p_table,at:Date.now()}]}:r)};
+  return{ok:true,json:async()=>({status:'saved',payload})};
+ };
+ const root=createRoot(document.getElementById('root')),C=api.component(React);
+ let props={rooms:payload.rooms,language:'de',date:payload.date,status:'Aktuell auf allen Geräten',endpoint:'https://example.test',headers:()=>({}),legacyPending:()=>false,applyPayload:p=>{props={...props,rooms:p.rooms};root.render(React.createElement(C,props))}};
+ const click=q=>React.act(async()=>{const b=document.querySelector(q);assert.ok(b,'missing '+q);b.click()});
+ await React.act(async()=>root.render(React.createElement(C,props)));
+ await click('.v4-roomservice-action');
+ assert.ok(document.querySelector('.v41-roomservice-picker'),'Roomservice picker opens');
+ assert.equal(document.querySelectorAll('.v41-roomservice-rooms button').length,2);
+ await click('.v41-roomservice-rooms button');
+ assert.ok(document.querySelector('.v41-checkin'),'regular shared room check-in opens');
+ assert.ok(document.querySelector('.v41-roomservice[aria-pressed="true"]'),'Roomservice is preselected');
+ assert.equal(document.querySelector('.v41-save').disabled,false,'ready to record all remaining room guests');
+ await click('.v41-save');
+ assert.equal(calls.length,1,'only one check-in request');
+ assert.equal(calls[0].body.p_room,20);
+ assert.equal(calls[0].body.p_table,'Roomservice');
+ assert.match(calls[0].url,/breakfast_service_action_v41$/);
+ assert.equal(payload.rooms[0].arrivedCount,2);
+ await click('.v41-save');
+ assert.match(document.querySelector('[data-room="20"] .v4-room-table').textContent,/Roomservice/);
+ assert.doesNotMatch(document.querySelector('[data-room="20"] .v4-room-table').textContent,/Tisch Roomservice/);
+ await React.act(async()=>root.unmount());
+ dom.window.close();
 });
