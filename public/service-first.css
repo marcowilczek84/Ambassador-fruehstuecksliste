@@ -414,3 +414,126 @@
     max-width:100%!important;
   }
 }
+
+
+/* V4.3.1 · Roomservice shortcut + compact, searchable room chooser.
+   Both this shortcut and the room-card flow use the same existing RPC/check-in. */
+#ambassador-ui .v4-tools .v4-roomservice-action{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:7px!important;
+  min-height:44px!important;
+  flex-shrink:0!important;
+  background:#fff!important;
+  color:#176f73!important;
+  border:1px solid #cad9dc!important;
+  border-radius:6px!important;
+  font-size:12px!important;
+  font-weight:500!important;
+  padding:0 10px!important;
+  white-space:nowrap!important;
+}
+#ambassador-ui .v4-tools .v4-roomservice-action svg{
+  width:18px!important;height:18px!important;flex:none!important;
+  stroke-width:1.65!important;
+}
+@media(min-width:700px) and (max-width:1180px) and (orientation:landscape){
+  #ambassador-ui .v4-tools{
+    gap:8px!important;
+    flex-wrap:nowrap!important;
+  }
+  #ambassador-ui .v4-tools .v4-progress{
+    flex:1 1 175px!important;
+    min-width:140px!important;
+    max-width:290px!important;
+    margin-right:auto!important;
+  }
+  #ambassador-ui .v4-tools .v4-search{
+    flex:0 1 190px!important;
+    width:190px!important;
+    min-width:125px!important;
+  }
+  #ambassador-ui .v4-tools .v4-filter{
+    min-width:100px!important;
+    padding-inline:6px!important;
+  }
+  #ambassador-ui .v4-tools .v4-special{
+    padding-inline:7px!important;
+    font-size:11px!important;
+    gap:5px!important;
+  }
+}
+#ambassador-ui .v41-roomservice-picker{
+  width:min(680px,calc(100vw - 28px))!important;
+  max-width:100%!important;
+  max-height:calc(100dvh - 40px)!important;
+  overflow:hidden!important;
+  display:flex!important;
+  flex-direction:column!important;
+}
+#ambassador-ui .v41-roomservice-picker header{
+  flex:0 0 auto!important;
+}
+#ambassador-ui .v41-roomservice-picker .v4-dialog-body{
+  min-height:0!important;
+  overflow:auto!important;
+  padding:16px 20px 20px!important;
+}
+#ambassador-ui .v41-roomservice-search{
+  display:flex;align-items:center;gap:10px;
+  min-height:44px;padding:0 12px;
+  background:#fff;border:1px solid #d8e0e4;border-radius:6px;
+}
+#ambassador-ui .v41-roomservice-search svg{
+  width:18px;height:18px;color:#647078;flex:none;
+}
+#ambassador-ui .v41-roomservice-search input{
+  flex:1;min-width:0;min-height:44px;
+  border:0!important;outline-offset:2px;
+  background:transparent;color:#202b30;
+  font:400 15px/1.4 Arial,Helvetica,sans-serif;
+}
+#ambassador-ui .v41-roomservice-rooms{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:9px;
+  margin-top:14px;
+}
+#ambassador-ui .v41-roomservice-rooms button{
+  display:flex;flex-direction:column;align-items:flex-start;
+  justify-content:center;gap:4px;
+  min-width:0;min-height:72px;padding:9px 12px;
+  background:#fff;border:1px solid #dce3e6;
+  border-radius:7px;color:#202b30;
+  text-align:left;cursor:pointer;
+}
+#ambassador-ui .v41-roomservice-rooms button:hover{
+  border-color:#176f73;background:#f7fbfb;
+}
+#ambassador-ui .v41-roomservice-rooms strong{
+  font-size:14px;font-weight:600;line-height:1.3;
+}
+#ambassador-ui .v41-roomservice-rooms span{
+  max-width:100%;overflow:hidden;
+  white-space:nowrap;text-overflow:ellipsis;
+  font-size:11px;line-height:1.3;color:#48565c;
+}
+#ambassador-ui .v41-roomservice-rooms small,
+#ambassador-ui .v41-roomservice-empty{
+  color:#68777e;font-size:11px;line-height:1.4;
+}
+@media(max-width:650px){
+  #ambassador-ui .v4-tools .v4-roomservice-action{
+    white-space:normal!important;
+    width:100%!important;min-height:44px!important;
+    order:5!important;font-size:13px!important;
+  }
+  #ambassador-ui .v41-roomservice-picker .v4-dialog-body{
+    padding:12px 14px 14px!important;
+  }
+  #ambassador-ui .v41-roomservice-rooms{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:8px;
+  }
+}
