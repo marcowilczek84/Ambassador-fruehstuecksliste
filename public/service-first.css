@@ -226,3 +226,128 @@
 @media(max-width:650px){#ambassador-ui .v48-header-meta{gap:4px}#ambassador-ui .v48-header-meta :is(span,time){font-size:10px}}
 @media(max-width:360px){#ambassador-ui .v4-header{gap:4px}#ambassador-ui .v4-logo{width:26px}}
 @media(min-width:700px){#ambassador-ui[data-app-role=reception] .topbar{gap:20px!important}}
+
+/* V4.3 · iPad check-in: show the entire ordinary seating workflow in one view.
+   Move the 25 table buttons from five rows to three while retaining >=44px
+   finger targets. This is scoped to roomy iPad/desktop viewports; mobile
+   retains its normal safe scroll and the footer remains accessible. */
+@media (min-width:700px) and (min-height:650px){
+  #ambassador-ui .v4-dialog-layer:has(.v41-checkin){
+    padding:12px!important;
+    align-items:center!important;
+    justify-content:center!important;
+  }
+  #ambassador-ui .v4-dialog.v41-checkin{
+    box-sizing:border-box!important;
+    width:min(680px,calc(100vw - 32px))!important;
+    max-width:100%!important;
+    max-height:calc(100dvh - 24px)!important;
+    height:auto!important;
+    display:flex!important;
+    flex-direction:column!important;
+    overflow:hidden!important;
+    border-radius:10px!important;
+  }
+  #ambassador-ui .v41-checkin>header{
+    flex:0 0 auto!important;
+    padding:12px 20px!important;
+  }
+  #ambassador-ui .v41-checkin>header h2{
+    font-size:21px!important;
+    line-height:1.2!important;
+  }
+  #ambassador-ui .v41-checkin .v41-subtitle{
+    margin-top:3px!important;
+    line-height:1.3!important;
+  }
+  #ambassador-ui .v41-checkin .v4-dialog-body{
+    flex:0 1 auto!important;
+    min-height:0!important;
+    padding:12px 20px 14px!important;
+    overflow-x:hidden!important;
+    overflow-y:auto!important; /* safe fallback for unusually long notes/bookings */
+    overscroll-behavior:contain!important;
+  }
+  #ambassador-ui .v41-checkin .v41-count{
+    min-height:44px!important;
+    margin:0 0 8px!important;
+    gap:12px!important;
+  }
+  #ambassador-ui .v41-checkin .v41-count>div{
+    gap:14px!important;
+  }
+  #ambassador-ui .v41-checkin .v41-table-heading{
+    min-height:36px!important;
+    margin:0 0 8px!important;
+  }
+  #ambassador-ui .v41-checkin .v41-tables{
+    grid-template-columns:repeat(10,minmax(0,1fr))!important;
+    gap:6px!important;
+  }
+  #ambassador-ui .v41-checkin .v41-tables button{
+    min-width:44px!important;
+    min-height:44px!important;
+    height:44px!important;
+    padding:0!important;
+  }
+  #ambassador-ui .v41-checkin .v41-guest-info{
+    display:grid!important;
+    grid-template-columns:minmax(0,1.2fr) minmax(0,1fr)!important;
+    grid-template-rows:auto auto!important;
+    column-gap:20px!important;
+    row-gap:0!important;
+    margin:12px 0 0!important;
+    padding:11px 0 0!important;
+    border-top:1px solid #e5eaec!important;
+    align-items:start!important;
+  }
+  #ambassador-ui .v41-checkin .v41-names{
+    grid-column:1!important;
+    grid-row:1!important;
+    gap:2px 12px!important;
+  }
+  #ambassador-ui .v41-checkin .v41-names .v4-full-name{
+    font-size:14px!important;
+    line-height:19px!important;
+  }
+  #ambassador-ui .v41-checkin .v41-entitlement{
+    grid-column:1!important;
+    grid-row:2!important;
+    margin:5px 0 0!important;
+    line-height:17px!important;
+  }
+  #ambassador-ui .v41-checkin .v41-stay{
+    grid-column:2!important;
+    grid-row:1 / span 2!important;
+    gap:10px!important;
+    font-size:12px!important;
+    line-height:17px!important;
+  }
+  #ambassador-ui .v41-checkin .v41-stay small{
+    font-size:10px!important;
+    line-height:14px!important;
+    margin:0 0 2px!important;
+  }
+  #ambassador-ui .v41-checkin .v41-guest-info > .v4-note{
+    grid-column:1 / -1!important;
+    grid-row:auto!important;
+    margin:9px 0 0!important;
+    padding:7px 10px!important;
+    font-size:12px!important;
+    line-height:17px!important;
+  }
+  #ambassador-ui .v41-checkin .v41-bookings{
+    margin-top:10px!important;
+    padding-top:8px!important;
+  }
+  #ambassador-ui .v41-checkin .v41-dialog-footer{
+    flex:0 0 auto!important;
+    padding:10px 20px!important;
+  }
+  #ambassador-ui .v41-checkin .v41-save{
+    min-height:44px!important;
+  }
+  #ambassador-ui .v41-checkin .v41-receipt{
+    padding:10px!important;
+  }
+}
