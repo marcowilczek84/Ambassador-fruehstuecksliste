@@ -86,3 +86,20 @@ test('reception saves only master fields, waits for confirmation and retries wit
  await api.editRoom({...args,room:{...room,note:'Another note'}});assert.equal(completed,1);assert.equal(applied,2);assert.match(alerts.at(-1),/neu öffnen/);
  dom.window.close();
 });
+
+test('iPad check-in keeps the 25 tables in three rows with safe touch targets',()=>{
+ const css=fs.readFileSync(require('node:path').join(__dirname,'../public/service-first.css'),'utf8');
+ const compact=css.split('/* V4.3 · iPad check-in:')[1];
+ assert.ok(compact,'dedicated iPad layout is present');
+ assert.match(compact,/@media \(min-width:700px\) and \(min-height:650px\)/);
+ assert.match(compact,/\.v41-tables\{\s*grid-template-columns:repeat\(10,minmax\(0,1fr\)\)!important/);
+ assert.match(compact,/\.v41-tables button\{[^}]*min-width:44px!important;[^}]*min-height:44px!important/s);
+ assert.match(compact,/\.v41-dialog-footer\{[^}]*flex:0 0 auto!important/s);
+ assert.match(compact,/overflow-y:auto!important;\s*\/\* safe fallback/);
+ for(const [width,height] of [[1024,768],[1194,834]]){
+  const dialogWidth=Math.min(680,width-32);
+  const buttonWidth=(dialogWidth-40-9*6)/10;
+  assert.ok(buttonWidth>=44,`iPad ${width}x${height}: button width is ${buttonWidth}`);
+  assert.ok(height-24>=700,`iPad ${width}x${height}: dialog can use a complete-height viewport`);
+ }
+});
