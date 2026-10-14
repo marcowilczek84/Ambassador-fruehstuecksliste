@@ -3,3 +3,8 @@ node_modules/
 tsconfig.tsbuildinfo
 app/BreakfastApp.tsx
 
+
+public/qa-db-assets/
+test-results/
+playwright-report/
+qa-evidence/

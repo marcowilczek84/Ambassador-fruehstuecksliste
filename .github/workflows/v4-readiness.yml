@@ -1,0 +1,58 @@
+name: V4 isolated production readiness
+on:
+  push:
+    branches: [breakfast-v4-final-readiness-20261014]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verification:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:17.6
+        env:
+          POSTGRES_USER: qa
+          POSTGRES_PASSWORD: isolated-ci-only
+          POSTGRES_DB: ambassador_v4_qa
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      VERCEL_ENV: preview
+      NEXT_TELEMETRY_DISABLED: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run build && npm run typecheck && npm run lint && npm test
+      - name: Native database concurrency and rollback
+        env:
+          QA_NATIVE_POSTGRES: '1'
+          PGHOST: 127.0.0.1
+          PGDATABASE: ambassador_v4_qa
+        run: node --test tests/native-postgres.cjs
+      - run: npx playwright install --with-deps chromium webkit
+      - name: Chromium browser verification
+        run: npm run test:browser && cp -r qa-evidence qa-evidence-chromium
+      - name: WebKit browser verification
+        env:
+          QA_BROWSER: webkit
+        run: npm run test:browser && cp -r qa-evidence qa-evidence-webkit
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: v4-readiness-evidence
+          path: |
+            qa-evidence/
+            qa-evidence-chromium/
+            qa-evidence-webkit/
+            test-results/
+          retention-days: 30

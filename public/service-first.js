@@ -5,6 +5,10 @@ const PENDING='ambassador-service-v4-pending';
 const normalize=r=>({...r,arrivedCount:Math.max(0,Math.min(Number(r.people)||0,Number(r.arrivedCount??(r.present||r.departed?r.people:0))||0))});
 const isOpen=r=>r.people>0&&r.guests?.length&&r.included&&normalize(r).arrivedCount<r.people;
 const matches=(r,q)=>`${r.room} ${(r.guests||[]).join(' ')} ${r.table||''}`.toLocaleLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').includes(q.trim().toLocaleLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''));
+// Presentation only: stored/RPC values stay canonical and language independent.
+function serviceLabel(value,language='de'){
+ return String(value||'').split(' · ').map(part=>part==='Roomservice'?({en:'Room service',vi:'Phục vụ tại phòng'}[language]||'Roomservice'):part.replace(/^Tisch /,({en:'Table ',vi:'Bàn '}[language]||'Tisch '))).join(' · ');
+}
 // Signed corrections reduce the newest matching arrival for existing reception statistics.
 function effectiveArrivals(events){
  const result=[];
@@ -119,13 +123,24 @@ function component(React){
   const lock=React.useRef(false),latest=React.useRef(props),origin=React.useRef(null),noticeTimer=React.useRef(null);latest.current=props;
   React.useEffect(()=>{document.body.dataset.appRole='service';document.body.classList.add('service-first');return()=>{document.body.classList.remove('service-first');clearTimeout(noticeTimer.current)}},[]);
   function announce(value){clearTimeout(noticeTimer.current);setNotice(value);if(!value?.error)noticeTimer.current=setTimeout(()=>setNotice(null),6500)}
-  async function send(action){
+  async function send(action,retry=false){
    if(lock.current)return;lock.current=true;setBusy(true);announce(null);
    try{
     // The operation is persisted before transmission. A lost response retries the same UUID.
     localStorage.setItem(PENDING,JSON.stringify(action));setPending(action);
     const response=await fetch(`${latest.current.endpoint}/rest/v1/rpc/${Object.hasOwn(action,'p_table')?'breakfast_service_action_v41':'breakfast_service_action_v4'}`,{method:'POST',headers:latest.current.headers(),body:JSON.stringify(action),signal:AbortSignal.timeout(12000)});
-    if(!response.ok)throw Error('save failed');const result=await response.json();
+    if(!response.ok){
+     const error=await response.json().catch(()=>null);
+     if(response.status===400&&error?.code==='P0001'&&['Choose a valid table','Choose a valid table or Roomservice','Invalid service action'].includes(error.message)){
+      // A rejected first attempt did not commit. An earlier attempt with a lost
+      // response remains unresolved, so its UUID must survive a later rejection.
+      if(!retry){localStorage.removeItem(PENDING);setPending(null)}
+      announce({text:retry?text('Speicherstatus weiterhin offen. Bitte mit der Verwaltung prüfen; nicht nochmals erfassen.','Save status is still unresolved. Check with management; do not check in again.','Trạng thái lưu chưa xác định. Hãy liên hệ quản lý; không ghi nhận lại.'):action.p_table==='Roomservice'&&error.message==='Choose a valid table'?text('Roomservice nicht gespeichert. Die Datenbankfreigabe fehlt noch.','Room service was not saved. Database approval is still pending.','Chưa lưu phục vụ tại phòng. Cần phê duyệt cơ sở dữ liệu.'):text('Nicht gespeichert. Bitte Zimmer und Auswahl erneut prüfen.','Not saved. Check the room and selection again.','Chưa lưu. Vui lòng kiểm tra lại phòng và lựa chọn.'),error:true});
+      return;
+     }
+     throw Error('save failed');
+    }
+    const result=await response.json();
     if(!['saved','duplicate','conflict','finished','missing'].includes(result.status))throw Error('invalid response');
     if(result.payload)latest.current.applyPayload(result.payload);
     localStorage.removeItem(PENDING);setPending(null);
@@ -138,7 +153,7 @@ function component(React){
   }
   function change(room,delta,expected,undo){
    if(lock.current||pending||props.finished)return;
-   if(latest.current.legacyPending()){announce({text:props.language==='en'?'Previous changes are still syncing. Try again shortly.':'Vorherige Änderungen werden synchronisiert. Bitte kurz warten.',error:true});return}
+   if(latest.current.legacyPending()){announce({text:text('Vorherige Änderungen werden synchronisiert. Bitte kurz warten.','Previous changes are still syncing. Try again shortly.','Các thay đổi trước đang đồng bộ. Vui lòng chờ.'),error:true});return}
    const r=normalize(room);if(r.arrivedCount+delta>r.people||r.arrivedCount+delta<0||delta>0&&!table)return;
    send({p_list_date:props.date,p_room:r.room,p_expected:expected||r,p_delta:delta,p_action_id:crypto.randomUUID(),p_table:delta>0?table:undo?.table||null,p_undo_action_id:undo?.id||null});
   }
@@ -163,7 +178,7 @@ function component(React){
    setReceipt(null);
   }
   function closeRoom(){setSelected(null);setTimeout(()=>origin.current?.isConnected&&origin.current.focus(),0)}
-  React.useEffect(()=>{if(selected===null&&!stats&&!roomserviceOpen)return;const dialog=document.querySelector('.v4-dialog');dialog?.querySelector('button')?.focus();const key=e=>{if(e.key==='Escape'){e.preventDefault();closeRoom();setStats(false);setRoomserviceOpen(false)}if(e.key==='Tab'){const controls=[...dialog.querySelectorAll('button:not(:disabled),input:not(:disabled)')];const first=controls[0],last=controls.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last?.focus()}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first?.focus()}}};dialog?.addEventListener('keydown',key);return()=>dialog?.removeEventListener('keydown',key)},[selected,stats,roomserviceOpen]);
+  React.useEffect(()=>{if(selected===null&&!stats&&!roomserviceOpen)return;const dialog=document.querySelector('.v4-dialog');dialog?.querySelector('button')?.focus();const key=e=>{if(e.key==='Escape'){e.preventDefault();closeRoom();setStats(false);setRoomserviceOpen(false)}if(e.key==='Tab'){const controls=[...dialog.querySelectorAll('button:not(:disabled),input:not(:disabled)'),...document.querySelectorAll('.v4-toast button:not(:disabled)')];const first=controls[0],last=controls.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last?.focus()}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first?.focus()}}};dialog?.addEventListener('keydown',key);return()=>dialog?.removeEventListener('keydown',key)},[selected,stats,roomserviceOpen]);
   function card(r){
    const occupied=r.people>0&&r.guests?.length,complete=occupied&&r.arrivedCount>=r.people,partial=occupied&&r.arrivedCount>0&&!complete;
    const state=complete?lang.registered:partial?text('Teilweise','Partial','Một phần'):r.included?lang.included:lang.excluded;
@@ -184,14 +199,14 @@ function component(React){
   }
   const status=pending?lang.pending:/Offline/.test(props.status)?lang.offline:/gespeichert|Aktuell auf allen/.test(props.status)?lang.synced:lang.waiting;
   return h(React.Fragment,null,
-   h('main',{className:'v4-shell',inert:selected!==null||stats},
+   h('main',{className:'v4-shell',inert:selected!==null||stats||roomserviceOpen},
     h('header',{className:'v4-header'},h('img',{className:'v4-logo',src:'/ambassador-logo.svg',alt:'Ambassador Hotel Zürich'}),h('div',{className:'v4-brand'},h('h1',null,'Frühstück'),h('div',{className:'v48-header-meta'},h('span',null,lang.service),h('span',{'aria-hidden':true},'·'),h('time',{dateTime:props.date},new Intl.DateTimeFormat(props.language==='en'?'en-GB':props.language==='vi'?'vi-VN':'de-CH',{day:'2-digit',month:'2-digit',year:'numeric'}).format(new Date(props.date+'T12:00:00'))))),h('div',{className:'v4-header-actions'},h('select',{'aria-label':'Sprache / Language',value:props.language,onChange:e=>{localStorage.setItem('ambassador-ui-language',e.target.value.toUpperCase());localStorage.setItem('ambassador-language',e.target.value);window.dispatchEvent(new CustomEvent('ambassador-language-change',{detail:e.target.value}))}},['de','en','vi'].map(code=>h('option',{value:code,key:code},code.toUpperCase()))),h('button',{className:'v4-statistics','aria-label':text('Statistik','Statistics','Thống kê'),onClick:e=>{origin.current=e.currentTarget;setStats(true)}},icon('stats')),h('button',{className:'v4-role',onClick:()=>{sessionStorage.setItem('ambassador-work-area','reception');location.reload()}},lang.reception),h('a',{href:'https://ambassador-apps.vercel.app/','aria-label':'App-Hub'},icon('hub')))),
     h('section',{className:'v4-tools','aria-label':lang.service},h('div',{className:'v4-progress'},h('div',null,h('strong',null,`${count} / ${total}`),h('span',null,props.language==='de'?'inklusive Gäste erfasst':props.language==='en'?'included guests checked in':'khách bao gồm đã đến')),h('progress',{value:count,max:Math.max(1,total),'aria-label':lang.registered})),h('label',{className:'v4-search'},icon('search'),h('input',{type:'search',value:query,placeholder:lang.search,'aria-label':lang.search,onChange:e=>setQuery(e.target.value)})),h('button',{className:'v4-filter','aria-pressed':onlyOpen,onClick:()=>setOpen(v=>!v)},h('span',{'aria-hidden':true},onlyOpen?'✓':''),lang.open),h('button',{className:'v4-special',disabled:blocked,'aria-haspopup':'dialog',onClick:()=>window.dispatchEvent(new Event('ambassador-open-special'))},icon('person'),lang.extra),h('button',{className:'v4-special v4-roomservice-action',disabled:blocked,'aria-haspopup':'dialog',onClick:showRoomservice},icon('roomservice'),text('Roomservice','Room service','Phục vụ tại phòng'))),
     props.finished&&h('p',{className:'v4-alert',role:'status'},lang.finished),
     h('section',{className:`v4-grid ${query||onlyOpen?'is-filtered':''}`,'aria-label':lang.all},occupied.length&&filtered.length?[20,30,40,50,60].map(base=>h('div',{className:'v4-column',key:base,'aria-label':`${base}–${base+8}`},filtered.filter(r=>r.room>=base&&r.room<base+10).map(card))):h('div',{className:'v4-empty'},h('h2',null,occupied.length?lang.noResults:lang.empty),occupied.length>0&&h('button',{onClick:()=>{setQuery('');setOpen(false)}},lang.reset))),
     h('footer',{className:'v4-footer'},h('span',{'aria-live':'polite',className:pending||/Offline/.test(props.status)?'v4-sync-wait':''},status),h('span',null,`${occupied.length} ${lang.room} · ${occupied.reduce((s,r)=>s+r.people,0)} ${lang.people}`))
    ),
-   (busy||pending||notice)&&h('aside',{className:`v4-toast ${notice?.error?'is-error':''}`,role:'status','aria-live':'polite'},h('span',null,busy?lang.save:notice?.text||lang.pending),!busy&&pending&&h('button',{onClick:()=>send(pending)},lang.retry),!busy&&!pending&&notice?.undo&&h('button',{onClick:()=>{const r=all.find(r=>r.room===notice.undo.room);if(r)change(r,-notice.undo.people,notice.undo.expected,notice.undo)}},lang.undo),!busy&&!pending&&h('button',{'aria-label':lang.close,onClick:()=>setNotice(null)},'×')),
+   (busy||pending||notice)&&h('aside',{className:`v4-toast ${notice?.error?'is-error':''}`,role:'status','aria-live':'polite'},h('span',null,busy?lang.save:notice?.text||lang.pending),!busy&&pending&&h('button',{onClick:()=>send(pending,true)},lang.retry),!busy&&!pending&&notice?.undo&&h('button',{onClick:()=>{const r=all.find(r=>r.room===notice.undo.room);if(r)change(r,-notice.undo.people,notice.undo.expected,notice.undo)}},lang.undo),!busy&&!pending&&h('button',{'aria-label':lang.close,onClick:()=>setNotice(null)},'×')),
    roomserviceOpen&&h('div',{className:'v4-dialog-layer',onClick:e=>e.target===e.currentTarget&&setRoomserviceOpen(false)},
     h('section',{className:'v4-dialog v41-roomservice-picker',role:'dialog','aria-modal':true,'aria-labelledby':'v41-roomservice-title'},
      h('header',null,h('div',null,h('h2',{id:'v41-roomservice-title'},text('Roomservice erfassen','Record room service','Ghi nhận phục vụ tại phòng')),
@@ -211,7 +226,7 @@ function component(React){
    current&&h('div',{className:'v4-dialog-layer',onClick:e=>e.target===e.currentTarget&&closeRoom()},h('section',{className:'v4-dialog v41-checkin',role:'dialog','aria-modal':true,'aria-labelledby':'v4-dialog-title'},
     h('header',null,h('div',null,h('h2',{id:'v4-dialog-title'},`${lang.room} ${current.room}`),h('p',{className:'v41-subtitle'},`${current.arrivedCount} / ${current.people} ${lang.registered}`)),h('button',{'aria-label':lang.close,onClick:closeRoom},icon('close'))),
     h('div',{className:'v4-dialog-body'},
-     receipt&&h('div',{className:'v41-receipt',role:'status'},icon('check'),h('strong',null,text('Gespeichert','Saved','Đã lưu')),h('span',null,`${receipt.people} ${lang.people} · ${receipt.table}`)),
+     receipt&&h('div',{className:'v41-receipt',role:'status'},icon('check'),h('strong',null,text('Gespeichert','Saved','Đã lưu')),h('span',null,`${receipt.people} ${lang.people} · ${serviceLabel(receipt.table,props.language)}`)),
      !receipt&&current.arrivedCount<current.people&&h(React.Fragment,null,
       h('div',{className:'v41-count'},h('label',{id:'v41-amount'},text('Gäste jetzt','Guests now','Số khách đến')),h('div',{'aria-labelledby':'v41-amount'},h('button',{disabled:blocked||amount<=1,onClick:()=>setAmount(a=>a-1),'aria-label':text('Weniger Gäste','Fewer guests','Bớt khách')},'−'),h('strong',null,Math.min(amount,current.people-current.arrivedCount)),h('button',{disabled:blocked||amount>=current.people-current.arrivedCount,onClick:()=>setAmount(a=>a+1),'aria-label':text('Mehr Gäste','More guests','Thêm khách')},'+'))),
       h('div',{className:'v41-table-heading'},h('strong',null,text('Tisch wählen','Choose table','Chọn bàn')),h('div',null,h('button',{className:'v41-roomservice','aria-pressed':table==='Roomservice',disabled:blocked,onClick:()=>setTable('Roomservice')},text('Roomservice','Room service','Phục vụ tại phòng')))),
@@ -219,14 +234,14 @@ function component(React){
      ),
      h('div',{className:'v41-guest-info'},h('div',{className:'v41-names'},current.guests.map((name,i)=>h('p',{key:i,className:'v4-full-name'},name))),h('strong',{className:'v41-entitlement'},current.included?text('Frühstück inklusive','Breakfast included','Bao gồm bữa sáng'):text('Frühstück nicht inklusive','Breakfast not included','Không bao gồm bữa sáng')),
       h('div',{className:'v41-stay'},(()=>{const stay=stayInfo(current,props.date);return[h('div',{key:'nights'},h('small',null,text('Aufenthalt','Stay','Lưu trú')),h('span',null,stay.nights===null?text('Keine Angabe','Not available','Không có thông tin'):stay.nights===0?text('Abreise heute','Departure today','Trả phòng hôm nay'):text(`Noch ${stay.nights} ${stay.nights===1?'Nacht':'Nächte'}`,`${stay.nights} nights remaining`,`Còn ${stay.nights} đêm`))),h('div',{key:'breakfast',title:text('Morgen nach Anreise bis einschliesslich Abreise.','Mornings after arrival through departure day.','Từ sáng sau ngày nhận phòng đến ngày trả phòng.')},h('small',null,text('Frühstück heute','Breakfast today','Bữa sáng hôm nay')),h('span',null,stay.breakfast===null?text('Keine Angabe','Not available','Không có thông tin'):text(`${stay.breakfast}. von ${stay.total} Frühstücken`,`${stay.breakfast} of ${stay.total} breakfasts`,`${stay.breakfast} / ${stay.total} bữa sáng`)))]})()),current.note&&h('p',{className:'v4-note'},current.note)),
-     current.arrivedCount>0&&h('div',{className:'v41-bookings'},h('strong',null,text('Bereits erfasst','Checked in','Đã ghi nhận')),(current.serviceBookings||[]).map(b=>h('div',{key:b.id},h('span',null,`${b.people} ${lang.people} · ${b.table}`),h('button',{disabled:blocked,onClick:()=>{setReceipt(null);change(current,-b.people,undefined,b)}},lang.undo))),current.arrivedCount>(current.serviceBookings||[]).reduce((n,b)=>n+b.people,0)&&h('div',null,h('span',null,`${current.arrivedCount-(current.serviceBookings||[]).reduce((n,b)=>n+b.people,0)} ${lang.people} · ${current.serviceLegacyTable||current.table||text('ohne Tischangabe','table unknown','chưa có bàn')}`),h('button',{disabled:blocked,onClick:()=>{setReceipt(null);change(current,-1)},'aria-label':lang.minus},'−1')))
+     current.arrivedCount>0&&h('div',{className:'v41-bookings'},h('strong',null,text('Bereits erfasst','Checked in','Đã ghi nhận')),(current.serviceBookings||[]).map(b=>h('div',{key:b.id},h('span',null,`${b.people} ${lang.people} · ${serviceLabel(b.table,props.language)}`),h('button',{disabled:blocked,onClick:()=>{setReceipt(null);change(current,-b.people,undefined,b)}},lang.undo))),current.arrivedCount>(current.serviceBookings||[]).reduce((n,b)=>n+b.people,0)&&h('div',null,h('span',null,`${current.arrivedCount-(current.serviceBookings||[]).reduce((n,b)=>n+b.people,0)} ${lang.people} · ${serviceLabel(current.serviceLegacyTable||current.table,props.language)||text('ohne Tischangabe','table unknown','chưa có bàn')}`),h('button',{disabled:blocked,onClick:()=>{setReceipt(null);change(current,-1)},'aria-label':lang.minus},'−1')))
     ),
-    h('footer',{className:'v41-dialog-footer'},receipt||current.arrivedCount>=current.people?h('button',{className:'v41-save',onClick:closeRoom},lang.close):h('button',{className:'v41-save',disabled:blocked||!table,onClick:()=>change(current,Math.min(amount,current.people-current.arrivedCount))},busy?lang.save:table?text(`${Math.min(amount,current.people-current.arrivedCount)} ${amount===1?'Gast':'Gäste'} · ${table} erfassen`,`Check in · ${table}`,`Ghi nhận · ${table}`):text('Tisch wählen','Choose table','Chọn bàn')))
+    h('footer',{className:'v41-dialog-footer'},receipt||current.arrivedCount>=current.people?h('button',{className:'v41-save',onClick:closeRoom},lang.close):h('button',{className:'v41-save',disabled:blocked||!table,onClick:()=>change(current,Math.min(amount,current.people-current.arrivedCount))},busy?lang.save:table?text(`${Math.min(amount,current.people-current.arrivedCount)} ${amount===1?'Gast':'Gäste'} · ${serviceLabel(table,props.language)} erfassen`,`Check in · ${serviceLabel(table,props.language)}`,`Ghi nhận · ${serviceLabel(table,props.language)}`):text('Tisch wählen','Choose table','Chọn bàn')))
    )),
    stats&&h('div',{className:'v4-dialog-layer',onClick:e=>e.target===e.currentTarget&&setStats(false)},h('section',{className:'v4-dialog v41-stats',role:'dialog','aria-modal':true,'aria-labelledby':'v41-stats-title'},h('header',null,h('h2',{id:'v41-stats-title'},text('Frühstück heute','Breakfast today','Bữa sáng hôm nay')),h('button',{'aria-label':lang.close,onClick:()=>{setStats(false);origin.current?.focus()}},icon('close'))),h('div',{className:'v4-dialog-body'},(()=>{const day=dayStatistics(props.rooms,props.arrivals||[]);return h('dl',null,[[text('Frühstücke gesamt','Total breakfasts','Tổng bữa sáng'),day.total],[text('Inklusive erfasst','Included checked in','Đã đến · bao gồm'),`${day.includedArrived} / ${day.includedExpected}`],[text('Inklusive noch offen','Included still open','Chưa đến · bao gồm'),day.includedMissing],[text('Hotelgäste zusätzlich','Additional hotel guests','Khách khách sạn bổ sung'),day.hotelAdditional],[text('Opera Gäste','Opera guests','Khách Opera'),day.opera],[text('Externe Gäste','External guests','Khách bên ngoài'),day.external]].map(([name,value])=>h('div',{key:name},h('dt',null,name),h('dd',null,value))))})())))
   );
  };
  return Component;
 }
-const api={component,normalize,isOpen,matches,effectiveArrivals,dayStatistics,dailySnapshot,statisticsCsv,downloadStatistics,stayInfo,importList,editRoom,roomTables,latestTablePlacements};root.AmbassadorServiceV4=api;if(typeof module!=='undefined')module.exports=api;
+const api={component,normalize,isOpen,matches,effectiveArrivals,dayStatistics,dailySnapshot,statisticsCsv,downloadStatistics,stayInfo,importList,editRoom,roomTables,latestTablePlacements,serviceLabel};root.AmbassadorServiceV4=api;if(typeof module!=='undefined')module.exports=api;
 })(typeof window!=='undefined'?window:globalThis);

@@ -780,7 +780,7 @@
     const history = readBreakfastHistory();
     const previous = readDailyState("ambassador-breakfast-rooms", "rooms", []);
     const changes = rooms.filter(room => JSON.stringify(previous.find(old=>old.room===room.room)) !== JSON.stringify(room));
-    let pending;try{pending=JSON.parse(localStorage.getItem("ambassador-breakfast-pending-sync-v1")||"null")}catch{}
+    let pending;try{pending=JSON.parse(localStorage.getItem("ambassador-breakfast-pending-sync-v1")||"null")}catch{/* Ignore malformed legacy pending storage; preserve the current changes. */}
     const delta = new Map((pending?.date===date ? pending.rooms||[] : []).map(room=>[room.room,room]));
     changes.forEach(room=>delta.set(room.room,room));
     localStorage.setItem("ambassador-breakfast-rooms", JSON.stringify({ date, rooms }));
@@ -875,7 +875,6 @@
   }
 
   function saveSpecialGuestCheckin(type, people, table) {
-    const date = specialGuestDate();
     const at = Date.now();
     const actionId = `special-checkin-${at}-${type}`;
     const rooms = readDailyState("ambassador-breakfast-rooms", "rooms", []);
@@ -1699,6 +1698,7 @@
     }
     if(finish){finish.hidden=!daily;finish.textContent=tr('Frühstück beenden');finish.disabled=Boolean(nativeFinish?.disabled);}
   }
+  // eslint-disable-next-line no-unused-vars -- Retain the existing overview during scoped V4 work.
   function v41Overview(){
     if(sessionStorage.getItem(roleKey)!=='reception')return;
     const rooms=readDailyState('ambassador-breakfast-rooms','rooms',[]).filter(r=>r.guests?.length),included=rooms.filter(r=>r.included),people=rooms.reduce((n,r)=>n+Number(r.people||0),0),eligible=included.reduce((n,r)=>n+Number(r.people||0),0);
@@ -1747,5 +1747,11 @@
     characterData: true
   });
   window.addEventListener("ambassador-open-special",openSpecialGuestDialog);
+  // The V4 service language selector emits the same event as management.
+  // Keep the legacy DOM adapter in sync so it cannot revert React's labels.
+  window.addEventListener("ambassador-language-change",event=>{
+    const code=String(event.detail||'').toUpperCase();
+    if(supportedLanguages.includes(code)){activeLanguage=code;schedule();}
+  });
   schedule();
 })();

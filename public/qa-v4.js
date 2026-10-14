@@ -11,8 +11,27 @@ if(new URLSearchParams(location.search).has('stats')){
 }
 window.qaStores={local:{},session:{'ambassador-work-area':'service','ambassador_splash_seen':'1'}};
 window.qaStores.local['ambassador-breakfast-rooms']=JSON.stringify({date:qaDate,rooms});
-window.qaCalls=[];let role='service',size=new URLSearchParams(location.search).get('size')||'1194x834';const frame=document.getElementById('app');
 
-async function show(){const [width,height]=size.split('x').map(Number);frame.width=width;frame.height=height;frame.src='/qa-v4-app.html?view='+Date.now();}
-
-document.querySelectorAll('[data-size]').forEach(b=>b.onclick=()=>{size=b.dataset.size;show()});document.getElementById('reload').onclick=show;document.getElementById('reception').onclick=()=>{role=role==='service'?'reception':'service';window.qaStores.session['ambassador-work-area']=role;show()};document.getElementById('other').onclick=()=>{const r=window.qaCloud.rooms.find(r=>r.room===20);r.arrivedCount=Math.min(r.people,r.arrivedCount+1);r.present=r.arrivedCount>0;window.qaCloud.updated=Math.max(Date.now(),window.qaCloud.updated+1)};show();
+window.qaCalls=[];
+let role='service',size=new URLSearchParams(location.search).get('size')||'auto';
+const frame=document.getElementById('app'),status=document.getElementById('qa-status');
+function show(){
+ const [width,height]=size==='auto'?[innerWidth,Math.max(568,innerHeight-document.querySelector('header').offsetHeight-status.offsetHeight-24)]:size.split('x').map(Number);
+ frame.width=width;frame.height=height;frame.src='/qa-v4-app.html?view='+Date.now();
+}
+async function start(){
+ try{
+  await window.qaInit(window.qaCloud);
+  status.textContent='Isolierte PostgreSQL-Testdaten im Browser. Keine Verbindung zu produktiven Gastdaten. Speicherung bleibt bei Reload erhalten. Eine Preview-Registerkarte pro Browser verwenden.';
+  document.querySelectorAll('[data-size]').forEach(b=>b.onclick=()=>{size=b.dataset.size;show()});
+  document.getElementById('reload').onclick=show;
+  document.getElementById('reception').onclick=()=>{role=role==='service'?'reception':'service';window.qaStores.session['ambassador-work-area']=role;show()};
+  document.getElementById('other').onclick=async()=>{
+   const cloud=await window.qaDatabase.read(),r=cloud.rooms.find(r=>r.room===20);
+   const result=await window.qaRequest('/rest/v1/rpc/breakfast_service_action_v41','POST',{p_list_date:qaDate,p_room:20,p_expected:r,p_delta:1,p_action_id:crypto.randomUUID(),p_table:'Tisch 14'});
+   status.textContent='Zweiter Client: '+(result.body.status||result.body.message)+'. Die Oberfläche lädt den Datenbankstand automatisch nach.';
+  };
+  show();
+ }catch(e){status.textContent='Prüfumgebung konnte nicht starten: '+e.message}
+}
+start();

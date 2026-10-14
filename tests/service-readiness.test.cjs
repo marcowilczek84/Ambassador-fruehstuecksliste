@@ -1,0 +1,34 @@
+const {test}=require('node:test'),assert=require('node:assert/strict');
+const api=require('../public/service-first.js');
+test('presentation translates canonical choices without rewriting stored values',()=>{
+ assert.equal(api.serviceLabel('Roomservice','en'),'Room service');
+ assert.equal(api.serviceLabel('Roomservice','vi'),'Phục vụ tại phòng');
+ assert.equal(api.serviceLabel('Tisch 14 · Roomservice','en'),'Table 14 · Room service');
+ assert.equal(api.serviceLabel('Tisch 50','vi'),'Bàn 50');
+});
+test('definite rejection unlocks selection; uncertain retries retain their original UUID',async()=>{
+ const {JSDOM}=require('jsdom'),dom=new JSDOM('<div id="root"></div>',{url:'https://example.test'});
+ for(const k of ['window','document','sessionStorage','localStorage','Event','CustomEvent'])global[k]=dom.window[k];
+ global.IS_REACT_ACT_ENVIRONMENT=true;
+ const React=require('react'),{createRoot}=require('react-dom/client');
+ const room={room:20,people:2,guests:['Synthetic QA'],included:true,arrivedCount:0};
+ const props={date:'2026-10-14',rooms:[room],language:'de',status:'',endpoint:'https://example.test',headers:()=>({}),legacyPending:()=>false,applyPayload:()=>{}};
+ const root=createRoot(document.querySelector('#root')),C=api.component(React),calls=[];
+ let offline=false;
+ global.fetch=async(_url,options)=>{calls.push(JSON.parse(options.body));if(offline)throw Error('response lost');return{ok:false,status:400,json:async()=>({code:'P0001',message:'Choose a valid table'})}};
+ const click=s=>React.act(async()=>document.querySelector(s).click());
+ await React.act(async()=>root.render(React.createElement(C,props)));
+ await click('.v4-roomservice-action');assert.equal(document.querySelector('main').hasAttribute('inert'),true);
+ await click('.v41-roomservice-rooms button');await click('.v41-save');
+ assert.match(document.querySelector('.v4-toast').textContent,/Roomservice nicht gespeichert/);
+ assert.equal(localStorage.getItem('ambassador-service-v4-pending'),null);
+ assert.equal(document.querySelector('.v41-tables button').disabled,false);
+ assert.equal(document.querySelector('.v41-receipt'),null);
+ offline=true;await click('.v41-save');const id=calls.at(-1).p_action_id;
+ offline=false;await click('.v4-toast button');
+ assert.equal(calls.at(-1).p_action_id,id);
+ assert.equal(JSON.parse(localStorage.getItem('ambassador-service-v4-pending')).p_action_id,id);
+ assert.match(document.querySelector('.v4-toast').textContent,/weiterhin offen/);
+ assert.equal(document.querySelector('.v41-save').disabled,true);
+ await React.act(async()=>root.unmount());dom.window.close();
+});

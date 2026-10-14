@@ -1,12 +1,15 @@
--- AMBASSADOR FRÜHSTÜCK V4.3 · PREPARED ONLY — NOT APPLIED TO PRODUCTION
--- Dated 2026-10-13 · Requires explicit release approval after service.
--- Function is copied from the current Ambassador Breakfast database.
--- Only the positive check-in service-label validation changes:
--- canonical p_table = 'Roomservice' is accepted alongside legacy Tisch 1–50.
--- This intentionally preserves old device compatibility while the new UI shows Tisch 1–14.
--- No table changes, no guest data updates, no new RPC and no changes to idempotent action handling.
--- Deploy this migration BEFORE promoting the Roomservice UI release.
--- Existing function/database behavior remains unchanged until explicitly applied.
+-- Allow canonical Roomservice alongside Tisch 1–50. UI retains 14 tables.
+-- PREPARED ONLY. Requires explicit production approval. No row/schema/ACL changes.
+-- Captured baseline: dda8c217b4008341fd49554fd46a1b28; approved candidate: 55546fee9f035bb5c02101ebefa76dd5.
+BEGIN;
+SET LOCAL lock_timeout = '5s';
+SET LOCAL statement_timeout = '30s';
+DO $guard$
+BEGIN
+ IF md5(pg_get_functiondef('public.breakfast_service_action_v41(date,integer,jsonb,integer,uuid,text,uuid)'::regprocedure)) NOT IN ('dda8c217b4008341fd49554fd46a1b28','55546fee9f035bb5c02101ebefa76dd5') THEN
+  RAISE EXCEPTION 'Unexpected service RPC version. Stop and review; do not overwrite.';
+ END IF;
+END $guard$;
 
 CREATE OR REPLACE FUNCTION public.breakfast_service_action_v41(p_list_date date, p_room integer, p_expected jsonb, p_delta integer, p_action_id uuid, p_table text DEFAULT NULL::text, p_undo_action_id uuid DEFAULT NULL::uuid)
  RETURNS jsonb
@@ -60,3 +63,4 @@ BEGIN
  UPDATE public.breakfast_lists SET payload=data,updated_at=now_ms WHERE list_date=p_list_date;
  RETURN jsonb_build_object('status','saved','payload',data);
 END $function$;
+COMMIT;
