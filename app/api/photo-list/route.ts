@@ -1,3 +1,4 @@
+import { requireReception } from "../../../lib/breakfast-auth";
 import { NextResponse } from "next/server";
 import * as XLSX from "xlsx";
 import { generateText, Output } from "ai";
@@ -127,6 +128,7 @@ const normalizeResult = (input: unknown) => {
 
 export async function POST(request: Request) {
   try {
+    if (!await requireReception(request)) return NextResponse.json({ error: "Berechtigte Anmeldung erforderlich." }, { status: 403 });
     const formData = await request.formData();
     const files = formData.getAll("photos").filter((value): value is File => value instanceof File);
     if (!files.length || files.length > 24) {

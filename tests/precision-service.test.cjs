@@ -61,7 +61,19 @@ test('search result feedback excludes invisible fixed-position rooms and shows t
 });
 test('production data, native calculations/import/check-in, API, and entry flow are preserved',()=>{
  const guard=JSON.parse(fs.readFileSync('tests/protected-baseline.json','utf8'));
- for(const [file,expected] of Object.entries(guard.files))assert.equal(crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex'),expected,file);
+ for(const [file,expected] of Object.entries(guard.files)){
+  let bytes=fs.readFileSync(file);
+  // V4.1 explicitly adds authentication before the unchanged photo recognition.
+  // Keep the original hash for the complete business body, not a new blanket baseline.
+  if(file==='app/api/photo-list/route.ts'){
+   let text=bytes.toString('utf8');
+   const additions=['import { requireReception } from "../../../lib/breakfast-auth";\n','    if (!await requireReception(request)) return NextResponse.json({ error: "Berechtigte Anmeldung erforderlich." }, { status: 403 });\n'];
+   for(const addition of additions){assert.equal(text.split(addition).length,2);text=text.replace(addition,'');}
+   assert.ok(bytes.toString().indexOf('if (!await requireReception(request))')<bytes.toString().indexOf('const formData = await request.formData()'));
+   bytes=Buffer.from(text);
+  }
+  assert.equal(crypto.createHash('sha256').update(bytes).digest('hex'),expected,file);
+ }
  // Approved role-choice changes rename Reception and shorten only the Service transition.
  for(const [name,expected] of Object.entries(guard.functions))assert.equal(crypto.createHash('sha256').update(name==='serviceEntryTransition'?functionSource(name).replace('\"Verwaltung\"','\"Rezeption\"').replace('showSharedListReadyAnimation(role === \"service\" ? workAreaTransition.serviceDuration : workAreaTransition.duration);','showSharedListReadyAnimation();'):functionSource(name)).digest('hex'),expected,name);
 });

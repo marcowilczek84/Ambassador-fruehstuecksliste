@@ -2,7 +2,7 @@
   "name": "ambassador-live-preview",
   "private": true,
   "scripts": {
-    "build": "node scripts/prepare-v4.cjs && node scripts/prepare-qa.cjs && next build",
+    "build": "node scripts/prepare-v4.cjs && node scripts/prepare-qa.cjs && node scripts/prepare-v41.cjs && next build",
     "test": "node --test tests/*.test.cjs",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
@@ -10,6 +10,7 @@
     "test:browser": "playwright test"
   },
   "dependencies": {
+    "@supabase/supabase-js": "2.117.3",
     "ai": "^7.0.85",
     "next": "16.2.6",
     "react": "19.2.6",
@@ -27,6 +28,7 @@
     "@types/react-dom": "19.2.3",
     "esbuild": "0.25.12",
     "eslint": "10.12.0",
+    "espree": "11.2.0",
     "jsdom": "^26.1.0",
     "pg": "8.16.3",
     "typescript": "5.9.3"

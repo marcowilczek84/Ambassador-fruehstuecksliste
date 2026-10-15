@@ -1,0 +1,1 @@
+window.BreakfastAuthConfig=Object.freeze({"url":"https://jeuvmhahanaulvrnasgq.supabase.co","key":"sb_publishable_KS7md2SjQvezRHw4aVdxQw_siwqo2E5","project":"jeuvmhahanaulvrnasgq","mode":"isolated-v41"});

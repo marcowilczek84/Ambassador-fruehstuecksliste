@@ -8,3 +8,13 @@ public/qa-db-assets/
 test-results/
 playwright-report/
 qa-evidence/
+
+tmp/
+public/auth-bundle.js
+public/workflow-secure.js
+public/secure-app.html
+public/recovered/_next/static/chunks/0nkyeaxka~cd7-secure-v41.js
+
+qa/v41/
+
+supabase/.temp/
