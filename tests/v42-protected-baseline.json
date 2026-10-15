@@ -1,0 +1,29 @@
+{
+  "base": "64dd77912c2be0de66e3acb786b176e96bf687e9",
+  "files": {
+    "app/api/photo-list/route.ts": "7f90c326a1c3a074f9f9cd2fbe1670ed02985cfa5fda5f27c9601d17671d74f1",
+    "app/layout.tsx": "28985f0025557256f163bda85b48f6570aa29dff1bd77ffb72a9f3999436559b",
+    "app/meili-logo/route.ts": "3bdf0b924accc0d3e4837acd5c6d4cae4a3948e233dacb1d2404734b37a091cb",
+    "app/meili-selection.png/route.ts": "08dcd4a8a62ddedab17bb1ba24ab06f82202be4bb0d93f7b52a10ecbad2d1c30",
+    "app/page.tsx": "96b9bdb697c96de2becd753176df95c79ddc8a9faa642beabad6be114f0365bd",
+    "client/auth-app.js": "485e89b7b66f23e180412a0ed25c85b1810f54ed034c222f39ff1afbaf36b669",
+    "lib/breakfast-auth.ts": "26f7b11eab75cb29c4a3a071c5fc5c18574490bdd99c278bb570dad81bf53f2e",
+    "next.config.ts": "ac18ca6b0c16c2d73a25b8bd60603f4b688e2198306a6c2b8c6944c98c7c48a7",
+    "package-lock.json": "a355045df48e70efbfbb6ba492d76a004237bc7a052815a20d464040b4279296",
+    "package.json": "53f10088de74c8616c7357f418e34914892f1f859c70cb4c7a90283b3d60b0fb",
+    "public/auth-config.js": "13f3fdd69c54b40f4c0af8db496c09ee1ed915d57553ff852835f5df68cf3a8a",
+    "public/secure-bootstrap.js": "40ccd863d47bcc4834ef78c79c7de9c33c0a3dc8ecb790e5933efae299d44da8",
+    "public/service-first.js": "a1c798cb455749696aa38520329b3fc9d3e89489c7d81603c73c783e7f1f1150",
+    "public/workflow-polish.js": "cbdbebbb4447e206c6d1319350aca9dfb9292304a2e147e3dc4126097e88c27c",
+    "scripts/prepare-qa.cjs": "b68bb66cdaa71835b878ea318d4d88c168ad771e6f32232dc853c0d60f9b5b24",
+    "scripts/prepare-v4.cjs": "f728e33c64201772f0cd001b94d41a6854b51e116e0473bbf5e7460f6b4e4d41",
+    "scripts/prepare-v41.cjs": "02b54998e61c7c88968df3b615cd62a9088a75e1ada850a3123b8e845f2284c0",
+    "supabase/migrations/20261015040542_breakfast_v41_secure_auth.sql": "a811d91c58e1974de5d161f492e257f887d54e54c017130f17bd52d315df642c",
+    "supabase/migrations/20261015041542_breakfast_v41_atomic_batch.sql": "0c073e707591529290dcbd76babbdac539df7f44bf9dc378a46024d29e0610cc",
+    "supabase/migrations/20261015042153_breakfast_v41_auth_claim_helpers.sql": "dce4f0aab68383bf8d744a1c9d05c896fc4e5158edc81798c120512c653e7153",
+    "supabase/migrations/20261015043408_breakfast_v41_private_function_acl.sql": "3d425ed90d2c43f5686592f1b8b95ba5a8895b9c02fd036fb769a0382aacc148",
+    "supabase/migrations/20261015043709_breakfast_v41_historical_summaries.sql": "e4d03a2027c9fd484172e496b59fb760df2d0d4f89a83f36b0b24cb08dd78569",
+    "sql/migrations/20261013_breakfast_roomservice_table_choice.sql": "28547c4e3da8484e905cc1ce1a60181e706b8208c7bae6f625d7ac249072e07a",
+    "sql/rollback/20261013_breakfast_roomservice_table_choice.sql": "66a403229b8dc03b41d8b8f8045854f2781fb61651a49dad0763d4f6b26c0940"
+  }
+}

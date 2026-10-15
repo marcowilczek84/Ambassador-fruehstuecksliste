@@ -1,7 +1,7 @@
-name: V4 and V4.1 isolated readiness
+name: V4 through V4.2 isolated readiness
 on:
   push:
-    branches: [breakfast-v4-final-readiness-20261014, breakfast-v41-secure-auth-20261015]
+    branches: [breakfast-v4-final-readiness-20261014, breakfast-v41-secure-auth-20261015, breakfast-v42-design-harmonization-20261015]
   workflow_dispatch:
 permissions:
   contents: read

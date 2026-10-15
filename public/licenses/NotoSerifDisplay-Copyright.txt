@@ -1,0 +1,4 @@
+Exact official hotel font: NotoSerifDisplay_Condensed-LightItalic.ttf
+Copyright 2016 Google Inc. All Rights Reserved.
+Licensed under the SIL Open Font License 1.1, as embedded in name ID 13 of the original file.
+Full OFL 1.1 text: NotoSerifDisplay-OFL.txt. Its upstream header says 2012; the exact embedded 2016 notice is preserved here and in the unchanged font.

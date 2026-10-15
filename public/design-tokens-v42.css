@@ -1,0 +1,6 @@
+/* Ambassador Digital Design System Master V1, 14 October 2026.
+   Original local fonts from the verified Hub / Inside commits; see docs/V42-DESIGN.md. */
+@font-face{font-family:'Ambassador Editorial';src:url('/fonts/ambassador-editorial-300-italic.woff2') format('woff2');font-weight:300;font-style:italic;font-display:swap}
+@font-face{font-family:'Ambassador Sans';src:url('/fonts/ambassador-sans-400.woff') format('woff');font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:'Ambassador Sans';src:url('/fonts/ambassador-sans-600.woff') format('woff');font-weight:600;font-style:normal;font-display:swap}
+:root{--ds-primary:#1c777b;--ds-hover:#155f63;--ds-secondary:#edf6f6;--ds-background:#fff;--ds-surface:#f5f7f7;--ds-line:#e2e6e8;--ds-control:#7e898f;--ds-text:#202326;--ds-muted:#62686b;--ds-error:#a33e3a;--ds-success:#236b4d;--ds-sans:'Ambassador Sans',Arial,Helvetica,sans-serif;--ds-editorial:'Ambassador Editorial',Georgia,serif;--ds-radius:4px;--ds-dialog-radius:8px}

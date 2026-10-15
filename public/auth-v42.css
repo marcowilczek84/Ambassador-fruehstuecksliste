@@ -1,0 +1,23 @@
+/* Editorial identity and Professional Workspace. V4.1 Auth behaviour is unchanged. */
+body{font:400 16px/1.5 var(--ds-sans);font-synthesis:none;background:#fff;color:var(--ds-text)}
+button,input,select{font-family:var(--ds-sans);border-radius:4px;color:var(--ds-text)}
+button{font-size:14px;font-weight:600;touch-action:manipulation}input,select{font-size:16px;font-weight:400;min-height:48px}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--ds-primary);outline-offset:3px}
+.primary{background:var(--ds-primary);border-color:var(--ds-primary);min-height:48px}.primary:active{background:var(--ds-hover)}
+.access{padding:40px 24px}.access-card{width:min(100%,940px);display:grid;grid-template-columns:.9fr 1.1fr;padding:0;border-radius:4px;box-shadow:2px 3px 8px rgb(20 30 35 / 7%)}
+.auth-brand{padding:48px 40px;border-right:1px solid var(--ds-line);display:flex;flex-direction:column;align-items:flex-start;justify-content:center}
+.logo{width:150px;height:54px;object-position:left center;margin:0 0 40px}.app-identity{font:300 italic 56px/1.08 var(--ds-editorial);font-synthesis:none;margin:0 0 16px;color:var(--ds-text)}
+.eyebrow{font-size:13px;letter-spacing:.09em;color:var(--ds-muted);margin:0}.auth-workspace{padding:40px}h1{font-size:28px;font-weight:600;line-height:1.25;margin:0 0 8px}
+#intro{color:var(--ds-muted);margin:0 0 20px}.languages{gap:4px;margin-bottom:24px}.languages button{min-width:44px;border-color:transparent;font-weight:400}.languages button[aria-pressed=true]{font-weight:600;color:var(--ds-primary);border-color:var(--ds-primary)}
+label{font-size:14px;font-weight:600}.test-note{font-size:13px;margin:28px 0 0;padding-top:20px;border-top:1px solid var(--ds-line)}.help{margin-bottom:0}
+#message,#account-message{font-size:14px;padding:12px}#device-code{font-family:ui-monospace,monospace;font-size:16px;overflow-wrap:anywhere}
+dialog{font-family:var(--ds-sans);color:var(--ds-text);border-radius:8px;width:min(760px,calc(100% - 32px));box-shadow:0 12px 40px rgb(20 35 44 / 12%)}
+dialog::backdrop{background:rgb(32 35 38 / 40%)}dialog header{gap:16px;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--ds-line)}dialog h2{font-size:24px;font-weight:600;line-height:1.25;margin:0}
+#close-account{width:44px;height:44px;padding:0;font-size:24px;font-weight:400;background:var(--ds-surface);border-color:transparent}#identity{font-weight:600;margin-bottom:8px}#expiry{font-size:14px;color:var(--ds-muted);margin:0 0 24px}
+#areas{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin:24px 0}#areas button{display:flex;align-items:center;gap:16px;text-align:left;min-height:104px;padding:20px;font-size:16px;box-shadow:2px 3px 8px rgb(20 30 35 / 7%)}
+#areas button::before{content:'';flex:0 0 30px;width:30px;height:30px;background:var(--ds-primary);mask:var(--area-icon) center/contain no-repeat;-webkit-mask:var(--area-icon) center/contain no-repeat}
+#areas [data-area=service]{--area-icon:url('/branding/service.svg')}#areas [data-area=reception]{--area-icon:url('/branding/reception.svg')}
+#administration{margin-top:32px;border-top:1px solid var(--ds-line);padding-top:24px}#administration h3{font-size:20px;font-weight:600;margin:0 0 16px}.admin-row{padding:20px 0;gap:12px}.admin-row small{font-size:13px;color:var(--ds-muted)}.admin-row input[type=checkbox]{width:44px;height:44px;accent-color:var(--ds-primary)}#add-member{gap:12px;margin:24px 0}#add-member h4{margin:0;font-size:18px;font-weight:600}#logout{color:var(--ds-error);border-color:var(--ds-error)}
+@media(max-width:699px){.access{padding:24px 16px;align-items:start}.access-card{display:block;width:min(100%,440px);padding:0}.auth-brand{padding:24px 24px 20px;border-right:0;border-bottom:1px solid var(--ds-line)}.logo{width:128px;height:42px;margin-bottom:24px}.app-identity{font-size:40px;margin-bottom:12px}.eyebrow{font-size:12px}.auth-workspace{padding:24px}h1{font-size:24px}.languages{margin-bottom:16px}.test-note{margin-top:24px;padding-top:16px}dialog{padding:16px}dialog h2{font-size:22px}#areas{grid-template-columns:1fr}#areas button{min-height:88px}.admin-row{gap:8px}}
+@media(hover:hover){button:not(:disabled):hover{background:var(--ds-secondary)}.primary:not(:disabled):hover{background:var(--ds-hover)}#areas button:hover{border-color:var(--ds-primary)}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
