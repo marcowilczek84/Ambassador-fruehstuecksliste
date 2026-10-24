@@ -3,7 +3,8 @@
   "private": true,
   "scripts": {
     "build": "node scripts/prepare-v4.cjs && next build",
-    "test": "node --test tests/*.test.cjs"
+    "test": "node --test tests/*.test.cjs",
+    "test:personal-access": "node --test server/module-runtime.test.mjs"
   },
   "dependencies": {
     "ai": "^7.0.85",

@@ -1,3 +1,4 @@
+import {personalAccess} from '../../../server/module-runtime.mjs';
 import { NextResponse } from "next/server";
 import * as XLSX from "xlsx";
 import { generateText, Output } from "ai";
@@ -127,6 +128,8 @@ const normalizeResult = (input: unknown) => {
 
 export async function POST(request: Request) {
   try {
+    const personal=personalAccess();
+    if(personal&&!await personal.identity(request,{permission:"breakfast:manage",write:true}))return NextResponse.json({error:"Persönlicher Verwaltungszugang erforderlich."},{status:403,headers:{"Cache-Control":"no-store"}});
     const formData = await request.formData();
     const files = formData.getAll("photos").filter((value): value is File => value instanceof File);
     if (!files.length || files.length > 24) {
@@ -462,6 +465,8 @@ Gib für jedes eindeutig sichtbare Zimmer nur room und alle dort gedruckten Gast
 
 export async function PUT(request: Request) {
   try {
+    const personal=personalAccess();
+    if(personal&&!await personal.identity(request,{permission:"breakfast:manage",write:true}))return NextResponse.json({error:"Persönlicher Verwaltungszugang erforderlich."},{status:403,headers:{"Cache-Control":"no-store"}});
     const input = await request.json();
     const { rooms } = normalizeResult(input);
     if (!rooms.length) {
@@ -503,3 +508,4 @@ export async function PUT(request: Request) {
     return NextResponse.json({ error: "Die XLSX-Datei konnte nicht erstellt werden." }, { status: 500 });
   }
 }
+
